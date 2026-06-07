@@ -30,7 +30,8 @@ export default function Home() {
             Kaamao Connect
           </h1>
           <p className="text-slate-400 text-base max-w-md mx-auto leading-relaxed">
-            Bridge the gap between local talent and community needs. Verify ideas, connect, and build together.
+            Bridge the gap between local talent and community needs. Verify
+            ideas, connect, and build together.
           </p>
         </div>
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signIn, isSupabaseConfigured } from "@/lib/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,54 +19,97 @@ export default function LoginPage() {
     setError("");
     setIsLoading(true);
 
-    setTimeout(() => {
-      if (email && password) {
+    if (!isSupabaseConfigured) {
+      setError(
+        "Supabase is not configured. Please check your environment variables."
+      );
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const result = await signIn({ email, password });
+
+      if (result.success) {
+        if (keepLoggedIn) {
+          localStorage.setItem("rememberedEmail", email);
+        }
         router.push("/dashboard");
       } else {
-        setError("Invalid email or password");
+        if (result.error?.includes("Invalid login credentials")) {
+          setError("Invalid email or password");
+        } else if (result.error?.includes("Email not confirmed")) {
+          setError("Please confirm your email before logging in");
+        } else {
+          setError(result.error || "Login failed. Please try again.");
+        }
       }
+    } catch (err: unknown) {
+      console.error("Login error:", err);
+      const errorMessage =
+        err instanceof Error ? err.message : "An unexpected error occurred";
+      setError(errorMessage);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const supabaseModule = await import("@/lib/supabase");
+      const supabase = supabaseModule.supabase;
+      const isConfigured = supabaseModule.isSupabaseConfigured;
+
+      if (!isConfigured || !supabase) {
+        setError("Supabase is not configured. Please try again later.");
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (error) {
+        setError(error.message);
+      }
+    } catch (err: unknown) {
+      console.error("Google login error:", err);
+      const errorMessage =
+        err instanceof Error ? err.message : "Google login failed";
+      setError(errorMessage);
+    }
   };
 
   const primaryColor = "var(--color-brand-primary)";
 
   return (
-    <div className="min-h-screen bg-brand-bg-light flex items-center justify-center p-4">
-      {/* Main Container - Centered Box */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
-        {/* Left Side - Blue Theme Panel */}
-        <div className="w-full md:w-1/2 bg-gradient-to-br from-brand-primary via-brand-primary-dark to-brand-primary-dark relative overflow-hidden p-8 md:p-10 flex flex-col justify-between min-h-[300px] md:min-h-[500px]">
-          {/* Animated Background Elements */}
+        {/* Left Panel */}
+        <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 relative overflow-hidden p-8 md:p-10 flex flex-col justify-between min-h-[300px] md:min-h-[500px]">
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-40 -right-40 w-80 h-80 bg-brand-primary-light rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
             <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-brand-primary-muted rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000" />
           </div>
 
-          {/* Wavy decorative shape */}
-          <div className="absolute bottom-16 right-8 w-40 h-40 bg-white/10 rounded-[60%_40%_70%_30%/_50%_60%_40%_60%] shadow-inner animate-[morphBlob_7s_ease-in-out_infinite]" />
+          <div className="absolute bottom-16 right-8 w-40 h-40 bg-white/10 rounded-[60%_40%_70%_30%/_50%_60%_40%_60%] shadow-inner" />
 
-          {/* Floating dots */}
           <div className="absolute inset-0">
-            <div className="absolute w-16 h-16 bg-white/10 rounded-full top-[18%] left-[20%] animate-[floatDot_8s_ease-in-out_infinite]" />
-            <div className="absolute w-24 h-24 bg-white/10 rounded-full bottom-[24%] right-[16%] animate-[floatDot_8s_ease-in-out_infinite_2s]" />
-            <div className="absolute w-8 h-8 bg-white/20 rounded-full top-[38%] right-[24%] animate-[floatDot_8s_ease-in-out_infinite_1.2s]" />
+            <div className="absolute w-16 h-16 bg-white/10 rounded-full top-[18%] left-[20%]" />
+            <div className="absolute w-24 h-24 bg-white/10 rounded-full bottom-[24%] right-[16%]" />
+            <div className="absolute w-8 h-8 bg-white/20 rounded-full top-[38%] right-[24%]" />
           </div>
 
-          {/* Dots grid decoration */}
           <div className="absolute bottom-6 left-6 flex gap-1.5 opacity-25">
             {Array.from({ length: 15 }).map((_, i) => (
-              <div
-                key={i}
-                className="w-1 h-1 bg-white rounded-full animate-[dotPop_2s_ease-in-out_infinite]"
-                style={{ animationDelay: `${i * 0.1}s` }}
-              />
+              <div key={i} className="w-1 h-1 bg-white rounded-full" />
             ))}
           </div>
 
-          {/* Content */}
           <div className="relative z-10">
-            {/* Logo */}
             <div className="w-10 h-10 bg-white/20 rounded-xl backdrop-blur-sm border border-white/30 flex items-center justify-center mb-8">
               <svg
                 className="w-5 h-5 text-white"
@@ -78,7 +122,6 @@ export default function LoginPage() {
               </svg>
             </div>
 
-            {/* Headline */}
             <h2 className="font-serif text-3xl md:text-4xl text-white leading-tight">
               Kaamao
               <br />
@@ -89,7 +132,6 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Stats at bottom */}
           <div className="relative z-10 flex gap-4 mt-8">
             <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 text-center">
               <p className="text-white text-lg font-bold">99%</p>
@@ -102,10 +144,9 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Right Side - Login Form */}
+        {/* Right Panel - Login Form */}
         <div className="w-full md:w-1/2 p-8 md:p-10 bg-white">
           <div className="h-full flex flex-col justify-center">
-            {/* Header */}
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-gray-800">Login</h2>
               <p className="text-gray-500 text-sm mt-1">
@@ -113,7 +154,6 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm text-center">
@@ -121,7 +161,6 @@ export default function LoginPage() {
                 </div>
               )}
 
-              {/* Email Field */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Your email
@@ -136,7 +175,6 @@ export default function LoginPage() {
                 />
               </div>
 
-              {/* Password Field */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Your Password
@@ -154,6 +192,7 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? (
                       <svg
@@ -194,7 +233,6 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Keep me logged in & Forgot Password */}
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -204,19 +242,13 @@ export default function LoginPage() {
                     className="w-4 h-4 rounded border-gray-300 focus:ring-brand-primary"
                     style={{ accentColor: primaryColor }}
                   />
-                  <span className="text-sm text-gray-600">
-                    Keep me logged in
-                  </span>
+                  <span className="text-sm text-gray-600">Keep me logged in</span>
                 </label>
-                <a
-                  href="#"
-                  className="text-sm text-brand-primary hover:opacity-85"
-                >
+                <a href="#" className="text-sm text-blue-600 hover:text-blue-700">
                   Forgot Password?
                 </a>
               </div>
 
-              {/* Login Button */}
               <button
                 type="submit"
                 disabled={isLoading}
@@ -252,7 +284,6 @@ export default function LoginPage() {
                 )}
               </button>
 
-              {/* OR Divider */}
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-200" />
@@ -262,9 +293,9 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Google Login Button */}
               <button
                 type="button"
+                onClick={handleGoogleLogin}
                 className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -288,7 +319,6 @@ export default function LoginPage() {
                 <span className="text-gray-700">Login with Google</span>
               </button>
 
-              {/* Sign Up Link - FIXED: escaped apostrophe */}
               <div className="text-center mt-4">
                 <p className="text-sm text-gray-600">
                   Don&apos;t have an account?{" "}
@@ -301,62 +331,15 @@ export default function LoginPage() {
                 </p>
               </div>
 
-              {/* Copyright */}
               <div className="text-center mt-6 pt-4 border-t border-gray-100">
                 <p className="text-xs text-gray-400">
-                  © 2024 Kaamao Connect. All rights reserved.
+                  © 2026 Kaamao Connect. All rights reserved.
                 </p>
               </div>
             </form>
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes morphBlob {
-          0%,
-          100% {
-            border-radius: 60% 40% 70% 30% / 50% 60% 40% 60%;
-            transform: rotate(0deg);
-          }
-          50% {
-            border-radius: 40% 60% 30% 70% / 60% 40% 60% 40%;
-            transform: rotate(15deg);
-          }
-        }
-
-        @keyframes floatDot {
-          0%,
-          100% {
-            transform: translateY(0) scale(1);
-            opacity: 0.9;
-          }
-          50% {
-            transform: translateY(-18px) scale(1.05);
-            opacity: 1;
-          }
-        }
-
-        @keyframes dotPop {
-          0%,
-          100% {
-            transform: scale(1);
-            opacity: 0.4;
-          }
-          50% {
-            transform: scale(1.5);
-            opacity: 1;
-          }
-        }
-
-        .animate-pulse {
-          animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        .delay-1000 {
-          animation-delay: 1s;
-        }
-      `}</style>
     </div>
   );
 }

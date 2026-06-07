@@ -176,40 +176,64 @@ export default function RegisterPage() {
     setError("");
     setIsLoading(true);
 
-    setTimeout(() => {
-      console.log("Registration Data:", { ...step1Data, ...step2Data });
+    try {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: step1Data.email,
+          password: step1Data.password,
+          fullName: step1Data.fullName,
+          phoneNo: step1Data.phoneNo,
+          dob: step2Data.dob,
+          locationCity: step2Data.locationCity,
+          neighborhood: step2Data.neighborhood,
+          pincode: step2Data.pincode,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        router.push("/login?registered=true");
+      } else {
+        if (result.error?.toLowerCase().includes("already registered")) {
+          setError("This email is already registered. Please login instead.");
+        } else {
+          setError(result.error || "Signup failed. Please try again.");
+        }
+      }
+    } catch {
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
       setIsLoading(false);
-      router.push("/login?registered=true");
-    }, 1500);
+    }
   };
 
   const primaryColor = "var(--color-brand-primary)";
 
   return (
-    <div className="min-h-screen bg-brand-bg-light flex items-center justify-center p-4">
-      {/* Main Container - Centered Box */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
-        {/* Left Side - Blue Theme Panel */}
-        <div className="w-full md:w-1/2 bg-gradient-to-br from-brand-primary via-brand-primary-dark to-brand-primary-dark relative overflow-hidden p-8 md:p-10 flex flex-col justify-between min-h-[300px] md:min-h-[550px]">
-          {/* Animated Background Elements */}
+        {/* Left Side */}
+        <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 relative overflow-hidden p-8 md:p-10 flex flex-col justify-between min-h-[300px] md:min-h-[550px]">
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-40 -right-40 w-80 h-80 bg-brand-primary-light rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
             <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-brand-primary-muted rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000" />
           </div>
 
-          {/* Wavy decorative shape */}
           <div className="absolute bottom-16 right-8 w-40 h-40 bg-white/10 rounded-[60%_40%_70%_30%/_50%_60%_40%_60%] shadow-inner animate-[morphBlob_7s_ease-in-out_infinite]" />
 
-          {/* Floating dots */}
           <div className="absolute inset-0">
             <div className="absolute w-16 h-16 bg-white/10 rounded-full top-[18%] left-[20%] animate-[floatDot_8s_ease-in-out_infinite]" />
-            <div className="absolute w-26 h-26 bg-white/10 rounded-full bottom-[26%] right-[16%] animate-[floatDot_8s_ease-in-out_infinite_2s]" />
-            <div className="absolute w-8 h-8 bg-white/20 rounded-full top-[38%] right-[26%] animate-[floatDot_8s_ease-in-out_infinite_1.2s]" />
+            <div className="absolute w-24 h-24 bg-white/10 rounded-full bottom-[24%] right-[16%] animate-[floatDot_8s_ease-in-out_infinite_2s]" />
+            <div className="absolute w-8 h-8 bg-white/20 rounded-full top-[38%] right-[24%] animate-[floatDot_8s_ease-in-out_infinite_1.2s]" />
           </div>
 
-          {/* Dots grid decoration */}
           <div className="absolute bottom-6 left-6 flex gap-1.5 opacity-25">
-            {[...Array(15)].map((_, i) => (
+            {Array.from({ length: 15 }).map((_, i) => (
               <div
                 key={i}
                 className="w-1 h-1 bg-white rounded-full animate-[dotPop_2s_ease-in-out_infinite]"
@@ -218,13 +242,11 @@ export default function RegisterPage() {
             ))}
           </div>
 
-          {/* Content */}
           <div className="relative z-10">
-            {/* Logo */}
             <div className="w-10 h-10 bg-white/20 rounded-xl backdrop-blur-sm border border-white/30 flex items-center justify-center mb-8">
               <svg
                 className="w-5 h-5 text-white"
-                viewBox="0 0 26 26"
+                viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.5"
@@ -233,7 +255,6 @@ export default function RegisterPage() {
               </svg>
             </div>
 
-            {/* Headline */}
             <h2 className="font-serif text-3xl md:text-4xl text-white leading-tight">
               Join Our
               <br />
@@ -244,7 +265,6 @@ export default function RegisterPage() {
             </p>
           </div>
 
-          {/* Stats at bottom */}
           <div className="relative z-10 flex gap-4 mt-8">
             <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 text-center">
               <p className="text-white text-lg font-bold">99%</p>
@@ -257,10 +277,9 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* Right Side - Registration Form - Compact to avoid scroll */}
-        <div className="w-full md:w-1/2 p-6 md:p-8 bg-white">
-          <div className="h-full flex flex-col justify-center">
-            {/* Header */}
+        {/* Right Side */}
+        <div className="w-full md:w-1/2 p-6 md:p-8 bg-white overflow-y-auto max-h-[90vh]">
+          <div className="h-full flex flex-col">
             <div className="text-center mb-4">
               <h2 className="text-2xl font-bold text-gray-800">Sign Up</h2>
               <p className="text-gray-500 text-sm mt-1">
@@ -268,7 +287,7 @@ export default function RegisterPage() {
               </p>
             </div>
 
-            {/* Step Indicator - Compact */}
+            {/* Step Indicator */}
             <div className="flex items-center justify-between mb-5">
               <div className="flex-1 text-center">
                 <div
@@ -276,8 +295,8 @@ export default function RegisterPage() {
                     step === 1
                       ? "text-white"
                       : step > 1
-                        ? "text-white"
-                        : "bg-gray-200 text-gray-500"
+                      ? "text-white"
+                      : "bg-gray-200 text-gray-500"
                   }`}
                   style={
                     step === 1 || step > 1
@@ -299,8 +318,8 @@ export default function RegisterPage() {
                     step === 2
                       ? "text-white"
                       : step > 2
-                        ? "text-white"
-                        : "bg-gray-200 text-gray-500"
+                      ? "text-white"
+                      : "bg-gray-200 text-gray-500"
                   }`}
                   style={
                     step === 2 || step > 2
@@ -333,21 +352,21 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Error Message - Compact */}
             {error && (
               <div className="mb-3 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-xs text-center">
                 {error}
               </div>
             )}
 
-            {/* Step Content */}
             <div
-              className={`transition-all duration-300 ${isTransitioning ? "opacity-0 transform translate-x-10" : "opacity-100 transform translate-x-0"}`}
+              className={`transition-all duration-300 ${
+                isTransitioning
+                  ? "opacity-0 transform translate-x-10"
+                  : "opacity-100 transform translate-x-0"
+              }`}
             >
-              {/* Step 1 - Account Info - Compact version without scroll */}
               {step === 1 && (
                 <div className="space-y-3">
-                  {/* Two fields in one row */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -391,7 +410,6 @@ export default function RegisterPage() {
                     />
                   </div>
 
-                  {/* Password fields in one row */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -415,21 +433,21 @@ export default function RegisterPage() {
                             <svg
                               className="h-4 w-4"
                               fill="none"
-                              viewBox="0 0 26 26"
+                              viewBox="0 0 24 24"
                               stroke="currentColor"
                             >
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth={2}
-                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.263 4.263M9.878 9.878l4.262 4.262M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
                               />
                             </svg>
                           ) : (
                             <svg
                               className="h-4 w-4"
                               fill="none"
-                              viewBox="0 0 26 26"
+                              viewBox="0 0 24 24"
                               stroke="currentColor"
                             >
                               <path
@@ -473,21 +491,21 @@ export default function RegisterPage() {
                             <svg
                               className="h-4 w-4"
                               fill="none"
-                              viewBox="0 0 26 26"
+                              viewBox="0 0 24 24"
                               stroke="currentColor"
                             >
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth={2}
-                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.263 4.263M9.878 9.878l4.262 4.262M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
                               />
                             </svg>
                           ) : (
                             <svg
                               className="h-4 w-4"
                               fill="none"
-                              viewBox="0 0 26 26"
+                              viewBox="0 0 24 24"
                               stroke="currentColor"
                             >
                               <path
@@ -523,7 +541,6 @@ export default function RegisterPage() {
                 </div>
               )}
 
-              {/* Step 2 - Location - Already compact */}
               {step === 2 && (
                 <div className="space-y-3">
                   <div>
@@ -600,7 +617,6 @@ export default function RegisterPage() {
                 </div>
               )}
 
-              {/* Step 3 - Review & Complete - Compact */}
               {step === 3 && (
                 <form onSubmit={handleSubmit} className="space-y-3">
                   <div className="bg-gray-50 rounded-lg p-3 space-y-1">
@@ -673,7 +689,6 @@ export default function RegisterPage() {
               )}
             </div>
 
-            {/* Footer Links */}
             {step === 1 && (
               <div className="text-center mt-4 pt-3 border-t border-gray-100">
                 <p className="text-xs text-gray-600">
@@ -688,7 +703,6 @@ export default function RegisterPage() {
               </div>
             )}
 
-            {/* Copyright - Compact */}
             <div className="text-center mt-4 pt-3 border-t border-gray-100">
               <p className="text-xs text-gray-400">
                 © 2026 Kaamao Connect. All rights reserved.

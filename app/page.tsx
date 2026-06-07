@@ -146,26 +146,26 @@ export default function Home() {
 
   return (
     <div
-      className="min-h-screen font-[Manrope,sans-serif] text-[#0d1b5e]"
-      style={{ backgroundColor: "#eef1ff" }}
+      className="min-h-screen font-[Manrope,sans-serif] text-brand-primary-dark"
+      style={{ backgroundColor: "var(--color-brand-bg-light)" }}
     >
       {/* ══════ NAVBAR ══════════════════════════════════════════ */}
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-200 ${
           scrolled ? "shadow-sm" : ""
         }`}
-        style={{ backgroundColor: "#ffffff" }}
+        style={{ backgroundColor: "var(--color-brand-white)" }}
       >
         <nav className="mx-auto flex h-[64px] max-w-[1140px] items-center justify-between px-6">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <div
               className="flex h-8 w-8 items-center justify-center rounded-full"
-              style={{ backgroundColor: "#1e2b8f" }}
+              style={{ backgroundColor: "var(--color-brand-primary)" }}
             >
               <Icon name="check" fill className="text-sm text-white" />
             </div>
-            <span className="text-[15px] font-bold text-[#1e2b8f]">
+            <span className="text-[15px] font-bold text-brand-primary">
               LocalSkill
             </span>
           </Link>
@@ -174,19 +174,19 @@ export default function Home() {
           <div className="hidden md:flex items-center gap-8">
             <a
               href="#how-it-works"
-              className="text-sm font-semibold text-[#1e2b8f] border-b-2 border-[#1e2b8f] pb-0.5"
+              className="text-sm font-semibold text-brand-primary border-b-2 border-brand-primary pb-0.5"
             >
               How it Works
             </a>
             <a
               href="#skills"
-              className="text-sm font-medium text-slate-500 hover:text-[#1e2b8f] transition-colors"
+              className="text-sm font-medium text-slate-500 hover:text-brand-primary transition-colors"
             >
               Features
             </a>
             <a
               href="#skills"
-              className="text-sm font-medium text-slate-500 hover:text-[#1e2b8f] transition-colors"
+              className="text-sm font-medium text-slate-500 hover:text-brand-primary transition-colors"
             >
               Find Skills
             </a>
@@ -196,14 +196,14 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <Link
               href="/login"
-              className="hidden sm:block text-sm font-semibold text-[#1e2b8f] hover:opacity-70 transition-opacity"
+              className="hidden sm:block text-sm font-semibold text-brand-primary hover:opacity-70 transition-opacity"
             >
               Sign In
             </Link>
             <button
               onClick={openModal}
               className="text-sm font-bold text-white px-5 py-2.5 rounded-full transition-opacity hover:opacity-90 active:scale-95"
-              style={{ backgroundColor: "#1e2b8f" }}
+              style={{ backgroundColor: "var(--color-brand-primary)" }}
             >
               Join as Provider
             </button>
@@ -215,12 +215,12 @@ export default function Home() {
         {/* ══════ HERO ════════════════════════════════════════════ */}
         <section
           className="pt-[64px] min-h-screen flex items-center"
-          style={{ backgroundColor: "#eef1ff" }}
+          style={{ backgroundColor: "var(--color-brand-bg-light)" }}
         >
           <div className="mx-auto max-w-[1140px] px-6 w-full py-16 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left */}
             <div>
-              <h1 className="text-[clamp(2.2rem,4.5vw,3.4rem)] font-extrabold leading-[1.1] tracking-tight text-[#1e2b8f] mb-5">
+              <h1 className="text-[clamp(2.2rem,4.5vw,3.4rem)] font-extrabold leading-[1.1] tracking-tight text-brand-primary mb-5">
                 Empower Your Skills,
                 <br />
                 Earn Locally
@@ -260,7 +260,7 @@ export default function Home() {
                 <button
                   onClick={openModal}
                   className="shrink-0 text-white font-bold text-sm px-7 hover:opacity-90 active:scale-95 transition-all"
-                  style={{ backgroundColor: "#1e2b8f" }}
+                  style={{ backgroundColor: "var(--color-brand-primary)" }}
                 >
                   Search
                 </button>
@@ -271,7 +271,7 @@ export default function Home() {
                 <div className="flex items-center gap-2">
                   <span className="text-amber-400 text-lg">★</span>
                   <div>
-                    <p className="text-sm font-extrabold text-[#1e2b8f]">
+                    <p className="text-sm font-extrabold text-brand-primary">
                       4.9 / 5
                     </p>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
@@ -282,12 +282,12 @@ export default function Home() {
                 <div className="flex items-center gap-2">
                   <div
                     className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: "#1e2b8f" }}
+                    style={{ backgroundColor: "var(--color-brand-primary)" }}
                   >
                     <Icon name="check" fill className="text-xs text-white" />
                   </div>
                   <div>
-                    <p className="text-sm font-extrabold text-[#1e2b8f]">
+                    <p className="text-sm font-extrabold text-brand-primary">
                       2,500+
                     </p>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
@@ -314,10 +314,10 @@ export default function Home() {
                       className="w-full h-full object-cover"
                     />
                     {/* Gradient overlay bottom */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#1e2b8f]/60 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/60 via-transparent to-transparent" />
                     {/* Label tag */}
                     <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between">
-                      <span className="bg-white/90 backdrop-blur-sm text-[#1e2b8f] text-[11px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-full">
+                      <span className="bg-white/90 backdrop-blur-sm text-brand-primary text-[11px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-full">
                         {slide.tag}
                       </span>
                     </div>
@@ -344,16 +344,16 @@ export default function Home() {
               <div className="absolute -left-4 top-8 z-20 bg-white rounded-2xl shadow-xl px-4 py-3 flex items-center gap-3 w-[190px]">
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: "#eef1ff" }}
+                  style={{ backgroundColor: "var(--color-brand-bg-light)" }}
                 >
                   <Icon
                     name="payments"
                     fill
-                    className="text-lg text-[#1e2b8f]"
+                    className="text-lg text-brand-primary"
                   />
                 </div>
                 <div>
-                  <p className="text-xs font-extrabold text-[#1e2b8f]">
+                  <p className="text-xs font-extrabold text-brand-primary">
                     15+ Methods
                   </p>
                   <p className="text-[10px] text-slate-400 font-medium">
@@ -373,7 +373,10 @@ export default function Home() {
                       key={i}
                       style={{
                         height: `${h}%`,
-                        backgroundColor: i === 5 ? "#1e2b8f" : "#c7d0f5",
+                        backgroundColor:
+                          i === 5
+                            ? "var(--color-brand-primary)"
+                            : "var(--color-brand-primary-light)",
                       }}
                       className="flex-1 rounded-sm"
                     />
@@ -390,7 +393,7 @@ export default function Home() {
             {/* Header row */}
             <div className="flex items-end justify-between mb-8">
               <div>
-                <h2 className="text-[clamp(1.6rem,3vw,2rem)] font-extrabold text-[#1e2b8f] mb-2">
+                <h2 className="text-[clamp(1.6rem,3vw,2rem)] font-extrabold text-brand-primary mb-2">
                   Popular Local Skills
                 </h2>
                 <p className="text-sm text-slate-500 leading-6 max-w-[340px]">
@@ -400,7 +403,7 @@ export default function Home() {
               </div>
               <button
                 onClick={openModal}
-                className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-[#1e2b8f] hover:opacity-70 transition-opacity whitespace-nowrap shrink-0"
+                className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-brand-primary hover:opacity-70 transition-opacity whitespace-nowrap shrink-0"
               >
                 View All Categories
                 <Icon name="arrow_forward" className="text-base" />
@@ -423,13 +426,13 @@ export default function Home() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     {/* Chip */}
-                    <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[#1e2b8f] text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full">
+                    <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-brand-primary text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full">
                       {s.chip}
                     </span>
                   </div>
                   {/* Body */}
                   <div className="p-5">
-                    <h3 className="text-base font-extrabold text-[#1e2b8f] mb-1.5">
+                    <h3 className="text-base font-extrabold text-brand-primary mb-1.5">
                       {s.title}
                     </h3>
                     <p className="text-sm text-slate-500 leading-5 mb-4">
@@ -439,7 +442,7 @@ export default function Home() {
                       <span className="text-sm font-bold text-amber-500">
                         {s.count}
                       </span>
-                      <span className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center group-hover:bg-[#1e2b8f] group-hover:border-[#1e2b8f] transition-all">
+                      <span className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center group-hover:bg-brand-primary group-hover:border-brand-primary transition-all">
                         <Icon
                           name="arrow_forward"
                           className="text-sm text-slate-400 group-hover:text-white transition-colors"
@@ -457,7 +460,7 @@ export default function Home() {
         <section
           id="how-it-works"
           className="py-20"
-          style={{ backgroundColor: "#1e2b8f" }}
+          style={{ backgroundColor: "var(--color-brand-primary)" }}
         >
           <div className="mx-auto max-w-[1140px] px-6">
             {/* Heading */}
@@ -465,7 +468,7 @@ export default function Home() {
               <h2 className="text-[clamp(1.6rem,3vw,2.2rem)] font-extrabold text-white mb-3">
                 How LocalSkill Connect Works
               </h2>
-              <p className="text-[#a0b0e8] text-sm leading-6 max-w-[480px] mx-auto">
+              <p className="text-brand-primary-muted text-sm leading-6 max-w-[480px] mx-auto">
                 Bridging the gap between neighbors. Whether you want to provide
                 a service or find one, we&apos;ve simplified the process.
               </p>
@@ -488,7 +491,10 @@ export default function Home() {
                     <div key={step.n} className="flex items-start gap-4">
                       <div
                         className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-sm font-extrabold text-white border border-white/30"
-                        style={{ backgroundColor: "rgba(255,255,255,0.1)" }}
+                        style={{
+                          backgroundColor:
+                            "var(--color-brand-white-translucent)",
+                        }}
                       >
                         {step.n}
                       </div>
@@ -496,7 +502,7 @@ export default function Home() {
                         <p className="text-sm font-extrabold text-white mb-1">
                           {step.title}
                         </p>
-                        <p className="text-[13px] text-[#a0b0e8] leading-5">
+                        <p className="text-[13px] text-brand-primary-muted leading-5">
                           {step.desc}
                         </p>
                       </div>
@@ -526,7 +532,10 @@ export default function Home() {
                     <div key={step.n} className="flex items-start gap-4">
                       <div
                         className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-sm font-extrabold text-white border border-white/30"
-                        style={{ backgroundColor: "rgba(255,255,255,0.1)" }}
+                        style={{
+                          backgroundColor:
+                            "var(--color-brand-white-translucent)",
+                        }}
                       >
                         {step.n}
                       </div>
@@ -534,7 +543,7 @@ export default function Home() {
                         <p className="text-sm font-extrabold text-white mb-1">
                           {step.title}
                         </p>
-                        <p className="text-[13px] text-[#a0b0e8] leading-5">
+                        <p className="text-[13px] text-brand-primary-muted leading-5">
                           {step.desc}
                         </p>
                       </div>
@@ -544,7 +553,7 @@ export default function Home() {
                 <button
                   onClick={openModal}
                   className="mt-8 text-sm font-bold text-white px-7 py-2.5 rounded-full hover:opacity-90 active:scale-95 transition-all"
-                  style={{ backgroundColor: "#0d9488" }}
+                  style={{ backgroundColor: "var(--color-brand-teal)" }}
                 >
                   Find a Service
                 </button>
@@ -565,7 +574,7 @@ export default function Home() {
                   className="w-full h-full object-cover"
                 />
                 {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0d9488]/60 via-transparent to-transparent rounded-3xl" />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-teal/60 via-transparent to-transparent rounded-3xl" />
                 {/* Logo watermark on image */}
                 <div className="absolute bottom-16 left-5 text-white font-bold text-sm">
                   LocalSkill
@@ -576,15 +585,15 @@ export default function Home() {
                 <div className="flex items-center gap-2 mb-1.5">
                   <div
                     className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: "#eef1ff" }}
+                    style={{ backgroundColor: "var(--color-brand-bg-light)" }}
                   >
                     <Icon
                       name="verified_user"
                       fill
-                      className="text-sm text-[#1e2b8f]"
+                      className="text-sm text-brand-primary"
                     />
                   </div>
-                  <p className="text-xs font-extrabold text-[#1e2b8f]">
+                  <p className="text-xs font-extrabold text-brand-primary">
                     Safe &amp; Verified
                   </p>
                 </div>
@@ -596,7 +605,7 @@ export default function Home() {
 
             {/* Right — text */}
             <div>
-              <h2 className="text-[clamp(1.5rem,3vw,2rem)] font-extrabold text-[#1e2b8f] mb-4 leading-tight">
+              <h2 className="text-[clamp(1.5rem,3vw,2rem)] font-extrabold text-brand-primary mb-4 leading-tight">
                 Building Community
                 <br />
                 Through Trust
@@ -611,7 +620,7 @@ export default function Home() {
                   <li key={item} className="flex items-center gap-3">
                     <div
                       className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
-                      style={{ backgroundColor: "#1e2b8f" }}
+                      style={{ backgroundColor: "var(--color-brand-primary)" }}
                     >
                       <Icon
                         name="check"
@@ -619,7 +628,7 @@ export default function Home() {
                         className="text-[11px] text-white"
                       />
                     </div>
-                    <span className="text-sm font-semibold text-[#1e2b8f]">
+                    <span className="text-sm font-semibold text-brand-primary">
                       {item}
                     </span>
                   </li>
@@ -627,7 +636,7 @@ export default function Home() {
               </ul>
               <button
                 onClick={openModal}
-                className="text-sm font-bold text-[#1e2b8f] border border-[#c7d0f5] bg-[#eef1ff] rounded-xl px-6 py-3 hover:bg-[#e0e5ff] transition-colors active:scale-95"
+                className="text-sm font-bold text-brand-primary border border-brand-primary-light bg-brand-bg-light rounded-xl px-6 py-3 hover:bg-brand-bg-hover transition-colors active:scale-95"
               >
                 Learn About Our Safety Standards
               </button>
@@ -636,32 +645,35 @@ export default function Home() {
         </section>
 
         {/* ══════ CTA BLOCK ═══════════════════════════════════════ */}
-        <section className="py-16" style={{ backgroundColor: "#eef1ff" }}>
+        <section
+          className="py-16"
+          style={{ backgroundColor: "var(--color-brand-bg-light)" }}
+        >
           <div className="mx-auto max-w-[1140px] px-6">
             <div
               className="rounded-3xl px-8 py-14 text-center"
-              style={{ backgroundColor: "#1e2b8f" }}
+              style={{ backgroundColor: "var(--color-brand-primary)" }}
             >
               <h2 className="text-[clamp(1.6rem,3.5vw,2.4rem)] font-extrabold text-white mb-3 leading-tight">
                 Ready to connect with
                 <br />
                 your local experts?
               </h2>
-              <p className="text-[#a0b0e8] text-sm leading-6 mb-8 max-w-[460px] mx-auto">
+              <p className="text-brand-primary-muted text-sm leading-6 mb-8 max-w-[460px] mx-auto">
                 Join thousands of neighbors already growing their skills and
                 simplifying their lives with LocalSkill Connect.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-4">
                 <button
                   onClick={openModal}
-                  className="text-sm font-bold text-[#1e2b8f] bg-white px-7 py-3.5 rounded-full hover:bg-slate-100 active:scale-95 transition-all"
+                  className="text-sm font-bold text-brand-primary bg-white px-7 py-3.5 rounded-full hover:bg-slate-100 active:scale-95 transition-all"
                 >
                   Find Nearby Services
                 </button>
                 <button
                   onClick={openModal}
                   className="text-sm font-bold text-white px-7 py-3.5 rounded-full hover:opacity-90 active:scale-95 transition-all"
-                  style={{ backgroundColor: "#0d9488" }}
+                  style={{ backgroundColor: "var(--color-brand-teal)" }}
                 >
                   Register as Provider
                 </button>
@@ -679,11 +691,11 @@ export default function Home() {
             <div className="flex items-center gap-2 mb-1.5">
               <div
                 className="w-7 h-7 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: "#1e2b8f" }}
+                style={{ backgroundColor: "var(--color-brand-primary)" }}
               >
                 <Icon name="check" fill className="text-xs text-white" />
               </div>
-              <span className="text-sm font-bold text-[#1e2b8f]">
+              <span className="text-sm font-bold text-brand-primary">
                 LocalSkill
               </span>
             </div>
@@ -704,7 +716,7 @@ export default function Home() {
                 key={l}
                 href="#"
                 onClick={openModal}
-                className="text-[12px] text-slate-500 hover:text-[#1e2b8f] transition-colors"
+                className="text-[12px] text-slate-500 hover:text-brand-primary transition-colors"
               >
                 {l}
               </a>

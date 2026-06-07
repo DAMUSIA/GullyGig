@@ -32,7 +32,7 @@ const Sidebar: React.FC<{
 }> = ({ menuItems, onSelect, collapsed, setCollapsed }) => {
   return (
     <aside
-      className={`fixed left-0 top-0 h-full bg-gradient-to-b from-[#1E3A8A] via-[#2563EB] to-[#60A5FA] text-white transition-all duration-300 z-20 shadow-2xl ${
+      className={`fixed left-0 top-0 h-full bg-gradient-to-b from-brand-primary-dark via-brand-primary to-brand-primary-muted text-white transition-all duration-300 z-20 shadow-2xl ${
         collapsed ? "w-20" : "w-64"
       }`}
     >
@@ -165,7 +165,7 @@ const FloatingActionButton: React.FC<{ onClick: () => void }> = ({
     onClick={onClick}
     aria-label="Create service"
     title="Create service"
-    className="fixed bottom-8 right-8 h-14 w-14 rounded-full bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-blue-500/30 backdrop-blur-sm border border-white/20 z-30 group"
+    className="fixed bottom-8 right-8 h-14 w-14 rounded-full bg-gradient-to-r from-brand-primary-dark to-brand-primary text-white shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-brand-primary/30 backdrop-blur-sm border border-white/20 z-30 group"
   >
     <Plus className="h-6 w-6 group-hover:rotate-90 transition-transform duration-300" />
   </button>
@@ -243,7 +243,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-blue-100/20 font-sans antialiased">
+    <div className="min-h-screen bg-brand-bg-light font-sans antialiased">
       {/* Sidebar */}
       <Sidebar
         menuItems={menuItems}
@@ -265,7 +265,7 @@ export default function Home() {
               <input
                 type="text"
                 placeholder="Search services..."
-                className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/50 border border-gray-200/80 focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm"
+                className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/50 border border-gray-200/80 focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm"
               />
             </div>
 
@@ -284,7 +284,7 @@ export default function Home() {
                   aria-hidden="true"
                 ></span>
               </button>
-              <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400 shadow-md flex items-center justify-center text-white font-medium">
+              <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-brand-primary to-brand-teal shadow-md flex items-center justify-center text-white font-medium">
                 AM
               </div>
             </div>

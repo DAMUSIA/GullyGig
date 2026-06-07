@@ -3,6 +3,61 @@
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
+@theme {
+  --color-brand-primary: #1e2b8f;
+  --color-brand-primary-light: #c7d0f5;
+  --color-brand-primary-dark: #0d1b5e;
+  --color-brand-bg-light: #eef1ff;
+  --color-brand-teal: #0d9488;
+  --color-brand-white-translucent: rgba(255, 255, 255, 0.1);
+  --color-brand-bg-hover: #e0e5ff;
+  --color-brand-primary-muted: #a0b0e8;
+  --color-brand-white: #ffffff;
+}
+
+:root {
+  --color-brand-primary: #1e2b8f;
+  --color-brand-primary-light: #c7d0f5;
+  --color-brand-primary-dark: #0d1b5e;
+  --color-brand-bg-light: #eef1ff;
+  --color-brand-teal: #0d9488;
+  --color-brand-white-translucent: rgba(255, 255, 255, 0.1);
+  --color-brand-bg-hover: #e0e5ff;
+  --color-brand-primary-muted: #a0b0e8;
+  --color-brand-white: #ffffff;
+}
+
+.bg-brand-primary {
+  background-color: var(--color-brand-primary);
+}
+.text-brand-primary {
+  color: var(--color-brand-primary);
+}
+.border-brand-primary {
+  border-color: var(--color-brand-primary);
+}
+.bg-brand-bg-light {
+  background-color: var(--color-brand-bg-light);
+}
+.text-brand-primary-dark {
+  color: var(--color-brand-primary-dark);
+}
+.bg-brand-teal {
+  background-color: var(--color-brand-teal);
+}
+.bg-brand-primary-light {
+  background-color: var(--color-brand-primary-light);
+}
+.bg-brand-white-translucent {
+  background-color: var(--color-brand-white-translucent);
+}
+.bg-brand-bg-hover {
+  background-color: var(--color-brand-bg-hover);
+}
+.text-brand-primary-muted {
+  color: var(--color-brand-primary-muted);
+}
+
 /* ─── reset ────────────────────────────────────────────────── */
 *,
 *::before,

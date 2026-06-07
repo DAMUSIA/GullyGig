@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("Damusia Landing Page E2E Tests", () => {
+test.describe("LocalSkill Connect Landing Page E2E Tests", () => {
   test("should load the homepage and check main content", async ({ page }) => {
     // Navigate to homepage
     await page.goto("/");
@@ -8,21 +8,22 @@ test.describe("Damusia Landing Page E2E Tests", () => {
     // Verify main title is visible and contains expected text
     const heading = page.locator("h1");
     await expect(heading).toBeVisible();
-    await expect(heading).toContainText("Validate Your Startup Idea");
+    await expect(heading).toContainText("Empower Your Skills");
+    await expect(heading).toContainText("Earn Locally");
 
-    // Verify the social proof text is present
-    await expect(page.locator("text=people already interested")).toBeVisible();
+    // Verify the rating rating section is present
+    await expect(page.locator("text=Community Rating")).toBeVisible();
   });
 
-  test("should open the waitlist modal when clicking CTA button", async ({
+  test("should open the waitlist modal when clicking Join/Register CTA buttons", async ({
     page,
   }) => {
     await page.goto("/");
 
-    // Locate the 'Get Early Access' CTA button and click it
+    // Locate the 'Join as Provider' CTA button and click it
     // WaitlistModal should show up
     const ctaButton = page
-      .locator('button:has-text("Get Early Access")')
+      .locator('button:has-text("Join as Provider")')
       .first();
     await expect(ctaButton).toBeVisible();
     await ctaButton.click();
@@ -37,3 +38,4 @@ test.describe("Damusia Landing Page E2E Tests", () => {
     await expect(page.locator('label[for="dob"]')).toBeVisible();
   });
 });
+

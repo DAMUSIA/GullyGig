@@ -163,7 +163,7 @@ export default function WaitlistModal({
         }}
       />
 
-      <div className="relative w-full max-w-lg bg-slate-900 dark:bg-slate-900 light:bg-white text-gray-100 light:text-gray-900 border border-slate-800 light:border-gray-200 rounded-3xl overflow-hidden shadow-2xl transition-all duration-300 transform scale-100 opacity-100 z-10">
+      <div className="relative w-full max-w-[512px] bg-slate-900 dark:bg-slate-900 light:bg-white text-gray-100 light:text-gray-900 border border-slate-800 light:border-gray-200 rounded-3xl overflow-hidden shadow-2xl transition-all duration-300 transform scale-100 opacity-100 z-10">
         {/* Close Button */}
         <button
           onClick={() => {

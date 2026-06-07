@@ -83,7 +83,7 @@ export default function LoginPage() {
     }
   };
 
-  const primaryColor = "#2563EB";
+  const primaryColor = "var(--color-brand-primary)";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -91,8 +91,8 @@ export default function LoginPage() {
         {/* Left Panel */}
         <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 relative overflow-hidden p-8 md:p-10 flex flex-col justify-between min-h-[300px] md:min-h-[500px]">
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000" />
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-brand-primary-light rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-brand-primary-muted rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000" />
           </div>
 
           <div className="absolute bottom-16 right-8 w-40 h-40 bg-white/10 rounded-[60%_40%_70%_30%/_50%_60%_40%_60%] shadow-inner" />
@@ -169,7 +169,7 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                   placeholder="your email"
                   required
                 />
@@ -184,7 +184,7 @@ export default function LoginPage() {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-10"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent pr-10"
                     placeholder="********"
                     required
                   />
@@ -239,7 +239,7 @@ export default function LoginPage() {
                     type="checkbox"
                     checked={keepLoggedIn}
                     onChange={(e) => setKeepLoggedIn(e.target.checked)}
-                    className="w-4 h-4 rounded border-gray-300 focus:ring-blue-500"
+                    className="w-4 h-4 rounded border-gray-300 focus:ring-brand-primary"
                     style={{ accentColor: primaryColor }}
                   />
                   <span className="text-sm text-gray-600">Keep me logged in</span>
@@ -324,7 +324,7 @@ export default function LoginPage() {
                   Don&apos;t have an account?{" "}
                   <Link
                     href="/register"
-                    className="font-semibold text-blue-600 hover:text-blue-700"
+                    className="font-semibold text-brand-primary hover:opacity-85"
                   >
                     Sign up
                   </Link>

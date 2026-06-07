@@ -212,7 +212,7 @@ export default function RegisterPage() {
     }
   };
 
-  const primaryColor = "#2563EB";
+  const primaryColor = "var(--color-brand-primary)";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -220,8 +220,8 @@ export default function RegisterPage() {
         {/* Left Side */}
         <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 relative overflow-hidden p-8 md:p-10 flex flex-col justify-between min-h-[300px] md:min-h-[550px]">
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000" />
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-brand-primary-light rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-brand-primary-muted rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000" />
           </div>
 
           <div className="absolute bottom-16 right-8 w-40 h-40 bg-white/10 rounded-[60%_40%_70%_30%/_50%_60%_40%_60%] shadow-inner animate-[morphBlob_7s_ease-in-out_infinite]" />
@@ -307,7 +307,7 @@ export default function RegisterPage() {
                   {step > 1 ? "✓" : "1"}
                 </div>
                 <span
-                  className={`text-xs ${step === 1 ? "text-blue-600 font-medium" : "text-gray-400"}`}
+                  className={`text-xs ${step === 1 ? "text-brand-primary font-medium" : "text-gray-400"}`}
                 >
                   Account
                 </span>
@@ -330,7 +330,7 @@ export default function RegisterPage() {
                   {step > 2 ? "✓" : "2"}
                 </div>
                 <span
-                  className={`text-xs ${step === 2 ? "text-blue-600 font-medium" : "text-gray-400"}`}
+                  className={`text-xs ${step === 2 ? "text-brand-primary font-medium" : "text-gray-400"}`}
                 >
                   Location
                 </span>
@@ -345,7 +345,7 @@ export default function RegisterPage() {
                   3
                 </div>
                 <span
-                  className={`text-xs ${step === 3 ? "text-blue-600 font-medium" : "text-gray-400"}`}
+                  className={`text-xs ${step === 3 ? "text-brand-primary font-medium" : "text-gray-400"}`}
                 >
                   Review
                 </span>
@@ -377,7 +377,7 @@ export default function RegisterPage() {
                         type="text"
                         value={step1Data.fullName}
                         onChange={handleStep1Change}
-                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                         placeholder="John Doe"
                       />
                     </div>
@@ -390,7 +390,7 @@ export default function RegisterPage() {
                         type="tel"
                         value={step1Data.phoneNo}
                         onChange={handleStep1Change}
-                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                         placeholder="9876543210"
                       />
                     </div>
@@ -405,7 +405,7 @@ export default function RegisterPage() {
                       type="email"
                       value={step1Data.email}
                       onChange={handleStep1Change}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                       placeholder="your@email.com"
                     />
                   </div>
@@ -421,7 +421,7 @@ export default function RegisterPage() {
                           type={showPassword ? "text" : "password"}
                           value={step1Data.password}
                           onChange={handleStep1Change}
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-8"
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent pr-8"
                           placeholder="********"
                         />
                         <button
@@ -477,7 +477,7 @@ export default function RegisterPage() {
                           type={showConfirmPassword ? "text" : "password"}
                           value={step1Data.confirmPassword}
                           onChange={handleStep1Change}
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-8"
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent pr-8"
                           placeholder="********"
                         />
                         <button
@@ -552,7 +552,7 @@ export default function RegisterPage() {
                       type="date"
                       value={step2Data.dob}
                       onChange={handleStep2Change}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                     />
                   </div>
 
@@ -565,7 +565,7 @@ export default function RegisterPage() {
                       type="text"
                       value={step2Data.locationCity}
                       onChange={handleStep2Change}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                       placeholder="Enter your city"
                     />
                   </div>
@@ -579,7 +579,7 @@ export default function RegisterPage() {
                       type="text"
                       value={step2Data.neighborhood}
                       onChange={handleStep2Change}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                       placeholder="e.g., Block B"
                     />
                   </div>
@@ -593,7 +593,7 @@ export default function RegisterPage() {
                       type="text"
                       value={step2Data.pincode}
                       onChange={handleStep2Change}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                       placeholder="Enter 6-digit pincode"
                       maxLength={6}
                     />
@@ -695,7 +695,7 @@ export default function RegisterPage() {
                   Already have an account?{" "}
                   <Link
                     href="/login"
-                    className="font-semibold text-blue-600 hover:text-blue-700"
+                    className="font-semibold text-brand-primary hover:opacity-85"
                   >
                     Sign in
                   </Link>

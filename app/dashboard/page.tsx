@@ -2,7 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentUser, supabase, UserProfile, signOut } from "@/lib/supabase";
+import {
+  getCurrentUser,
+  getUserProfile,
+  supabase,
+  UserProfile,
+  signOut,
+} from "@/lib/supabase";
+import type { UserProfile as SupabaseUserProfile } from "@/lib/supabase";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import {
   LayoutDashboard,
@@ -18,8 +25,6 @@ import {
   LogOut,
 } from "lucide-react";
 import Image from "next/image";
-import { getCurrentUser, getUserProfile } from "@/lib/supabase";
-import type { UserProfile as SupabaseUserProfile } from "@/lib/supabase";
 
 // --- Types ---
 type MenuItem = {
@@ -215,7 +220,9 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<string>("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
-  const [userProfile, setUserProfile] = useState<SupabaseUserProfile | null>(null);
+  const [userProfile, setUserProfile] = useState<SupabaseUserProfile | null>(
+    null,
+  );
   const [userInitials, setUserInitials] = useState<string>("AM");
 
   // Get initials from user name

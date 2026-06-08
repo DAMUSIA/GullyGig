@@ -204,12 +204,12 @@ export interface ProfileApiResponse<T = unknown> {
 /**
  * Profile fetch response
  */
-export interface FetchProfileResponse extends ProfileApiResponse<ExtendedUserProfile> {}
+export type FetchProfileResponse = ProfileApiResponse<ExtendedUserProfile>;
 
 /**
  * Profile update response
  */
-export interface UpdateProfileResponse extends ProfileApiResponse<ExtendedUserProfile> {}
+export type UpdateProfileResponse = ProfileApiResponse<ExtendedUserProfile>;
 
 // ============================================================================
 // FORM DATA INTERFACES

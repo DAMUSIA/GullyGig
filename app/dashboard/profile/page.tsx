@@ -113,7 +113,12 @@ const mockPersonalInfo: PersonalInfo = {
 const mockProfessionalInfo: ProfessionalInfo = {
   categories: ["Home Repair", "Electrical Work", "Plumbing", "Carpentry"],
   experience: "8+ years in service industry",
-  skills: ["Troubleshooting", "Installation", "Maintenance", "Customer Service"],
+  skills: [
+    "Troubleshooting",
+    "Installation",
+    "Maintenance",
+    "Customer Service",
+  ],
   languages: ["English", "Spanish", "Mandarin"],
   hourlyRate: 55,
 };
@@ -167,9 +172,7 @@ const StatCard: React.FC<StatCardProps> = ({
       )}
     </div>
     <div className="text-headline-md font-bold text-gray-900">{value}</div>
-    {unit && (
-      <div className="text-label-sm text-gray-600 mt-0.5">{unit}</div>
-    )}
+    {unit && <div className="text-label-sm text-gray-600 mt-0.5">{unit}</div>}
     <div className="text-label-sm text-gray-500 mt-3">{label}</div>
   </div>
 );
@@ -205,9 +208,7 @@ const VerificationBadge: React.FC<VerificationBadgeProps> = ({
 }) => (
   <div
     className={`flex items-center gap-3 p-4 rounded-lg border transition-all ${
-      verified
-        ? "bg-green-50 border-green-200"
-        : "bg-gray-50 border-gray-200"
+      verified ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"
     }`}
   >
     <div
@@ -218,10 +219,14 @@ const VerificationBadge: React.FC<VerificationBadgeProps> = ({
       />
     </div>
     <div className="flex-1">
-      <p className={`text-label-md font-semibold ${verified ? "text-green-900" : "text-gray-600"}`}>
+      <p
+        className={`text-label-md font-semibold ${verified ? "text-green-900" : "text-gray-600"}`}
+      >
         {label}
       </p>
-      <p className={`text-label-sm ${verified ? "text-green-700" : "text-gray-500"}`}>
+      <p
+        className={`text-label-sm ${verified ? "text-green-700" : "text-gray-500"}`}
+      >
         {verified ? "Verified" : "Pending"}
       </p>
     </div>
@@ -253,7 +258,9 @@ export default function ProfilePage() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userProfile, setUserProfile] = useState<SupabaseUserProfile | null>(null);
+  const [userProfile, setUserProfile] = useState<SupabaseUserProfile | null>(
+    null,
+  );
 
   // Format date from ISO string to readable format
   const formatDate = (dateString: string): string => {
@@ -342,7 +349,9 @@ export default function ProfilePage() {
       <div className="w-full min-h-screen bg-brand-bg-light py-8 flex items-center justify-center px-4">
         <div className="bg-white rounded-xl shadow-md border border-red-200 p-8 max-w-md text-center">
           <AlertCircle className="h-12 w-12 text-red-600 mx-auto mb-4" />
-          <h2 className="text-headline-md font-bold text-gray-900 mb-2">Error Loading Profile</h2>
+          <h2 className="text-headline-md font-bold text-gray-900 mb-2">
+            Error Loading Profile
+          </h2>
           <p className="text-body-md text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
@@ -360,8 +369,12 @@ export default function ProfilePage() {
     fullName: userProfile?.full_name || mockUserProfile.fullName,
     email: userProfile?.email || mockUserProfile.email,
     phone: userProfile?.phone_no || mockUserProfile.phone,
-    dob: userProfile?.dob ? formatDate(userProfile.dob) : mockPersonalInfo.dateOfBirth,
-    joinDate: userProfile?.created_at ? formatDate(userProfile.created_at) : mockPersonalInfo.joinDate,
+    dob: userProfile?.dob
+      ? formatDate(userProfile.dob)
+      : mockPersonalInfo.dateOfBirth,
+    joinDate: userProfile?.created_at
+      ? formatDate(userProfile.created_at)
+      : mockPersonalInfo.joinDate,
     city: userProfile?.location_city || mockLocationInfo.city,
     pincode: userProfile?.pincode || mockLocationInfo.pincode,
   };
@@ -498,7 +511,9 @@ export default function ProfilePage() {
                 <label className="text-label-md font-semibold text-gray-700 block mb-1.5">
                   Bio
                 </label>
-                <p className="text-body-md text-gray-900">{mockUserProfile.bio}</p>
+                <p className="text-body-md text-gray-900">
+                  {mockUserProfile.bio}
+                </p>
               </div>
             </div>
             <div>
@@ -506,7 +521,9 @@ export default function ProfilePage() {
                 <label className="text-label-md font-semibold text-gray-700 block mb-1.5">
                   Member Since
                 </label>
-                <p className="text-body-md text-gray-900">{displayData.joinDate}</p>
+                <p className="text-body-md text-gray-900">
+                  {displayData.joinDate}
+                </p>
               </div>
             </div>
           </div>

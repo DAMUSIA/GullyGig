@@ -78,7 +78,7 @@ export default function CreateServicePage() {
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -249,7 +249,10 @@ export default function CreateServicePage() {
                   Location
                 </label>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-3 text-gray-400" size={20} />
+                  <MapPin
+                    className="absolute left-3 top-3 text-gray-400"
+                    size={20}
+                  />
                   <input
                     type="text"
                     name="location"
@@ -268,7 +271,10 @@ export default function CreateServicePage() {
                 Contact Number
               </label>
               <div className="relative">
-                <Phone className="absolute left-3 top-3 text-gray-400" size={20} />
+                <Phone
+                  className="absolute left-3 top-3 text-gray-400"
+                  size={20}
+                />
                 <input
                   type="tel"
                   name="contact"
@@ -318,7 +324,7 @@ export default function CreateServicePage() {
                       <div className="flex items-center gap-3">
                         <span
                           className={`px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(
-                            service.category
+                            service.category,
                           )}`}
                         >
                           {service.category}

@@ -15,28 +15,20 @@ test.describe("LocalSkill Connect Landing Page E2E Tests", () => {
     await expect(page.locator("text=Community Rating")).toBeVisible();
   });
 
-  test("should open the waitlist modal when clicking Join/Register CTA buttons", async ({
+  test("should navigate to register page when clicking Join as Provider", async ({
     page,
   }) => {
     await page.goto("/");
 
-    // Locate the 'Join as Provider' CTA button and click it
-    // WaitlistModal should show up
-    const ctaButton = page
-      .locator('button:has-text("Join as Provider")')
-      .first();
+    // Locate the 'Join as Provider' CTA link and click it
+    const ctaButton = page.locator('a:has-text("Join as Provider")').first();
     await expect(ctaButton).toBeVisible();
     await ctaButton.click();
 
-    // Verify modal overlay heading is visible
-    const modalHeading = page
-      .locator('h3:has-text("Get Early Access")')
-      .first();
-    await expect(modalHeading).toBeVisible();
+    // Verify redirect to register page
+    await expect(page).toHaveURL(/\/register/);
 
-    // Verify form fields are visible inside the modal
-    await expect(page.locator('label[for="name"]')).toBeVisible();
-    await expect(page.locator('label[for="phone"]')).toBeVisible();
-    await expect(page.locator('label[for="dob"]')).toBeVisible();
+    // Verify form is visible
+    await expect(page.locator('h2:has-text("Sign Up")')).toBeVisible();
   });
 });

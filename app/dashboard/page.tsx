@@ -26,6 +26,9 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 
+// Import the Create Service Page component
+import CreateServicePage from "./create-service/page";
+
 // --- Types ---
 type MenuItem = {
   id: string;
@@ -185,8 +188,6 @@ const DashboardOverview: React.FC = () => {
 };
 
 // --- Placeholder Pages for Other Menu Items (All Blank) ---
-const CreateService: React.FC = () => <div className="w-full h-full"></div>;
-
 const FindServices: React.FC = () => <div className="w-full h-full"></div>;
 
 const NearbyProviders: React.FC = () => <div className="w-full h-full"></div>;
@@ -382,10 +383,10 @@ export default function Home() {
       active: currentPage === "find-services",
     },
     {
-      id: "nearby",
+      id: "nearby-service",
       label: "Nearby Providers",
       icon: MapPin,
-      active: currentPage === "nearby",
+      active: currentPage === "nearby-service",
     },
     {
       id: "analytics",
@@ -412,7 +413,7 @@ export default function Home() {
       case "dashboard":
         return <DashboardOverview />;
       case "create-service":
-        return <CreateService />;
+        return <CreateServicePage />;
       case "find-services":
         return <FindServices />;
       case "nearby":
@@ -521,12 +522,14 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Page Content - Completely Blank */}
+        {/* Page Content */}
         <div className="p-8">{renderPage()}</div>
       </main>
 
-      {/* Floating Action Button */}
-      <FloatingActionButton onClick={() => setCurrentPage("create-service")} />
+      {/* Floating Action Button - Only show on dashboard */}
+      {currentPage === "dashboard" && (
+        <FloatingActionButton onClick={() => setCurrentPage("create-service")} />
+      )}
     </div>
   );
 }

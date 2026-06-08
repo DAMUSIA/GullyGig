@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { 
-  X, 
   MapPin, 
   Phone, 
   Star, 
@@ -11,12 +10,12 @@ import {
   Award,
   CheckCircle,
   AlertCircle,
-  Upload,
   Calendar,
   Image as ImageIcon,
   ChevronRight,
   Info
 } from "lucide-react";
+import Image from "next/image";
 
 // --- Types ---
 interface ServiceFormData {
@@ -94,7 +93,7 @@ const getCategoryColor = (category: string): string => {
 };
 
 // Helper to format availability text
-const formatAvailability = (days: string[], fromTime: string, toTime: string): string => {
+const formatAvailability = (days: string[]): string => {
   if (days.length === 0) return 'Not specified';
   if (days.length === 7) return 'Available daily';
   if (days.length > 3) return `${days.length} days/week`;
@@ -592,7 +591,13 @@ export default function CreateServicePage() {
               <p className="text-xs text-gray-500 mb-4 font-['Inter']">This is how customers will see your service</p>
               
               <div className="rounded-xl overflow-hidden shadow-lg">
-                <img src={preview.image} alt={preview.title} className="w-full h-32 object-cover" />
+                <Image 
+                  src={preview.image || '/api/placeholder/200/150'} 
+                  alt={preview.title} 
+                  width={400}
+                  height={128}
+                  className="w-full h-32 object-cover"
+                />
                 <div className="p-4 bg-white">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -632,7 +637,7 @@ export default function CreateServicePage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Calendar size={12} className="text-gray-500" aria-hidden="true" /> 
-                      <span className="font-['Inter']">Available: {formatAvailability(preview.availableDays, '', '')}</span>
+                      <span className="font-['Inter']">Available: {formatAvailability(preview.availableDays)}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock size={12} className="text-gray-500" aria-hidden="true" /> 

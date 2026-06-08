@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Mail,
   Phone,
@@ -21,6 +21,8 @@ import {
   User,
 } from "lucide-react";
 import Image from "next/image";
+import { getCurrentUser, getUserProfile } from "@/lib/supabase";
+import type { UserProfile as SupabaseUserProfile } from "@/lib/supabase";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -249,6 +251,120 @@ const SectionTitle: React.FC<SectionTitleProps> = ({ icon: Icon, title }) => (
 
 export default function ProfilePage() {
   const [isEditMode, setIsEditMode] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<SupabaseUserProfile | null>(null);
+
+  // Format date from ISO string to readable format
+  const formatDate = (dateString: string): string => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Extract initials from name
+  const getInitials = (name: string): string => {
+    return name
+      .split(" ")
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase();
+  };
+
+  // Fetch user profile from Supabase on mount
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Get current authenticated user
+        const { user } = await getCurrentUser();
+
+        if (!user) {
+          setError("No authenticated user found. Please log in.");
+          setLoading(false);
+          return;
+        }
+
+        // Get user's profile from database
+        const userId = (user as { id?: string })?.id;
+        if (!userId) {
+          setError("User ID not available. Please log in again.");
+          setLoading(false);
+          return;
+        }
+
+        const result = await getUserProfile(userId);
+
+        if (!result.success || !result.profile) {
+          setError(result.error || "Failed to load profile. Please try again.");
+          setLoading(false);
+          return;
+        }
+
+        setUserProfile(result.profile);
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+        setError("An unexpected error occurred. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="w-full min-h-screen bg-brand-bg-light py-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin">
+            <div className="h-12 w-12 border-4 border-brand-primary border-t-transparent rounded-full"></div>
+          </div>
+          <p className="text-gray-600 mt-4">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="w-full min-h-screen bg-brand-bg-light py-8 flex items-center justify-center px-4">
+        <div className="bg-white rounded-xl shadow-md border border-red-200 p-8 max-w-md text-center">
+          <AlertCircle className="h-12 w-12 text-red-600 mx-auto mb-4" />
+          <h2 className="text-headline-md font-bold text-gray-900 mb-2">Error Loading Profile</h2>
+          <p className="text-body-md text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-gradient-to-r from-brand-primary to-brand-teal text-white rounded-xl font-semibold hover:shadow-lg transition-all"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Map Supabase data to display variables with fallbacks
+  const displayData = {
+    fullName: userProfile?.full_name || mockUserProfile.fullName,
+    email: userProfile?.email || mockUserProfile.email,
+    phone: userProfile?.phone_no || mockUserProfile.phone,
+    dob: userProfile?.dob ? formatDate(userProfile.dob) : mockPersonalInfo.dateOfBirth,
+    joinDate: userProfile?.created_at ? formatDate(userProfile.created_at) : mockPersonalInfo.joinDate,
+    city: userProfile?.location_city || mockLocationInfo.city,
+    pincode: userProfile?.pincode || mockLocationInfo.pincode,
+  };
 
   return (
     <div className="w-full min-h-screen bg-brand-bg-light py-8">
@@ -262,10 +378,7 @@ export default function ProfilePage() {
             <div className="relative">
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-brand-primary to-brand-teal flex items-center justify-center text-white shadow-lg">
                 <span className="text-4xl font-bold">
-                  {mockUserProfile.fullName
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
+                  {getInitials(displayData.fullName)}
                 </span>
               </div>
               <div className="absolute bottom-0 right-0 w-6 h-6 bg-green-500 rounded-full border-2 border-white"></div>
@@ -274,7 +387,7 @@ export default function ProfilePage() {
             {/* User Info */}
             <div className="flex-1">
               <h1 className="text-headline-lg font-bold text-gray-900">
-                {mockUserProfile.fullName}
+                {displayData.fullName}
               </h1>
               <p className="text-body-md text-gray-600 mt-1">
                 Premium Pro Member
@@ -282,11 +395,11 @@ export default function ProfilePage() {
               <div className="flex flex-wrap gap-4 mt-4">
                 <div className="flex items-center gap-2 text-body-md text-gray-700">
                   <Mail className="h-4 w-4 text-brand-primary" />
-                  {mockUserProfile.email}
+                  {displayData.email}
                 </div>
                 <div className="flex items-center gap-2 text-body-md text-gray-700">
                   <Phone className="h-4 w-4 text-brand-primary" />
-                  {mockUserProfile.phone}
+                  {displayData.phone}
                 </div>
               </div>
               <p className="text-body-md text-gray-600 mt-3 max-w-2xl">
@@ -364,20 +477,20 @@ export default function ProfilePage() {
         <SectionTitle icon={User} title="Personal Information" />
         <div className="bg-white rounded-xl shadow-md border border-gray-200/80 p-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <InfoField label="Full Name" value={mockPersonalInfo.fullName} />
+            <InfoField label="Full Name" value={displayData.fullName} />
             <InfoField
               label="Email Address"
-              value={mockPersonalInfo.email}
+              value={displayData.email}
               icon={Mail}
             />
             <InfoField
               label="Phone Number"
-              value={mockPersonalInfo.phone}
+              value={displayData.phone}
               icon={Phone}
             />
             <InfoField
               label="Date of Birth"
-              value={mockPersonalInfo.dateOfBirth}
+              value={displayData.dob}
               icon={Calendar}
             />
             <div className="md:col-span-2">
@@ -385,7 +498,7 @@ export default function ProfilePage() {
                 <label className="text-label-md font-semibold text-gray-700 block mb-1.5">
                   Bio
                 </label>
-                <p className="text-body-md text-gray-900">{mockPersonalInfo.bio}</p>
+                <p className="text-body-md text-gray-900">{mockUserProfile.bio}</p>
               </div>
             </div>
             <div>
@@ -393,7 +506,7 @@ export default function ProfilePage() {
                 <label className="text-label-md font-semibold text-gray-700 block mb-1.5">
                   Member Since
                 </label>
-                <p className="text-body-md text-gray-900">{mockPersonalInfo.joinDate}</p>
+                <p className="text-body-md text-gray-900">{displayData.joinDate}</p>
               </div>
             </div>
           </div>
@@ -497,12 +610,12 @@ export default function ProfilePage() {
             />
             <InfoField
               label="City & State"
-              value={mockLocationInfo.city}
+              value={displayData.city}
               icon={MapPin}
             />
             <InfoField
               label="Zip Code"
-              value={mockLocationInfo.pincode}
+              value={displayData.pincode}
               icon={MapPin}
             />
             <InfoField

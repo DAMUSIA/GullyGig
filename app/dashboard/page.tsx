@@ -18,6 +18,8 @@ import {
   LogOut,
 } from "lucide-react";
 import Image from "next/image";
+import { getCurrentUser, getUserProfile } from "@/lib/supabase";
+import type { UserProfile as SupabaseUserProfile } from "@/lib/supabase";
 
 // --- Types ---
 type MenuItem = {
@@ -213,6 +215,57 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<string>("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+  const [userProfile, setUserProfile] = useState<SupabaseUserProfile | null>(null);
+  const [userInitials, setUserInitials] = useState<string>("AM");
+
+  // Get initials from user name
+  const getInitials = (name: string): string => {
+    return name
+      .split(" ")
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  // Fetch current user profile on component mount
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const { user } = await getCurrentUser();
+        if (!user) {
+          console.error("No authenticated user found");
+          return;
+        }
+
+        const userId = (user as { id?: string })?.id;
+        if (!userId) {
+          console.error("User ID not available");
+          return;
+        }
+
+        const result = await getUserProfile(userId);
+        if (result.success && result.profile) {
+          setUserProfile(result.profile);
+          const initials = getInitials(result.profile.full_name || "User");
+          setUserInitials(initials);
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
+  // Handle navigation with special routing for Profile
+  const handleMenuSelect = (id: string) => {
+    if (id === "profile") {
+      router.push("/dashboard/profile");
+    } else {
+      setCurrentPage(id);
+    }
+  };
 
   useEffect(() => {
     async function checkAuthAndProfile() {
@@ -411,7 +464,7 @@ export default function Home() {
       {/* Sidebar */}
       <Sidebar
         menuItems={menuItems}
-        onSelect={setCurrentPage}
+        onSelect={handleMenuSelect}
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
         profileName={pName}

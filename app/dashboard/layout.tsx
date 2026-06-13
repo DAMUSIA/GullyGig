@@ -324,7 +324,11 @@ export default function DashboardLayout({
                 stroke="currentColor"
                 strokeWidth="2"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </button>
 
@@ -381,7 +385,8 @@ export default function DashboardLayout({
                 Log Out of Kaamao?
               </h2>
               <p className="text-sm text-slate-500 mb-6 leading-relaxed">
-                Are you sure you want to log out? You will need to enter your email and password to access your dashboard again.
+                Are you sure you want to log out? You will need to enter your
+                email and password to access your dashboard again.
               </p>
 
               <div className="flex gap-3">

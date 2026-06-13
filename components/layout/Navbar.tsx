@@ -75,7 +75,10 @@ export default function Navbar({ darkMode, onToggleDarkMode }: NavbarProps) {
             className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-brand-primary transition-all active:scale-90"
             aria-label="Toggle Theme"
           >
-            <Icon name={darkMode ? "light_mode" : "dark_mode"} className="text-xl" />
+            <Icon
+              name={darkMode ? "light_mode" : "dark_mode"}
+              className="text-xl"
+            />
           </button>
 
           <Link
@@ -87,7 +90,7 @@ export default function Navbar({ darkMode, onToggleDarkMode }: NavbarProps) {
 
           <Link
             href="/register"
-            className="hidden xs:block text-sm font-bold text-white px-5 py-2.5 rounded-full bg-brand-primary shadow-lg shadow-blue-500/20 hover:shadow-blue-500/35 hover:opacity-95 hover:-translate-y-0.5 transition-all active:scale-95 text-center"
+            className="text-sm font-bold text-white px-5 py-2.5 rounded-full bg-brand-primary shadow-lg shadow-blue-500/20 hover:shadow-blue-500/35 hover:opacity-95 hover:-translate-y-0.5 transition-all active:scale-95 text-center inline-block"
           >
             Join as Provider
           </Link>
@@ -98,7 +101,10 @@ export default function Navbar({ darkMode, onToggleDarkMode }: NavbarProps) {
             className="md:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all active:scale-95"
             aria-label="Toggle Menu"
           >
-            <Icon name={mobileMenuOpen ? "close" : "menu"} className="text-xl" />
+            <Icon
+              name={mobileMenuOpen ? "close" : "menu"}
+              className="text-xl"
+            />
           </button>
         </div>
       </nav>

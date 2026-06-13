@@ -13,9 +13,17 @@ const TEAM_DETAILS = [
     initials: "IS",
     image: "", // initials avatar
     gradient: "from-blue-600 via-indigo-600 to-indigo-700",
-    skills: ["Next.js", "TypeScript", "PostgreSQL", "Supabase", "REST APIs", "System Architecture"],
+    skills: [
+      "Next.js",
+      "TypeScript",
+      "PostgreSQL",
+      "Supabase",
+      "REST APIs",
+      "System Architecture",
+    ],
     experience: "5+ Years in Full Stack Engineering",
-    vision: "To leverage technology to build stronger, self-sustaining neighborhood economies.",
+    vision:
+      "To leverage technology to build stronger, self-sustaining neighborhood economies.",
     socials: {
       github: "https://github.com",
       linkedin: "https://linkedin.com",
@@ -29,9 +37,17 @@ const TEAM_DETAILS = [
     initials: "MS",
     image: "", // initials avatar
     gradient: "from-cyan-500 via-blue-500 to-blue-600",
-    skills: ["Product Strategy", "UX Design", "User Research", "Agile Planning", "Growth Marketing", "Analytics"],
+    skills: [
+      "Product Strategy",
+      "UX Design",
+      "User Research",
+      "Agile Planning",
+      "Growth Marketing",
+      "Analytics",
+    ],
     experience: "4+ Years in Tech Product Management",
-    vision: "To make skill discovery as frictionless as looking out your front window.",
+    vision:
+      "To make skill discovery as frictionless as looking out your front window.",
     socials: {
       github: "https://github.com",
       linkedin: "https://linkedin.com",
@@ -42,7 +58,6 @@ const TEAM_DETAILS = [
 
 export default function TeamPage() {
   const [activeTab, setActiveTab] = useState<"skills" | "vision">("skills");
-
 
   return (
     <div className="min-h-screen bg-slate-50 font-[Manrope,sans-serif] text-slate-800 selection:bg-brand-primary-light selection:text-brand-primary-dark relative overflow-hidden">
@@ -57,13 +72,16 @@ export default function TeamPage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-primary text-white">
               <Icon name="check" fill className="text-xs text-white" />
             </div>
-              Kaamao
+            Kaamao
           </Link>
           <Link
             href="/"
             className="flex items-center gap-1.5 text-sm font-bold text-slate-600 hover:text-brand-primary transition-all group"
           >
-            <Icon name="arrow_back" className="text-base group-hover:-translate-x-1 transition-transform" />
+            <Icon
+              name="arrow_back"
+              className="text-base group-hover:-translate-x-1 transition-transform"
+            />
             <span>Back to Home</span>
           </Link>
         </div>
@@ -88,7 +106,10 @@ export default function TeamPage() {
               </span>
             </h1>
             <p className="text-slate-500 text-sm md:text-base leading-relaxed">
-              We started with a simple belief: every community has hidden expertise. Our mission is to unlock these talents, build trust locally, and create economic opportunities right in your neighborhood.
+              We started with a simple belief: every community has hidden
+              expertise. Our mission is to unlock these talents, build trust
+              locally, and create economic opportunities right in your
+              neighborhood.
             </p>
           </motion.div>
         </div>
@@ -104,13 +125,17 @@ export default function TeamPage() {
               className="bg-white rounded-[32px] border border-slate-100 shadow-xl shadow-blue-500/5 overflow-hidden flex flex-col justify-between relative group hover:border-brand-primary-light transition-colors duration-300"
             >
               {/* Decorative top gradient edge */}
-              <div className={`h-3 w-full bg-gradient-to-r ${founder.gradient}`} />
+              <div
+                className={`h-3 w-full bg-gradient-to-r ${founder.gradient}`}
+              />
 
               <div className="p-8 md:p-10">
                 {/* Profile Header */}
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8">
                   {/* Avatar Circle */}
-                  <div className={`w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-tr ${founder.gradient} text-white flex items-center justify-center font-extrabold text-3xl sm:text-4xl shadow-lg shadow-blue-500/15 shrink-0 group-hover:scale-105 transition-transform duration-300 relative`}>
+                  <div
+                    className={`w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-tr ${founder.gradient} text-white flex items-center justify-center font-extrabold text-3xl sm:text-4xl shadow-lg shadow-blue-500/15 shrink-0 group-hover:scale-105 transition-transform duration-300 relative`}
+                  >
                     {founder.initials}
                     {/* Ring glow */}
                     <div className="absolute inset-0 border border-white/20 rounded-3xl" />
@@ -140,7 +165,9 @@ export default function TeamPage() {
                   <button
                     onClick={() => setActiveTab("skills")}
                     className={`pb-3 text-xs font-bold uppercase tracking-wider relative transition-all cursor-pointer ${
-                      activeTab === "skills" ? "text-brand-primary" : "text-slate-400 hover:text-slate-600"
+                      activeTab === "skills"
+                        ? "text-brand-primary"
+                        : "text-slate-400 hover:text-slate-600"
                     }`}
                   >
                     <span>Core Expertise</span>
@@ -154,7 +181,9 @@ export default function TeamPage() {
                   <button
                     onClick={() => setActiveTab("vision")}
                     className={`pb-3 text-xs font-bold uppercase tracking-wider relative transition-all cursor-pointer ${
-                      activeTab === "vision" ? "text-brand-primary" : "text-slate-400 hover:text-slate-600"
+                      activeTab === "vision"
+                        ? "text-brand-primary"
+                        : "text-slate-400 hover:text-slate-600"
                     }`}
                   >
                     <span>Mission Vision</span>
@@ -197,9 +226,14 @@ export default function TeamPage() {
                         transition={{ duration: 0.2 }}
                         className="flex items-start gap-3 bg-brand-bg-light/60 p-4 rounded-2xl border border-brand-primary-light/30"
                       >
-                        <Icon name="tips_and_updates" className="text-xl text-brand-primary shrink-0 mt-0.5" />
+                        <Icon
+                          name="tips_and_updates"
+                          className="text-xl text-brand-primary shrink-0 mt-0.5"
+                        />
                         <div>
-                          <p className="text-xs font-bold uppercase tracking-wider text-brand-primary-dark mb-1">Founder Vision</p>
+                          <p className="text-xs font-bold uppercase tracking-wider text-brand-primary-dark mb-1">
+                            Founder Vision
+                          </p>
                           <p className="text-slate-600 text-xs italic leading-relaxed">
                             &ldquo;{founder.vision}&rdquo;
                           </p>
@@ -256,10 +290,18 @@ export default function TeamPage() {
           className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-white rounded-[32px] p-8 md:p-12 text-center max-w-[860px] mx-auto mt-24 relative overflow-hidden shadow-2xl"
         >
           <div className="absolute top-0 left-0 w-48 h-48 bg-brand-primary/10 rounded-full filter blur-xl -translate-x-1/2 -translate-y-1/2" />
-          <Icon name="groups" className="text-4xl text-brand-primary-muted mb-6" fill />
-          <h3 className="text-lg font-bold mb-3 uppercase tracking-wider text-brand-primary-light">Our Mission</h3>
+          <Icon
+            name="groups"
+            className="text-4xl text-brand-primary-muted mb-6"
+            fill
+          />
+          <h3 className="text-lg font-bold mb-3 uppercase tracking-wider text-brand-primary-light">
+            Our Mission
+          </h3>
           <p className="text-sm md:text-base leading-relaxed max-w-[600px] mx-auto text-slate-300">
-            &ldquo;Kaamao transforms skills into opportunities and local talent into sustainable income, bringing neighborhoods closer together through trusted professional networks.&rdquo;
+            &ldquo;Kaamao transforms skills into opportunities and local talent
+            into sustainable income, bringing neighborhoods closer together
+            through trusted professional networks.&rdquo;
           </p>
         </motion.div>
       </main>

@@ -6,7 +6,11 @@ interface IconProps {
   className?: string;
 }
 
-export default function Icon({ name, fill = false, className = "" }: IconProps) {
+export default function Icon({
+  name,
+  fill = false,
+  className = "",
+}: IconProps) {
   return (
     <span
       className={`material-symbols-outlined select-none leading-none ${className}`}

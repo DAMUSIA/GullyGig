@@ -39,7 +39,8 @@ export default function TeamSection() {
             </h2>
             <div className="mx-auto mb-5 h-1 w-14 rounded-full bg-brand-primary" />
             <p className="text-sm text-slate-500 leading-relaxed max-w-[480px] mx-auto">
-              The minds behind LocalSkill Connect, transforming local skills into sustainable income opportunities.
+              The minds behind LocalSkill Connect, transforming local skills
+              into sustainable income opportunities.
             </p>
           </motion.div>
         </div>
@@ -57,7 +58,9 @@ export default function TeamSection() {
               className="bg-white rounded-3xl p-8 border border-slate-100 shadow-xl shadow-blue-500/5 flex flex-col items-center text-center group"
             >
               {/* Profile Initials Avatar */}
-              <div className={`w-20 h-20 rounded-2xl bg-gradient-to-tr ${member.gradient} text-white flex items-center justify-center font-extrabold text-2xl mb-6 shadow-md shadow-blue-500/10 group-hover:scale-105 transition-transform duration-300`}>
+              <div
+                className={`w-20 h-20 rounded-2xl bg-gradient-to-tr ${member.gradient} text-white flex items-center justify-center font-extrabold text-2xl mb-6 shadow-md shadow-blue-500/10 group-hover:scale-105 transition-transform duration-300`}
+              >
                 {member.initials}
               </div>
 

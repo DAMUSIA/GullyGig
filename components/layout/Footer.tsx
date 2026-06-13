@@ -16,7 +16,10 @@ export default function Footer({ onShowToast }: FooterProps) {
       <div className="mx-auto max-w-[1140px] px-6 flex flex-col md:flex-row items-center justify-between gap-6">
         {/* Left */}
         <div className="text-center md:text-left">
-          <Link href="/" className="flex items-center justify-center md:justify-start gap-2 mb-2">
+          <Link
+            href="/"
+            className="flex items-center justify-center md:justify-start gap-2 mb-2"
+          >
             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-brand-primary">
               <Icon name="check" fill className="text-xs text-white" />
             </div>
@@ -60,14 +63,20 @@ export default function Footer({ onShowToast }: FooterProps) {
             className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-brand-primary hover:border-brand-primary-light transition-all cursor-pointer"
             aria-label="Share"
           >
-            <Icon name="share" className="text-base text-slate-500 dark:text-slate-400" />
+            <Icon
+              name="share"
+              className="text-base text-slate-500 dark:text-slate-400"
+            />
           </button>
           <button
             onClick={() => onShowToast("Language settings coming soon...")}
             className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-brand-primary hover:border-brand-primary-light transition-all cursor-pointer"
             aria-label="Select Language"
           >
-            <Icon name="language" className="text-base text-slate-500 dark:text-slate-400" />
+            <Icon
+              name="language"
+              className="text-base text-slate-500 dark:text-slate-400"
+            />
           </button>
         </div>
       </div>

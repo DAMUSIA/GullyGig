@@ -14,7 +14,6 @@ import PopularSkills from "@/components/home/PopularSkills";
 import HowItWorks from "@/components/home/HowItWorks";
 import TrustSection from "@/components/home/TrustSection";
 
-
 export default function Home() {
   const [toast, setToast] = useState<string | null>(null);
   const [darkMode, setDarkMode] = useState(false);
@@ -36,9 +35,14 @@ export default function Home() {
   }, [toast]);
 
   return (
-    <div className={`min-h-screen font-[Manrope,sans-serif] text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 selection:bg-brand-primary-light selection:text-brand-primary-dark transition-colors duration-300 ${darkMode ? "dark" : ""}`}>
+    <div
+      className={`min-h-screen font-[Manrope,sans-serif] text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 selection:bg-brand-primary-light selection:text-brand-primary-dark transition-colors duration-300 ${darkMode ? "dark" : ""}`}
+    >
       {/* HEADER */}
-      <Navbar darkMode={darkMode} onToggleDarkMode={() => setDarkMode(!darkMode)} />
+      <Navbar
+        darkMode={darkMode}
+        onToggleDarkMode={() => setDarkMode(!darkMode)}
+      />
 
       {/* MAIN CONTENT */}
       <main>
@@ -56,8 +60,6 @@ export default function Home() {
 
         {/* TRUST SECTION */}
         <TrustSection onShowToast={showToast} />
-
-
 
         {/* CTA BANNER */}
         <section className="py-20 bg-white dark:bg-slate-950 transition-colors duration-300">
@@ -78,7 +80,8 @@ export default function Home() {
                 Your Local Experts?
               </h2>
               <p className="text-blue-100 text-sm md:text-base leading-relaxed mb-10 max-w-[500px] mx-auto opacity-90">
-                Join thousands of neighbors already growing their skills and simplifying their lives with Kaamao.
+                Join thousands of neighbors already growing their skills and
+                simplifying their lives with Kaamao.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">

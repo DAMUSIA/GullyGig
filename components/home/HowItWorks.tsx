@@ -57,7 +57,10 @@ const itemVariants = {
 
 export default function HowItWorks() {
   return (
-    <section id="how-it-works" className="scroll-mt-20 py-24 bg-brand-primary text-white transition-colors duration-300 relative overflow-hidden">
+    <section
+      id="how-it-works"
+      className="scroll-mt-20 py-24 bg-brand-primary text-white transition-colors duration-300 relative overflow-hidden"
+    >
       {/* Decorative rings */}
       <div className="absolute top-0 right-0 w-96 h-96 border-4 border-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
       <div className="absolute bottom-0 left-0 w-72 h-72 border-4 border-white/10 rounded-full translate-y-1/3 -translate-x-1/3" />
@@ -75,7 +78,8 @@ export default function HowItWorks() {
               How Kaamao Works
             </h2>
             <p className="text-blue-100 text-sm leading-relaxed max-w-[500px] mx-auto">
-              Bridging the gap between neighbors. Whether you want to showcase a service or find one, we&apos;ve simplified the process.
+              Bridging the gap between neighbors. Whether you want to showcase a
+              service or find one, we&apos;ve simplified the process.
             </p>
           </motion.div>
         </div>
@@ -100,9 +104,15 @@ export default function HowItWorks() {
             <div>
               <div className="flex items-center gap-3.5 mb-8">
                 <div className="w-12 h-12 rounded-xl bg-brand-bg-light flex items-center justify-center">
-                  <Icon name="work" fill className="text-xl text-brand-primary" />
+                  <Icon
+                    name="work"
+                    fill
+                    className="text-xl text-brand-primary"
+                  />
                 </div>
-                <h3 className="text-xl font-extrabold text-slate-900 dark:text-slate-900">For Providers</h3>
+                <h3 className="text-xl font-extrabold text-slate-900 dark:text-slate-900">
+                  For Providers
+                </h3>
               </div>
 
               <motion.div
@@ -113,13 +123,21 @@ export default function HowItWorks() {
                 className="space-y-6"
               >
                 {PROVIDER_STEPS.map((step) => (
-                  <motion.div key={step.n} variants={itemVariants} className="flex items-start gap-4">
+                  <motion.div
+                    key={step.n}
+                    variants={itemVariants}
+                    className="flex items-start gap-4"
+                  >
                     <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-sm font-extrabold text-brand-primary border border-brand-primary-light bg-brand-bg-light">
                       {step.n}
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-slate-900 mb-1.5">{step.title}</h4>
-                      <p className="text-[13px] text-slate-600 dark:text-slate-600 leading-relaxed">{step.desc}</p>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-slate-900 mb-1.5">
+                        {step.title}
+                      </h4>
+                      <p className="text-[13px] text-slate-600 dark:text-slate-600 leading-relaxed">
+                        {step.desc}
+                      </p>
                     </div>
                   </motion.div>
                 ))}
@@ -154,9 +172,14 @@ export default function HowItWorks() {
             <div>
               <div className="flex items-center gap-3.5 mb-8">
                 <div className="w-12 h-12 rounded-xl bg-brand-bg-light flex items-center justify-center">
-                  <Icon name="person_search" className="text-xl text-brand-primary" />
+                  <Icon
+                    name="person_search"
+                    className="text-xl text-brand-primary"
+                  />
                 </div>
-                <h3 className="text-xl font-extrabold text-slate-900 dark:text-slate-900">For Customers</h3>
+                <h3 className="text-xl font-extrabold text-slate-900 dark:text-slate-900">
+                  For Customers
+                </h3>
               </div>
 
               <motion.div
@@ -167,13 +190,21 @@ export default function HowItWorks() {
                 className="space-y-6"
               >
                 {CUSTOMER_STEPS.map((step) => (
-                  <motion.div key={step.n} variants={itemVariants} className="flex items-start gap-4">
+                  <motion.div
+                    key={step.n}
+                    variants={itemVariants}
+                    className="flex items-start gap-4"
+                  >
                     <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-sm font-extrabold text-brand-primary border border-brand-primary-light bg-brand-bg-light">
                       {step.n}
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-slate-900 mb-1.5">{step.title}</h4>
-                      <p className="text-[13px] text-slate-600 dark:text-slate-600 leading-relaxed">{step.desc}</p>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-slate-900 mb-1.5">
+                        {step.title}
+                      </h4>
+                      <p className="text-[13px] text-slate-600 dark:text-slate-600 leading-relaxed">
+                        {step.desc}
+                      </p>
                     </div>
                   </motion.div>
                 ))}

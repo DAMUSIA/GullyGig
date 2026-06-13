@@ -77,8 +77,9 @@ export default function Hero({ onShowToast }: HeroProps) {
           </h1>
 
           <p className="text-[16px] text-slate-600 dark:text-slate-300 leading-relaxed mb-8 max-w-[480px]">
-            Discover tutors, cooks, babysitters, tailors, and other skilled professionals in your neighborhood.
-            Kaamao helps workers showcase their talent and customers connect with local experts directly.
+            Discover tutors, cooks, babysitters, tailors, and other skilled
+            professionals in your neighborhood. Kaamao helps workers showcase
+            their talent and customers connect with local experts directly.
           </p>
 
           {/* Search bar */}
@@ -89,7 +90,10 @@ export default function Hero({ onShowToast }: HeroProps) {
             className="flex flex-col sm:flex-row items-stretch gap-2 p-2 mb-8 bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-blue-500/5 border border-slate-100 dark:border-slate-700 max-w-[560px]"
           >
             <div className="flex flex-1 items-center gap-2 px-3 py-2.5 border-b sm:border-b-0 sm:border-r border-slate-100 dark:border-slate-700">
-              <Icon name="search" className="text-xl text-slate-400 dark:text-slate-500 shrink-0" />
+              <Icon
+                name="search"
+                className="text-xl text-slate-400 dark:text-slate-500 shrink-0"
+              />
               <input
                 value={skill}
                 onChange={(e) => setSkill(e.target.value)}
@@ -98,7 +102,10 @@ export default function Hero({ onShowToast }: HeroProps) {
               />
             </div>
             <div className="flex flex-1 items-center gap-2 px-3 py-2.5">
-              <Icon name="location_on" className="text-xl text-slate-400 dark:text-slate-500 shrink-0" />
+              <Icon
+                name="location_on"
+                className="text-xl text-slate-400 dark:text-slate-500 shrink-0"
+              />
               <input
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
@@ -138,8 +145,12 @@ export default function Hero({ onShowToast }: HeroProps) {
             <div className="flex items-center gap-3">
               <span className="text-amber-500 text-2xl">★</span>
               <div>
-                <p className="text-base font-extrabold text-slate-800 dark:text-slate-200 leading-tight">4.9 / 5</p>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Community Rating</p>
+                <p className="text-base font-extrabold text-slate-800 dark:text-slate-200 leading-tight">
+                  4.9 / 5
+                </p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                  Community Rating
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -147,8 +158,12 @@ export default function Hero({ onShowToast }: HeroProps) {
                 <Icon name="check" className="text-sm" fill />
               </div>
               <div>
-                <p className="text-base font-extrabold text-slate-800 dark:text-slate-200 leading-tight">2,500+</p>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Verified Providers</p>
+                <p className="text-base font-extrabold text-slate-800 dark:text-slate-200 leading-tight">
+                  2,500+
+                </p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                  Verified Providers
+                </p>
               </div>
             </div>
           </div>
@@ -196,7 +211,9 @@ export default function Hero({ onShowToast }: HeroProps) {
                   key={i}
                   onClick={() => setCarouselIndex(i)}
                   className={`rounded-full transition-all duration-300 ${
-                    carouselIndex === i ? "w-5 h-2 bg-white" : "w-2 h-2 bg-white/50 hover:bg-white"
+                    carouselIndex === i
+                      ? "w-5 h-2 bg-white"
+                      : "w-2 h-2 bg-white/50 hover:bg-white"
                   }`}
                   aria-label={`Slide ${i + 1}`}
                 />
@@ -214,25 +231,38 @@ export default function Hero({ onShowToast }: HeroProps) {
               <Icon name="groups" fill className="text-xl text-brand-primary" />
             </div>
             <div>
-              <p className="text-xs font-extrabold text-slate-800 dark:text-slate-200">Hyperlocal Search</p>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Direct contact referrals</p>
+              <p className="text-xs font-extrabold text-slate-800 dark:text-slate-200">
+                Hyperlocal Search
+              </p>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+                Direct contact referrals
+              </p>
             </div>
           </motion.div>
 
           {/* Floating Card 2 - Connection activity */}
           <motion.div
             animate={{ y: [0, 8, 0] }}
-            transition={{ repeat: Infinity, duration: 4, ease: "easeInOut", delay: 1 }}
+            transition={{
+              repeat: Infinity,
+              duration: 4,
+              ease: "easeInOut",
+              delay: 1,
+            }}
             className="absolute -right-6 bottom-8 z-20 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100/50 dark:border-slate-700/50 p-4 w-[170px] transition-colors duration-300"
           >
-            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold mb-2 uppercase tracking-wide">Active connections</p>
+            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold mb-2 uppercase tracking-wide">
+              Active connections
+            </p>
             <div className="flex items-end gap-1.5 h-10">
               {[35, 55, 45, 75, 60, 90].map((h, i) => (
                 <div
                   key={i}
                   style={{ height: `${h}%` }}
                   className={`flex-1 rounded-sm transition-all duration-500 ${
-                    i === 5 ? "bg-brand-primary shadow-sm shadow-blue-500/30" : "bg-brand-primary-light dark:bg-slate-700"
+                    i === 5
+                      ? "bg-brand-primary shadow-sm shadow-blue-500/30"
+                      : "bg-brand-primary-light dark:bg-slate-700"
                   }`}
                 />
               ))}

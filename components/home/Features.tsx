@@ -38,12 +38,19 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: "easeOut" as const },
+  },
 };
 
 export default function Features() {
   return (
-    <section id="features" className="scroll-mt-20 py-20 bg-white dark:bg-slate-950 transition-colors duration-300 relative">
+    <section
+      id="features"
+      className="scroll-mt-20 py-20 bg-white dark:bg-slate-950 transition-colors duration-300 relative"
+    >
       <div className="mx-auto max-w-[1140px] px-6">
         {/* Heading */}
         <div className="text-center mb-16">
@@ -58,7 +65,8 @@ export default function Features() {
             </h2>
             <div className="mx-auto mb-5 h-1 w-14 rounded-full bg-brand-primary" />
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-[480px] mx-auto">
-              Everything you need to discover community talent and show your skills with zero middleman friction.
+              Everything you need to discover community talent and show your
+              skills with zero middleman friction.
             </p>
           </motion.div>
         </div>
@@ -85,7 +93,11 @@ export default function Features() {
               className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm hover:border-brand-primary-light dark:hover:border-slate-700 transition-all duration-300 flex flex-col items-start text-left"
             >
               <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-brand-bg-light dark:bg-slate-800 mb-6">
-                <Icon name={feat.icon} fill className="text-xl text-brand-primary" />
+                <Icon
+                  name={feat.icon}
+                  fill
+                  className="text-xl text-brand-primary"
+                />
               </div>
               <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-200 mb-2.5">
                 {feat.title}

@@ -28,9 +28,16 @@ const SKILLS = [
   },
 ];
 
-export default function PopularSkills({ onShowToast }: { onShowToast: (msg: string) => void }) {
+export default function PopularSkills({
+  onShowToast,
+}: {
+  onShowToast: (msg: string) => void;
+}) {
   return (
-    <section id="skills" className="scroll-mt-20 py-24 bg-brand-bg-light dark:bg-slate-900 transition-colors duration-300">
+    <section
+      id="skills"
+      className="scroll-mt-20 py-24 bg-brand-bg-light dark:bg-slate-900 transition-colors duration-300"
+    >
       <div className="mx-auto max-w-[1140px] px-6">
         {/* Header row */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
@@ -40,7 +47,8 @@ export default function PopularSkills({ onShowToast }: { onShowToast: (msg: stri
             </h2>
             <div className="h-1 w-14 rounded-full bg-brand-primary mb-4" />
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-[400px]">
-              Browse our community&apos;s most sought-after expertise and find the help you need today.
+              Browse our community&apos;s most sought-after expertise and find
+              the help you need today.
             </p>
           </div>
           <button

@@ -11,7 +11,11 @@ const TRUST_CHECKS = [
   "Localized Skill Categorization",
 ];
 
-export default function TrustSection({ onShowToast }: { onShowToast: (msg: string) => void }) {
+export default function TrustSection({
+  onShowToast,
+}: {
+  onShowToast: (msg: string) => void;
+}) {
   return (
     <section className="py-24 bg-white dark:bg-slate-950 transition-colors duration-300 relative overflow-hidden">
       <div className="mx-auto max-w-[1140px] px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -50,12 +54,19 @@ export default function TrustSection({ onShowToast }: { onShowToast: (msg: strin
           >
             <div className="flex items-center gap-2.5 mb-2">
               <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-brand-bg-light dark:bg-slate-700">
-                <Icon name="verified_user" fill className="text-sm text-brand-primary" />
+                <Icon
+                  name="verified_user"
+                  fill
+                  className="text-sm text-brand-primary"
+                />
               </div>
-              <p className="text-xs font-extrabold text-slate-800 dark:text-slate-200">Hyperlocal trust</p>
+              <p className="text-xs font-extrabold text-slate-800 dark:text-slate-200">
+                Hyperlocal trust
+              </p>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-              Every provider details are community verified for safe connections and references.
+              Every provider details are community verified for safe connections
+              and references.
             </p>
           </motion.div>
         </motion.div>
@@ -73,7 +84,10 @@ export default function TrustSection({ onShowToast }: { onShowToast: (msg: strin
             <span className="text-brand-primary">Through Trust</span>
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-8 max-w-[460px]">
-            We believe the best expertise is often right down the street. Our platform isn&apos;t just about tasks; it&apos;s about reconnecting neighbors through a valuable and verified local search discovery network.
+            We believe the best expertise is often right down the street. Our
+            platform isn&apos;t just about tasks; it&apos;s about reconnecting
+            neighbors through a valuable and verified local search discovery
+            network.
           </p>
 
           <ul className="space-y-4 mb-8">
@@ -89,7 +103,9 @@ export default function TrustSection({ onShowToast }: { onShowToast: (msg: strin
                 <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 bg-brand-primary text-white shadow-sm shadow-blue-500/10">
                   <Icon name="check" fill className="text-xs text-white" />
                 </div>
-                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{item}</span>
+                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  {item}
+                </span>
               </motion.li>
             ))}
           </ul>

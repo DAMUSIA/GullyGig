@@ -45,23 +45,23 @@ export default function ProfileSidebar({
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
-        className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition-all duration-300 border border-gray-100"
+        className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 hover:shadow-2xl transition-all duration-300 border border-gray-100/50"
       >
-        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <User className="w-5 h-5 text-blue-600" />
+        <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 mb-4 flex items-center gap-2.5 font-['Plus_Jakarta_Sans',sans-serif]">
+          <User className="w-6 h-6 text-blue-600" />
           Personal Details
         </h3>
         
         {isEditing ? (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
+              <label className="block text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider mb-1.5">
                 Gender
               </label>
               <select
                 value={formData.gender}
                 onChange={(e) => onInputChange("gender", e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-semibold text-gray-900 bg-white"
+                className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base font-semibold text-gray-900 bg-white"
               >
                 <option value="">Select Gender</option>
                 <option value="Male">Male</option>
@@ -72,26 +72,26 @@ export default function ProfileSidebar({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
+              <label className="block text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider mb-1.5">
                 Date of Birth
               </label>
               <input
                 type="date"
                 value={formData.dob}
                 onChange={(e) => onInputChange("dob", e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-semibold text-gray-900"
+                className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base font-semibold text-gray-900"
               />
             </div>
           </div>
         ) : (
-          <div className="space-y-3 text-xs sm:text-sm text-gray-700">
-            <div className="flex justify-between border-b border-gray-50 pb-2">
-              <span className="text-gray-500 font-semibold uppercase tracking-wider text-[11px]">Gender</span>
-              <span className="font-bold text-gray-900">{profile.gender || "Not specified"}</span>
+          <div className="space-y-4 text-sm sm:text-base text-gray-700">
+            <div className="flex justify-between items-center border-b border-gray-50 pb-2.5">
+              <span className="text-gray-500 font-extrabold uppercase tracking-wider text-[11px] sm:text-xs">Gender</span>
+              <span className="font-extrabold text-gray-900">{profile.gender || "Not specified"}</span>
             </div>
-            <div className="flex justify-between pt-1">
-              <span className="text-gray-500 font-semibold uppercase tracking-wider text-[11px]">Birth Date</span>
-              <span className="font-bold text-gray-900">
+            <div className="flex justify-between items-center pt-1.5">
+              <span className="text-gray-500 font-extrabold uppercase tracking-wider text-[11px] sm:text-xs">Birth Date</span>
+              <span className="font-extrabold text-gray-900">
                 {profile.dob ? new Date(profile.dob).toLocaleDateString(undefined, { dateStyle: "medium" }) : "Not specified"}
               </span>
             </div>
@@ -104,29 +104,29 @@ export default function ProfileSidebar({
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
-        className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition-all duration-300 border border-gray-100"
+        className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 hover:shadow-2xl transition-all duration-300 border border-gray-100/50"
       >
-        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-          <Shield className="w-5 h-5 text-blue-600" />
+        <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 mb-4 flex items-center gap-2.5 font-['Plus_Jakarta_Sans',sans-serif]">
+          <Shield className="w-6 h-6 text-blue-600" />
           Verification Status
         </h3>
-        <div className="space-y-3">
+        <div className="space-y-4">
           {verification.map((item, idx) => (
             <div
               key={idx}
-              className="flex justify-between items-center text-xs sm:text-sm"
+              className="flex justify-between items-center text-sm sm:text-base"
             >
-              <span className="text-gray-600 font-medium">{item.label}</span>
+              <span className="text-gray-700 font-bold">{item.label}</span>
               {item.verified ? (
-                <span className="text-green-600 flex items-center gap-1 font-semibold whitespace-nowrap">
-                  <CheckCircle className="w-4 h-4" /> Verified
+                <span className="text-green-650 flex items-center gap-1.5 font-bold whitespace-nowrap">
+                  <CheckCircle className="w-5 h-5 text-green-600" /> Verified
                 </span>
               ) : (
                 <button
                   onClick={() => startVerification(item)}
-                  className="text-orange-500 flex items-center gap-1 hover:text-orange-600 transition font-semibold whitespace-nowrap cursor-pointer border-0 bg-transparent"
+                  className="text-orange-500 flex items-center gap-1.5 hover:text-orange-600 transition font-bold whitespace-nowrap cursor-pointer border-0 bg-transparent"
                 >
-                  <XCircle className="w-4 h-4" /> Verify
+                  <XCircle className="w-5 h-5" /> Verify
                 </button>
               )}
             </div>

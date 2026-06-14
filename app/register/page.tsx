@@ -24,6 +24,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [isStepTransitioning, setIsStepTransitioning] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -148,27 +149,27 @@ export default function RegisterPage() {
   const handleNextStep = () => {
     if (step === 1) {
       if (validateStep1()) {
-        setIsTransitioning(true);
+        setIsStepTransitioning(true);
         setTimeout(() => {
           setStep(2);
           setError("");
-          setIsTransitioning(false);
+          setIsStepTransitioning(false);
         }, 200);
       }
     } else if (step === 2) {
       if (validateStep2()) {
-        setIsTransitioning(true);
+        setIsStepTransitioning(true);
         setTimeout(() => {
           setStep(3);
           setError("");
-          setIsTransitioning(false);
+          setIsStepTransitioning(false);
         }, 200);
       }
     }
   };
 
   const handlePrevStep = () => {
-    setIsTransitioning(true);
+    setIsStepTransitioning(true);
     setTimeout(() => {
       if (step === 2) {
         setStep(1);
@@ -176,7 +177,7 @@ export default function RegisterPage() {
         setStep(2);
       }
       setError("");
-      setIsTransitioning(false);
+      setIsStepTransitioning(false);
     }, 200);
   };
 
@@ -219,10 +220,10 @@ export default function RegisterPage() {
         } else {
           setError(result.error || "Signup failed. Please try again.");
         }
+        setIsLoading(false);
       }
     } catch {
       setError("An unexpected error occurred. Please try again.");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -231,7 +232,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4 relative">
-      {/* Back Button - Positioned at top left */}
+      {/* Back Button */}
       <button
         onClick={() => router.push("/")}
         className="fixed top-4 left-4 z-50 flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-md hover:bg-white transition-all duration-200 group md:top-6 md:left-6"
@@ -402,7 +403,7 @@ export default function RegisterPage() {
 
             <div
               className={`transition-all duration-300 ${
-                isTransitioning
+                isStepTransitioning
                   ? "opacity-0 transform translate-x-10"
                   : "opacity-100 transform translate-x-0"
               }`}
@@ -419,7 +420,8 @@ export default function RegisterPage() {
                         type="text"
                         value={step1Data.fullName}
                         onChange={handleStep1Change}
-                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                        disabled={isLoading}
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                         placeholder="John Doe"
                       />
                     </div>
@@ -432,7 +434,8 @@ export default function RegisterPage() {
                         type="tel"
                         value={step1Data.phoneNo}
                         onChange={handleStep1Change}
-                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                        disabled={isLoading}
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                         placeholder="9876543210"
                       />
                     </div>
@@ -447,7 +450,8 @@ export default function RegisterPage() {
                       type="email"
                       value={step1Data.email}
                       onChange={handleStep1Change}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                      disabled={isLoading}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="your@email.com"
                     />
                   </div>
@@ -463,13 +467,15 @@ export default function RegisterPage() {
                           type={showPassword ? "text" : "password"}
                           value={step1Data.password}
                           onChange={handleStep1Change}
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent pr-8"
+                          disabled={isLoading}
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent pr-8 disabled:bg-gray-100 disabled:cursor-not-allowed"
                           placeholder="********"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          disabled={isLoading}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:opacity-50"
                         >
                           {showPassword ? (
                             <svg
@@ -519,7 +525,8 @@ export default function RegisterPage() {
                           type={showConfirmPassword ? "text" : "password"}
                           value={step1Data.confirmPassword}
                           onChange={handleStep1Change}
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent pr-8"
+                          disabled={isLoading}
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent pr-8 disabled:bg-gray-100 disabled:cursor-not-allowed"
                           placeholder="********"
                         />
                         <button
@@ -527,7 +534,8 @@ export default function RegisterPage() {
                           onClick={() =>
                             setShowConfirmPassword(!showConfirmPassword)
                           }
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          disabled={isLoading}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:opacity-50"
                         >
                           {showConfirmPassword ? (
                             <svg
@@ -575,7 +583,8 @@ export default function RegisterPage() {
 
                   <button
                     onClick={handleNextStep}
-                    className="w-full py-2 rounded-lg font-semibold text-white mt-2 transition-all hover:opacity-90 text-sm"
+                    disabled={isLoading}
+                    className="w-full py-2 rounded-lg font-semibold text-white mt-2 transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-sm relative"
                     style={{ backgroundColor: primaryColor }}
                   >
                     Continue
@@ -594,7 +603,8 @@ export default function RegisterPage() {
                       type="date"
                       value={step2Data.dob}
                       onChange={handleStep2Change}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                      disabled={isLoading}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -607,7 +617,8 @@ export default function RegisterPage() {
                       type="text"
                       value={step2Data.locationCity}
                       onChange={handleStep2Change}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                      disabled={isLoading}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="Enter your city"
                     />
                   </div>
@@ -621,7 +632,8 @@ export default function RegisterPage() {
                       type="text"
                       value={step2Data.neighborhood}
                       onChange={handleStep2Change}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                      disabled={isLoading}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="e.g., Block B"
                     />
                   </div>
@@ -635,7 +647,8 @@ export default function RegisterPage() {
                       type="text"
                       value={step2Data.pincode}
                       onChange={handleStep2Change}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                      disabled={isLoading}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="Enter 6-digit pincode"
                       maxLength={6}
                     />
@@ -644,13 +657,15 @@ export default function RegisterPage() {
                   <div className="flex gap-3 pt-2">
                     <button
                       onClick={handlePrevStep}
-                      className="flex-1 py-2 rounded-lg font-semibold border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all text-sm"
+                      disabled={isLoading}
+                      className="flex-1 py-2 rounded-lg font-semibold border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                     >
                       Back
                     </button>
                     <button
                       onClick={handleNextStep}
-                      className="flex-1 py-2 rounded-lg font-semibold text-white transition-all hover:opacity-90 text-sm"
+                      disabled={isLoading}
+                      className="flex-1 py-2 rounded-lg font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-sm relative"
                       style={{ backgroundColor: primaryColor }}
                     >
                       Continue
@@ -702,7 +717,8 @@ export default function RegisterPage() {
                       type="checkbox"
                       checked={agreeTerms}
                       onChange={(e) => setAgreeTerms(e.target.checked)}
-                      className="rounded border-gray-300"
+                      disabled={isLoading}
+                      className="rounded border-gray-300 disabled:opacity-50"
                       style={{ accentColor: primaryColor }}
                     />
                     <span className="text-gray-600">
@@ -714,24 +730,51 @@ export default function RegisterPage() {
                     <button
                       type="button"
                       onClick={handlePrevStep}
-                      className="flex-1 py-2 rounded-lg font-semibold border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all text-sm"
+                      disabled={isLoading}
+                      className="flex-1 py-2 rounded-lg font-semibold border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                     >
                       Back
                     </button>
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="flex-1 py-2 rounded-lg font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                      className="flex-1 py-2 rounded-lg font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-sm relative"
                       style={{ backgroundColor: primaryColor }}
                     >
-                      {isLoading ? "Creating..." : "Sign Up"}
+                      {isLoading ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <svg
+                            className="animate-spin h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
+                          </svg>
+                          Creating Account...
+                        </div>
+                      ) : (
+                        "Sign Up"
+                      )}
                     </button>
                   </div>
                 </form>
               )}
             </div>
 
-            {step === 1 && (
+            {step === 1 && !isLoading && (
               <div className="text-center mt-4 pt-3 border-t border-gray-100">
                 <p className="text-xs text-gray-600">
                   Already have an account?{" "}

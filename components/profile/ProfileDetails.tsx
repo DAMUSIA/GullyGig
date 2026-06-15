@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { User } from "lucide-react";
+import { Sparkles, Quote } from "lucide-react";
 import { UserProfile } from "@/lib/supabase";
 
 interface ProfileDetailsProps {
@@ -20,63 +20,44 @@ export default function ProfileDetails({
   formData,
   onInputChange,
 }: ProfileDetailsProps) {
-  // Calculate age from DOB dynamically
-  const calculateAge = (dobString?: string | null) => {
-    if (!dobString) return null;
-    try {
-      const birthDate = new Date(dobString);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const m = today.getMonth() - birthDate.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-      return `${age} years old`;
-    } catch {
-      return null;
-    }
-  };
-
-  const ageText = calculateAge(profile.dob);
-
   return (
-    <div className="space-y-6">
-      {/* About Me Card - Enlarged padding & rounded corner styles */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="bg-white rounded-3xl shadow-2xl p-6 sm:p-10 hover:shadow-2xl transition-all duration-300 border border-gray-100/50"
-      >
-        <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 mb-4 flex items-center gap-2.5 font-['Plus_Jakarta_Sans',sans-serif]">
-          <User className="w-6 h-6 text-blue-600" />
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+      className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden"
+    >
+      <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 bg-gray-50/30">
+        <h3 className="text-sm sm:text-base font-semibold text-gray-900 flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-blue-600" />
           About Me
         </h3>
+      </div>
 
+      <div className="p-4 sm:p-6">
         {isEditing ? (
           <div className="space-y-2">
             <textarea
               value={formData.about}
               onChange={(e) => onInputChange("about", e.target.value)}
               rows={6}
-              className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base font-semibold text-gray-900 resize-none"
-              placeholder="Tell us about yourself..."
+              className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-gray-900 resize-none text-sm"
+              placeholder="Share your teaching experience, qualifications, teaching style..."
             />
+            <p className="text-xs text-gray-400 text-right">
+              {formData.about?.length || 0}/500 characters
+            </p>
           </div>
         ) : (
-          <p className="text-base sm:text-lg text-gray-600 leading-relaxed break-words whitespace-pre-wrap font-medium">
-            {profile.dob && ageText && (
-              <span className="block text-xs sm:text-sm font-extrabold text-gray-500 mb-2 uppercase tracking-wider">
-                Age: {ageText}
-              </span>
-            )}
-            {profile.location ? `Based in ${profile.location}. ` : ""}
-            {profile.dob || profile.location ? "\n\n" : ""}
-            {profile.about ||
-              "No details provided yet. Add information about yourself by clicking Edit Profile above."}
-          </p>
+          <div className="relative">
+            <Quote className="absolute -top-1 -left-1 w-5 h-5 sm:w-6 sm:h-6 text-blue-100" />
+            <p className="text-gray-600 leading-relaxed pl-5 text-sm sm:text-base">
+              {profile.about ||
+                "Passionate educator dedicated to making learning enjoyable and effective. Specializing in making complex concepts simple through real-world examples."}
+            </p>
+          </div>
         )}
-      </motion.div>
-    </div>
+      </div>
+    </motion.div>
   );
 }

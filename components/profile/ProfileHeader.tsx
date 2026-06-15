@@ -12,6 +12,9 @@ import {
   Save,
   X,
   Navigation,
+  Award,
+  Star,
+  Shield,
 } from "lucide-react";
 import { UserProfile } from "@/lib/supabase";
 
@@ -45,7 +48,6 @@ export default function ProfileHeader({
   onInputChange,
   onGPSLocation,
 }: ProfileHeaderProps) {
-  // Get initials for avatar placeholder
   const getInitials = (name: string) => {
     if (!name) return "U";
     return name
@@ -56,7 +58,6 @@ export default function ProfileHeader({
       .substring(0, 2);
   };
 
-  // Format the joined date
   const formatJoinedDate = (dateStr?: string) => {
     if (!dateStr) return "Joined recently";
     try {
@@ -69,34 +70,38 @@ export default function ProfileHeader({
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, delay: 0.1 }}
-      className="relative overflow-hidden bg-white rounded-3xl shadow-2xl border border-gray-100/50"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="relative overflow-hidden bg-white rounded-xl sm:rounded-2xl shadow-lg border border-gray-100"
     >
-      <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-3xl" />
-      <div className="relative p-6 sm:p-10 md:p-14">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8 w-full md:w-auto text-center sm:text-left flex-1">
-            <div className="relative flex-shrink-0">
-              {/* Profile avatar increased to w-40 h-40 */}
-              <div className="w-32 h-32 sm:w-40 sm:h-40 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-xl">
-                <span className="text-3xl sm:text-5xl font-extrabold text-white">
+      <div className="absolute top-0 right-0 w-32 h-32 sm:w-64 sm:h-64 bg-blue-50 rounded-full blur-3xl" />
+
+      <div className="relative p-4 sm:p-6 md:p-8">
+        {/* Mobile: Stack vertically, Desktop: Row layout */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 sm:gap-6">
+          {/* Left Section - Avatar & Info */}
+          <div className="flex flex-col items-center sm:flex-row sm:items-start gap-4 sm:gap-6 w-full">
+            {/* Avatar - Centered on mobile */}
+            <div className="relative group flex-shrink-0">
+              <div className="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 bg-gradient-to-br from-blue-600 to-blue-400 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg">
+                <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
                   {getInitials(
                     isEditing ? formData.full_name : profile.full_name,
                   )}
                 </span>
               </div>
-              <div className="absolute -bottom-1.5 -right-1.5 bg-green-500 rounded-full p-1.5 border-4 border-white shadow-md">
-                <CheckCircle className="w-4.5 h-4.5 text-white" />
+              <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1 border-2 sm:border-4 border-white shadow">
+                <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
               </div>
             </div>
 
-            <div className="min-w-0 flex-1 w-full space-y-4">
+            {/* Info Section - Full width on mobile */}
+            <div className="text-center sm:text-left flex-1 min-w-0 w-full">
               {isEditing ? (
-                <div className="space-y-4 w-full">
+                <div className="space-y-3 sm:space-y-4 w-full">
                   <div>
-                    <label className="block text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider mb-1.5">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">
                       Full Name
                     </label>
                     <input
@@ -105,14 +110,14 @@ export default function ProfileHeader({
                       onChange={(e) =>
                         onInputChange("full_name", e.target.value)
                       }
-                      className="w-full max-w-xl px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base font-semibold text-gray-900"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm text-gray-900"
                       placeholder="Enter full name"
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider mb-1.5">
+                      <label className="block text-xs font-medium text-gray-500 mb-1">
                         Phone Number
                       </label>
                       <input
@@ -121,37 +126,41 @@ export default function ProfileHeader({
                         onChange={(e) =>
                           onInputChange("phone_no", e.target.value)
                         }
-                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base font-semibold text-gray-900"
+                        className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm text-gray-900"
                         placeholder="Enter phone number"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider mb-1.5">
+                      <label className="block text-xs font-medium text-gray-500 mb-1">
                         Email Address
                       </label>
                       <input
                         type="email"
                         value={formData.email}
-                        onChange={(e) => onInputChange("email", e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base font-semibold text-gray-900"
-                        placeholder="Enter email address"
+                        className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 text-sm cursor-not-allowed"
+                        disabled
                       />
                     </div>
                   </div>
 
-                  <div className="max-w-xl">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-xs sm:text-sm font-extrabold text-gray-500 uppercase tracking-wider">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-medium text-gray-500">
                         Location
                       </label>
                       <button
                         type="button"
                         onClick={onGPSLocation}
                         disabled={isLocating}
-                        className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer border-0 bg-transparent disabled:opacity-50"
+                        className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1"
                       >
-                        <Navigation className="w-3.5 h-3.5" />
-                        {isLocating ? "Locating..." : "Detect via GPS"}
+                        <Navigation className="w-3 h-3" />
+                        <span className="hidden sm:inline">
+                          {isLocating ? "Locating..." : "Use GPS"}
+                        </span>
+                        <span className="sm:hidden">
+                          {isLocating ? "..." : "GPS"}
+                        </span>
                       </button>
                     </div>
                     <input
@@ -160,51 +169,61 @@ export default function ProfileHeader({
                       onChange={(e) =>
                         onInputChange("location", e.target.value)
                       }
-                      className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base font-semibold text-gray-900"
-                      placeholder="e.g. Andheri West, Mumbai"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm text-gray-900"
+                      placeholder="e.g., Andheri West, Mumbai"
                     />
                   </div>
                 </div>
               ) : (
                 <>
-                  <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 break-words flex flex-col sm:flex-row sm:items-center gap-3 justify-center sm:justify-start font-['Plus_Jakarta_Sans',sans-serif] tracking-tight">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2 break-words">
                     {profile.full_name}
-                    {profile.gender && (
-                      <span className="text-xs sm:text-sm px-3 py-1 bg-gray-100 text-gray-600 rounded-full font-normal self-center">
-                        {profile.gender}
-                      </span>
-                    )}
                   </h2>
-                  <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2.5 mt-2.5">
-                    <span className="px-3.5 py-1 bg-blue-50 border border-blue-100 text-blue-700 text-xs sm:text-sm font-semibold rounded-full whitespace-nowrap">
-                      ⭐ Verified Provider
+
+                  {/* Badges - Wrap on mobile */}
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center sm:justify-start mb-3">
+                    <span className="px-2 py-0.5 sm:px-2.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full flex items-center gap-1">
+                      <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Top Rated
                     </span>
-                    <span className="px-3.5 py-1 bg-purple-50 border border-purple-100 text-purple-700 text-xs sm:text-sm font-semibold rounded-full whitespace-nowrap">
-                      🏆 Top Rated
+                    <span className="px-2 py-0.5 sm:px-2.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full flex items-center gap-1">
+                      <Award className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Verified
+                    </span>
+                    <span className="px-2 py-0.5 sm:px-2.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full flex items-center gap-1">
+                      <Shield className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Trusted
                     </span>
                   </div>
-                  <div className="flex flex-wrap justify-center sm:justify-start gap-x-6 gap-y-3 mt-4 sm:mt-6 text-sm sm:text-base text-gray-600 font-medium">
+
+                  {/* Contact Info - Stack on mobile, row on desktop */}
+                  <div className="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-3 text-xs sm:text-sm text-gray-600">
                     {profile.phone_no && (
-                      <span className="flex items-center gap-2 justify-center sm:justify-start">
-                        <Phone className="w-4.5 h-4.5 text-green-500" />
-                        {profile.phone_no}
+                      <span className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-0 py-1 sm:py-0 bg-gray-50 sm:bg-transparent rounded-lg sm:rounded-none">
+                        <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-500" />
+                        <span className="truncate max-w-[150px] sm:max-w-none">
+                          {profile.phone_no}
+                        </span>
                       </span>
                     )}
                     {profile.email && (
-                      <span className="flex items-center gap-2 justify-center sm:justify-start break-all">
-                        <Mail className="w-4.5 h-4.5 text-blue-500" />
-                        {profile.email}
+                      <span className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-0 py-1 sm:py-0 bg-gray-50 sm:bg-transparent rounded-lg sm:rounded-none">
+                        <Mail className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-500" />
+                        <span className="truncate max-w-[150px] sm:max-w-none">
+                          {profile.email}
+                        </span>
                       </span>
                     )}
                     {profile.location && (
-                      <span className="flex items-center gap-2 justify-center sm:justify-start">
-                        <MapPin className="w-4.5 h-4.5 text-red-500 flex-shrink-0" />
-                        {profile.location}
+                      <span className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-0 py-1 sm:py-0 bg-gray-50 sm:bg-transparent rounded-lg sm:rounded-none">
+                        <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-500 flex-shrink-0" />
+                        <span className="truncate max-w-[120px] sm:max-w-none">
+                          {profile.location}
+                        </span>
                       </span>
                     )}
-                    <span className="flex items-center gap-2 justify-center sm:justify-start whitespace-nowrap">
-                      <Calendar className="w-4.5 h-4.5 text-purple-500" />
-                      {formatJoinedDate(profile.created_at)}
+                    <span className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-0 py-1 sm:py-0 bg-gray-50 sm:bg-transparent rounded-lg sm:rounded-none">
+                      <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-500" />
+                      <span className="whitespace-nowrap">
+                        {formatJoinedDate(profile.created_at)}
+                      </span>
                     </span>
                   </div>
                 </>
@@ -212,43 +231,37 @@ export default function ProfileHeader({
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto mt-4 md:mt-0">
+          {/* Action Buttons - Full width on mobile */}
+          <div className="flex gap-2 sm:gap-3 w-full sm:w-auto mt-4 sm:mt-0">
             {isEditing ? (
               <>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="button"
+                <button
                   onClick={onCancel}
                   disabled={isSaving}
-                  className="px-6 py-3 bg-gray-100 text-gray-700 text-sm sm:text-base font-semibold rounded-2xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2 cursor-pointer border-0 disabled:opacity-50"
+                  className="flex-1 px-4 sm:px-5 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  <X className="w-4.5 h-4.5" />
-                  <span>Cancel</span>
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="button"
+                  <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="text-xs sm:text-sm">Cancel</span>
+                </button>
+                <button
                   onClick={onSave}
                   disabled={isSaving}
-                  className="px-6 py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm sm:text-base font-semibold rounded-2xl hover:shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer border-0 shadow-md shadow-blue-500/10 disabled:opacity-50"
+                  className="flex-1 px-4 sm:px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
                 >
-                  <Save className="w-4.5 h-4.5" />
-                  <span>{isSaving ? "Saving..." : "Save Profile"}</span>
-                </motion.button>
+                  <Save className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="text-xs sm:text-sm">
+                    {isSaving ? "Saving..." : "Save"}
+                  </span>
+                </button>
               </>
             ) : (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                type="button"
+              <button
                 onClick={onEdit}
-                className="w-full px-8 py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm sm:text-base font-bold whitespace-nowrap shadow-lg shadow-blue-500/15 cursor-pointer border-0"
+                className="w-full px-4 sm:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2 text-sm font-medium shadow-sm"
               >
-                <Edit className="w-4.5 h-4.5" />
+                <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Edit Profile</span>
-              </motion.button>
+              </button>
             )}
           </div>
         </div>

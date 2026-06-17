@@ -35,3 +35,19 @@ export interface ServicePreview {
   availableTime: string;
   languages: string;
 }
+
+export interface TutorServiceFormData {
+  title: string;
+  category: string;
+  customCategory?: string;
+  description: string;
+  service_modes: string[]; // At My Place, At Student's Place, Online
+  city: string;
+  area: string;
+  latitude: number | null;
+  longitude: number | null;
+  availability: string[]; // Weekdays, Weekends, Morning, Afternoon, Evening, Flexible
+  languages: string[];
+  starting_price: number | null;
+  price_unit: string; // Per Hour, Per Session, Per Day, Per Month
+}

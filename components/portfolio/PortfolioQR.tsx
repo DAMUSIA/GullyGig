@@ -28,7 +28,7 @@ export default function PortfolioQR({ portfolioUrl }: PortfolioQRProps) {
       {/* Background radial highlight */}
       <div className="absolute -bottom-20 -right-20 w-44 h-44 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="space-y-3 max-w-md text-center md:text-left relative z-10">
+      <div className="space-y-3 max-w text-center md:text-left relative z-10">
         <div className="flex items-center justify-center md:justify-start gap-2 text-blue-400">
           <QrCode className="h-5 w-5" />
           <span className="text-xs font-bold uppercase tracking-wider">Shareable Portfolio</span>

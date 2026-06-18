@@ -720,7 +720,9 @@ export default function CreateServicePage() {
 
               <div className="bg-slate-50 rounded-2xl p-4 w-full text-left border border-slate-100 text-sm text-slate-650 space-y-3 font-medium mb-5">
                 <div className="flex items-start gap-3">
-                  <span className="text-slate-500 whitespace-nowrap min-w-[72px]">Category:</span>
+                  <span className="text-slate-500 whitespace-nowrap min-w-[72px]">
+                    Category:
+                  </span>
                   <span className="text-slate-800 break-words flex-1">
                     {formData.category === "Other"
                       ? formData.customCategory
@@ -728,16 +730,21 @@ export default function CreateServicePage() {
                   </span>
                 </div>
                 <div className="flex items-start gap-3">
-                  <span className="text-slate-500 whitespace-nowrap min-w-[72px]">Location:</span>
+                  <span className="text-slate-500 whitespace-nowrap min-w-[72px]">
+                    Location:
+                  </span>
                   <span className="text-slate-800 break-words flex-1">
                     {[formData.area, formData.city].filter(Boolean).join(", ")}
                   </span>
                 </div>
                 {formData.starting_price && (
                   <div className="flex items-start gap-3">
-                    <span className="text-slate-500 whitespace-nowrap min-w-[72px]">Price:</span>
+                    <span className="text-slate-500 whitespace-nowrap min-w-[72px]">
+                      Price:
+                    </span>
                     <span className="text-slate-800 break-words flex-1">
-                      ₹{formData.starting_price} / {formData.price_unit.toLowerCase()}
+                      ₹{formData.starting_price} /{" "}
+                      {formData.price_unit.toLowerCase()}
                     </span>
                   </div>
                 )}

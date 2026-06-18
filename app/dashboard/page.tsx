@@ -3,24 +3,24 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { 
-  Plus, 
-  Eye, 
-  Heart, 
-  Star, 
-  MessageSquare, 
-  Briefcase, 
-  Edit, 
-  BarChart3, 
-  ExternalLink, 
-  Loader2, 
+import {
+  Plus,
+  Eye,
+  Heart,
+  Star,
+  MessageSquare,
+  Briefcase,
+  Edit,
+  BarChart3,
+  ExternalLink,
+  Loader2,
   AlertCircle,
   X,
   Check,
   Globe,
   Home,
   Calendar,
-  MapPin
+  MapPin,
 } from "lucide-react";
 import { getCurrentUser, supabase } from "@/lib/supabase";
 
@@ -70,13 +70,15 @@ export default function DashboardPage() {
   const [currentUser, setCurrentUser] = useState<ServiceUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Data states
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [recentReviews, setRecentReviews] = useState<ServiceReview[]>([]);
 
   // Edit Modal State
-  const [editingService, setEditingService] = useState<ServiceItem | null>(null);
+  const [editingService, setEditingService] = useState<ServiceItem | null>(
+    null,
+  );
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editPrice, setEditPrice] = useState<number | null>(null);
@@ -85,13 +87,17 @@ export default function DashboardPage() {
   const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   // View Listing Modal State
-  const [viewingService, setViewingService] = useState<ServiceItem | null>(null);
+  const [viewingService, setViewingService] = useState<ServiceItem | null>(
+    null,
+  );
 
   useEffect(() => {
     async function loadDashboardData() {
       try {
         setLoading(true);
-        const { user } = (await getCurrentUser()) as { user: ServiceUser | null };
+        const { user } = (await getCurrentUser()) as {
+          user: ServiceUser | null;
+        };
         if (!user) {
           router.push("/login");
           return;
@@ -99,7 +105,9 @@ export default function DashboardPage() {
         setCurrentUser(user);
 
         if (!supabase) {
-          throw new Error("Supabase service is not configured on your environment");
+          throw new Error(
+            "Supabase service is not configured on your environment",
+          );
         }
 
         // Fetch owned services
@@ -110,7 +118,7 @@ export default function DashboardPage() {
           .order("created_at", { ascending: false });
 
         if (servicesError) throw servicesError;
-        setServices(servicesData as ServiceItem[] || []);
+        setServices((servicesData as ServiceItem[]) || []);
 
         // Fetch recent reviews on owner's services
         const { data: reviewsData, error: reviewsError } = await supabase
@@ -121,7 +129,7 @@ export default function DashboardPage() {
           .limit(3);
 
         if (!reviewsError && reviewsData) {
-          setRecentReviews(reviewsData as ServiceReview[] || []);
+          setRecentReviews((reviewsData as ServiceReview[]) || []);
         }
       } catch (err: unknown) {
         console.error("Dashboard loading error:", err);
@@ -170,21 +178,27 @@ export default function DashboardPage() {
           starting_price: editPrice,
           price_unit: editPrice ? editPriceUnit : null,
           is_active: editIsActive,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq("id", editingService.id);
 
       if (updateError) throw updateError;
 
       // Update state locally
-      setServices(prev => prev.map(s => s.id === editingService.id ? {
-        ...s,
-        title: editTitle.trim(),
-        description: editDescription.trim(),
-        starting_price: editPrice,
-        price_unit: editPrice ? editPriceUnit : null,
-        is_active: editIsActive
-      } : s));
+      setServices((prev) =>
+        prev.map((s) =>
+          s.id === editingService.id
+            ? {
+                ...s,
+                title: editTitle.trim(),
+                description: editDescription.trim(),
+                starting_price: editPrice,
+                price_unit: editPrice ? editPriceUnit : null,
+                is_active: editIsActive,
+              }
+            : s,
+        ),
+      );
 
       setEditingService(null);
       alert("Service updated successfully!");
@@ -202,7 +216,9 @@ export default function DashboardPage() {
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center space-y-4">
           <Loader2 className="h-10 w-10 animate-spin text-blue-600 mx-auto" />
-          <p className="text-sm font-semibold text-slate-500">Loading your dashboard...</p>
+          <p className="text-sm font-semibold text-slate-500">
+            Loading your dashboard...
+          </p>
         </div>
       </div>
     );
@@ -213,8 +229,12 @@ export default function DashboardPage() {
       <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
         <div className="bg-white p-6 border border-slate-200 rounded-3xl shadow-xl max-w-md w-full text-center">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-3" />
-          <h2 className="text-lg font-extrabold text-slate-800">Dashboard Load Error</h2>
-          <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">{error}</p>
+          <h2 className="text-lg font-extrabold text-slate-800">
+            Dashboard Load Error
+          </h2>
+          <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+            {error}
+          </p>
           <button
             onClick={() => window.location.reload()}
             className="mt-4 px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition"
@@ -231,14 +251,22 @@ export default function DashboardPage() {
   const totalViews = services.reduce((sum, s) => sum + (s.views_count || 0), 0);
   const totalLikes = services.reduce((sum, s) => sum + (s.likes_count || 0), 0);
   const ratedServices = services.filter((s) => (s.reviews_count || 0) > 0);
-  const averageRating = ratedServices.length > 0
-    ? parseFloat((ratedServices.reduce((sum, s) => sum + (s.rating_average || 0), 0) / ratedServices.length).toFixed(1))
-    : 0.0;
-  const totalReviewsCount = services.reduce((sum, s) => sum + (s.reviews_count || 0), 0);
+  const averageRating =
+    ratedServices.length > 0
+      ? parseFloat(
+          (
+            ratedServices.reduce((sum, s) => sum + (s.rating_average || 0), 0) /
+            ratedServices.length
+          ).toFixed(1),
+        )
+      : 0.0;
+  const totalReviewsCount = services.reduce(
+    (sum, s) => sum + (s.reviews_count || 0),
+    0,
+  );
 
   return (
     <div className="space-y-8 relative min-h-[calc(100vh-120px)] pb-16">
-      
       {/* Welcome Card */}
       <div className="bg-white rounded-3xl shadow-xs border border-slate-200 p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -249,7 +277,7 @@ export default function DashboardPage() {
             Here&apos;s the performance of your hyperlocal teaching services.
           </p>
         </div>
-        
+
         <Link
           href="/dashboard/create-service"
           className="inline-flex items-center justify-center gap-1.5 px-4.5 py-3 bg-blue-600 hover:bg-blue-750 text-white text-xs font-extrabold rounded-2xl shadow-md shadow-blue-500/10 hover:shadow-lg hover:shadow-blue-500/20 active:scale-98 transition shrink-0 cursor-pointer"
@@ -267,8 +295,12 @@ export default function DashboardPage() {
             <Briefcase className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Services</h3>
-            <p className="text-xl font-extrabold text-slate-800 mt-0.5">{totalServices}</p>
+            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Total Services
+            </h3>
+            <p className="text-xl font-extrabold text-slate-800 mt-0.5">
+              {totalServices}
+            </p>
           </div>
         </div>
 
@@ -278,8 +310,12 @@ export default function DashboardPage() {
             <Eye className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Views</h3>
-            <p className="text-xl font-extrabold text-slate-800 mt-0.5">{totalViews}</p>
+            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Total Views
+            </h3>
+            <p className="text-xl font-extrabold text-slate-800 mt-0.5">
+              {totalViews}
+            </p>
           </div>
         </div>
 
@@ -289,8 +325,12 @@ export default function DashboardPage() {
             <Heart className="h-5 w-5 fill-red-500/10" />
           </div>
           <div>
-            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Likes</h3>
-            <p className="text-xl font-extrabold text-slate-800 mt-0.5">{totalLikes}</p>
+            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Total Likes
+            </h3>
+            <p className="text-xl font-extrabold text-slate-800 mt-0.5">
+              {totalLikes}
+            </p>
           </div>
         </div>
 
@@ -300,8 +340,15 @@ export default function DashboardPage() {
             <Star className="h-5 w-5 fill-amber-500/10" />
           </div>
           <div>
-            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Average Rating</h3>
-            <p className="text-xl font-extrabold text-slate-800 mt-0.5">{averageRating || "0.0"} <span className="text-xs font-semibold text-slate-400">({totalReviewsCount} reviews)</span></p>
+            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Average Rating
+            </h3>
+            <p className="text-xl font-extrabold text-slate-800 mt-0.5">
+              {averageRating || "0.0"}{" "}
+              <span className="text-xs font-semibold text-slate-400">
+                ({totalReviewsCount} reviews)
+              </span>
+            </p>
           </div>
         </div>
       </div>
@@ -309,8 +356,13 @@ export default function DashboardPage() {
       {/* My Services Listing */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-extrabold text-slate-800 tracking-tight">My Services</h2>
-          <Link href="/dashboard/analytics" className="text-xs font-bold text-blue-600 hover:text-blue-750 flex items-center gap-1">
+          <h2 className="text-lg font-extrabold text-slate-800 tracking-tight">
+            My Services
+          </h2>
+          <Link
+            href="/dashboard/analytics"
+            className="text-xs font-bold text-blue-600 hover:text-blue-750 flex items-center gap-1"
+          >
             <span>Detailed Analytics</span>
             <BarChart3 className="h-3.5 w-3.5" />
           </Link>
@@ -318,7 +370,9 @@ export default function DashboardPage() {
 
         {services.length === 0 ? (
           <div className="text-center py-12 bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col items-center gap-3">
-            <p className="text-xs text-slate-450 font-medium">You haven&apos;t listed any teaching services yet.</p>
+            <p className="text-xs text-slate-450 font-medium">
+              You haven&apos;t listed any teaching services yet.
+            </p>
             <Link
               href="/dashboard/create-service"
               className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition"
@@ -338,9 +392,13 @@ export default function DashboardPage() {
                     <span className="text-[9px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-blue-100/30">
                       {service.category}
                     </span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg ${
-                      service.is_active ? "bg-green-50 text-green-600 border border-green-100/35" : "bg-slate-100 text-slate-400 border border-slate-200/50"
-                    }`}>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-lg ${
+                        service.is_active
+                          ? "bg-green-50 text-green-600 border border-green-100/35"
+                          : "bg-slate-100 text-slate-400 border border-slate-200/50"
+                      }`}
+                    >
                       {service.is_active ? "Active" : "Inactive"}
                     </span>
                   </div>
@@ -400,7 +458,6 @@ export default function DashboardPage() {
                     <span>View</span>
                   </button>
                 </div>
-
               </div>
             ))}
           </div>
@@ -416,11 +473,18 @@ export default function DashboardPage() {
           </h2>
           <div className="space-y-4">
             {recentReviews.map((review) => (
-              <div key={review.id} className="pb-4 border-b border-slate-100 last:border-b-0 last:pb-0 flex flex-col gap-1 text-xs">
+              <div
+                key={review.id}
+                className="pb-4 border-b border-slate-100 last:border-b-0 last:pb-0 flex flex-col gap-1 text-xs"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-700">{review.users?.full_name}</span>
-                    <span className="text-[10px] text-slate-400 font-semibold">on &quot;{review.services?.title}&quot;</span>
+                    <span className="font-bold text-slate-700">
+                      {review.users?.full_name}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-semibold">
+                      on &quot;{review.services?.title}&quot;
+                    </span>
                   </div>
                   <span className="text-[10px] font-semibold text-slate-400">
                     {new Date(review.created_at).toLocaleDateString()}
@@ -434,7 +498,11 @@ export default function DashboardPage() {
                     />
                   ))}
                 </div>
-                {review.review && <p className="text-slate-600 leading-relaxed font-sans font-medium">{review.review}</p>}
+                {review.review && (
+                  <p className="text-slate-600 leading-relaxed font-sans font-medium">
+                    {review.review}
+                  </p>
+                )}
               </div>
             ))}
           </div>
@@ -454,26 +522,45 @@ export default function DashboardPage() {
       {/* Inline Edit Modal */}
       {editingService && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
-          <div onClick={() => setEditingService(null)} className="absolute inset-0 bg-slate-900/40 backdrop-blur-md" />
-          
+          <div
+            onClick={() => setEditingService(null)}
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
+          />
+
           <form
             onSubmit={handleSaveEdit}
-            style={{ width: "min(560px, calc(100vw - 32px))", maxHeight: "calc(100vh - 48px)" }}
+            style={{
+              width: "min(560px, calc(100vw - 32px))",
+              maxHeight: "calc(100vh - 48px)",
+            }}
             className="bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10 overflow-y-auto animate-in zoom-in-95 duration-200"
           >
             <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-4 mb-5">
               <div>
-                <h3 className="text-xl font-extrabold text-slate-800 leading-tight">Edit Service</h3>
-                <p className="text-xs text-slate-500 mt-1">Update your listing details and visibility.</p>
+                <h3 className="text-xl font-extrabold text-slate-800 leading-tight">
+                  Edit Service
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Update your listing details and visibility.
+                </p>
               </div>
-              <button type="button" onClick={() => setEditingService(null)} className="p-2 rounded-full hover:bg-slate-100 text-slate-400 shrink-0">
+              <button
+                type="button"
+                onClick={() => setEditingService(null)}
+                className="p-2 rounded-full hover:bg-slate-100 text-slate-400 shrink-0"
+              >
                 <X className="h-4.5 w-4.5" />
               </button>
             </div>
 
             {/* Title */}
             <div className="space-y-1.5 text-xs mb-4">
-              <label htmlFor="edit-title" className="font-bold text-slate-500 uppercase">Title</label>
+              <label
+                htmlFor="edit-title"
+                className="font-bold text-slate-500 uppercase"
+              >
+                Title
+              </label>
               <input
                 id="edit-title"
                 type="text"
@@ -486,7 +573,12 @@ export default function DashboardPage() {
 
             {/* Description */}
             <div className="space-y-1.5 text-xs mb-4">
-              <label htmlFor="edit-desc" className="font-bold text-slate-500 uppercase">Description</label>
+              <label
+                htmlFor="edit-desc"
+                className="font-bold text-slate-500 uppercase"
+              >
+                Description
+              </label>
               <textarea
                 id="edit-desc"
                 rows={4}
@@ -500,7 +592,12 @@ export default function DashboardPage() {
             {/* Pricing */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs mb-4">
               <div className="space-y-1.5">
-                <label htmlFor="edit-price" className="font-bold text-slate-500 uppercase">Starting Price</label>
+                <label
+                  htmlFor="edit-price"
+                  className="font-bold text-slate-500 uppercase"
+                >
+                  Starting Price
+                </label>
                 <input
                   id="edit-price"
                   type="number"
@@ -515,7 +612,12 @@ export default function DashboardPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="edit-unit" className="font-bold text-slate-500 uppercase">Price Unit</label>
+                <label
+                  htmlFor="edit-unit"
+                  className="font-bold text-slate-500 uppercase"
+                >
+                  Price Unit
+                </label>
                 <select
                   id="edit-unit"
                   value={editPriceUnit}
@@ -534,8 +636,12 @@ export default function DashboardPage() {
             {/* Toggle Status */}
             <div className="flex items-center justify-between gap-4 bg-slate-50 border border-slate-100 rounded-2xl p-4 text-xs mb-5">
               <div className="min-w-0">
-                <span className="font-bold text-slate-700 block">Service Active Status</span>
-                <span className="text-[10px] text-slate-400 block mt-0.5">Toggle whether this service is discoverable on marketplace.</span>
+                <span className="font-bold text-slate-700 block">
+                  Service Active Status
+                </span>
+                <span className="text-[10px] text-slate-400 block mt-0.5">
+                  Toggle whether this service is discoverable on marketplace.
+                </span>
               </div>
               <input
                 type="checkbox"
@@ -579,10 +685,16 @@ export default function DashboardPage() {
       {/* Listing Detail Modal */}
       {viewingService && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
-          <div onClick={() => setViewingService(null)} className="absolute inset-0 bg-slate-900/40 backdrop-blur-md" />
+          <div
+            onClick={() => setViewingService(null)}
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
+          />
 
           <div
-            style={{ width: "min(680px, calc(100vw - 32px))", maxHeight: "calc(100vh - 48px)" }}
+            style={{
+              width: "min(680px, calc(100vw - 32px))",
+              maxHeight: "calc(100vh - 48px)",
+            }}
             className="bg-white border border-slate-100 rounded-3xl shadow-2xl relative z-10 overflow-y-auto animate-in zoom-in-95 duration-200"
           >
             <div className="sticky top-0 bg-white border-b border-slate-100 px-6 sm:px-8 py-5 flex items-start justify-between gap-4 z-10 rounded-t-3xl">
@@ -594,29 +706,38 @@ export default function DashboardPage() {
                   {viewingService.title}
                 </h2>
               </div>
-              <button type="button" onClick={() => setViewingService(null)} className="p-2 rounded-full hover:bg-slate-100 text-slate-400 shrink-0">
+              <button
+                type="button"
+                onClick={() => setViewingService(null)}
+                className="p-2 rounded-full hover:bg-slate-100 text-slate-400 shrink-0"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             <div className="p-6 sm:p-8 space-y-6 text-sm">
               <div className="space-y-1.5">
-                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Service Description</h3>
+                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Service Description
+                </h3>
                 <p className="text-slate-650 font-medium leading-7 bg-blue-50/20 rounded-2xl p-4 border border-blue-100/10 whitespace-pre-line break-words">
                   {viewingService.description}
                 </p>
               </div>
 
               <div className="bg-slate-50/70 border border-slate-100 rounded-2xl p-4 space-y-3.5">
-                <h3 className="font-extrabold text-slate-700 border-b border-slate-200/50 pb-2">Specifications</h3>
-                
+                <h3 className="font-extrabold text-slate-700 border-b border-slate-200/50 pb-2">
+                  Specifications
+                </h3>
+
                 <div className="grid grid-cols-1 sm:grid-cols-[160px_minmax(0,1fr)] gap-1 sm:gap-4">
                   <span className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
                     <Home className="h-3.5 w-3.5 text-blue-500" />
                     Teaching Modes
                   </span>
                   <p className="font-semibold text-slate-600 break-words">
-                    {viewingService.service_modes.join(", ") || "No modes selected"}
+                    {viewingService.service_modes.join(", ") ||
+                      "No modes selected"}
                   </p>
                 </div>
 
@@ -656,7 +777,6 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

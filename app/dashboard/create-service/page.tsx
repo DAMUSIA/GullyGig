@@ -105,12 +105,11 @@ export default function CreateServicePage() {
     latitude: null,
     longitude: null,
     availability: [],
-    languages: ["English"], // default pre-fill
+    languages: ["English"],
     starting_price: null,
     price_unit: "Per Hour",
   });
 
-  // Track if user has edited the title manually
   const [isTitleManuallyEdited, setIsTitleManuallyEdited] = useState(false);
 
   // Authentication Check
@@ -133,12 +132,9 @@ export default function CreateServicePage() {
     checkUser();
   }, [router]);
 
-  // Handle Category selection
   const handleCategoryChange = (val: string) => {
     setFormData((prev) => {
       const updated = { ...prev, category: val };
-
-      // Auto-suggest title based on category if title is empty or matching a suggestion
       if (!isTitleManuallyEdited) {
         const suggestion = CATEGORY_TITLE_MAPPING[val];
         if (suggestion) {
@@ -151,14 +147,12 @@ export default function CreateServicePage() {
     });
   };
 
-  // Handle Title input change
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setIsTitleManuallyEdited(true);
     setFormData((prev) => ({ ...prev, title: val }));
   };
 
-  // Toggle multi-select mode chips
   const handleToggleMode = (mode: string) => {
     setFormData((prev) => {
       const current = prev.service_modes;
@@ -169,7 +163,6 @@ export default function CreateServicePage() {
     });
   };
 
-  // Toggle availability options
   const handleToggleAvailability = (option: string) => {
     setFormData((prev) => {
       const current = prev.availability;
@@ -180,7 +173,6 @@ export default function CreateServicePage() {
     });
   };
 
-  // Handle location update
   const handleLocationChange = (fields: {
     city: string;
     area: string;
@@ -193,7 +185,6 @@ export default function CreateServicePage() {
     }));
   };
 
-  // Validation Check
   const isFormValid =
     formData.title.trim().length >= 3 &&
     formData.title.trim().length <= 80 &&
@@ -206,20 +197,17 @@ export default function CreateServicePage() {
     formData.description.trim().length >= 20 &&
     formData.description.trim().length <= 250;
 
-  // Handle publishing service
   const handlePublish = async () => {
     if (!isFormValid || !user) return;
 
     setIsSubmitting(true);
     setDbError(null);
 
-    // Compute category
     const finalCategory =
       formData.category === "Other"
         ? formData.customCategory?.trim() || "Other"
         : formData.category;
 
-    // Parse starting price
     const finalPrice =
       formData.starting_price !== null && formData.starting_price !== undefined
         ? parseInt(formData.starting_price.toString(), 10)
@@ -262,7 +250,6 @@ export default function CreateServicePage() {
       }
 
       if (serviceData) {
-        // Create matching analytics record
         const { error: analyticsError } = await supabase
           .from("service_analytics")
           .insert([
@@ -285,12 +272,10 @@ export default function CreateServicePage() {
         }
       }
 
-      // Show Success animation
       setShowSuccessModal(true);
     } catch (err: unknown) {
       console.error("Failed to publish service:", err);
       const errMsg = err instanceof Error ? err.message : String(err);
-      // For local development or mock-run when Supabase table isn't created yet or env missing:
       if (errMsg.includes("relation") || errMsg.includes("configured")) {
         console.warn("Falling back to demo flow success (mock connection)");
         setShowSuccessModal(true);
@@ -321,7 +306,7 @@ export default function CreateServicePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/20 pb-32">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/20">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Page Header */}
         <div className="mb-8 max-w-4xl">
@@ -351,9 +336,9 @@ export default function CreateServicePage() {
         )}
 
         {/* Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
           {/* Form Side */}
-          <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md space-y-8">
+          <div className="xl:col-span-8 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md space-y-8">
             {/* Section 1 - What Do You Teach? */}
             <div className="space-y-5">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
@@ -365,7 +350,6 @@ export default function CreateServicePage() {
                 </h3>
               </div>
 
-              {/* Category */}
               <SearchableDropdown
                 label="Teaching Category"
                 required
@@ -379,7 +363,6 @@ export default function CreateServicePage() {
                 placeholder="Choose a category (e.g. Science Tutor, Piano Teacher)"
               />
 
-              {/* Service Title */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-sm">
                   <label
@@ -389,7 +372,12 @@ export default function CreateServicePage() {
                     Service Title <span className="text-red-500">*</span>
                   </label>
                   <span
-                    className={`text-[10px] font-semibold ${formData.title.trim().length >= 3 && formData.title.trim().length <= 80 ? "text-slate-400" : "text-amber-500"}`}
+                    className={`text-[10px] font-semibold ${
+                      formData.title.trim().length >= 3 &&
+                      formData.title.trim().length <= 80
+                        ? "text-slate-400"
+                        : "text-amber-500"
+                    }`}
                   >
                     {formData.title.trim().length} / 80
                   </span>
@@ -542,7 +530,6 @@ export default function CreateServicePage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Price Input */}
                 <div className="space-y-1.5">
                   <label
                     htmlFor="starting-price"
@@ -577,7 +564,6 @@ export default function CreateServicePage() {
                   </div>
                 </div>
 
-                {/* Price Unit Selection */}
                 <div className="space-y-1.5">
                   <label
                     htmlFor="price-unit"
@@ -627,7 +613,12 @@ export default function CreateServicePage() {
                     About Your Teaching <span className="text-red-500">*</span>
                   </label>
                   <span
-                    className={`text-[10px] font-bold ${formData.description.trim().length >= 20 && formData.description.trim().length <= 250 ? "text-slate-400" : "text-amber-500"}`}
+                    className={`text-[10px] font-bold ${
+                      formData.description.trim().length >= 20 &&
+                      formData.description.trim().length <= 250
+                        ? "text-slate-400"
+                        : "text-amber-500"
+                    }`}
                   >
                     {formData.description.trim().length} / 250
                   </span>
@@ -657,8 +648,8 @@ export default function CreateServicePage() {
           </div>
 
           {/* Sticky Live Preview Column */}
-          <div className="lg:col-span-5 lg:sticky lg:top-24">
-            <div className="bg-slate-100/50 border border-slate-200/50 rounded-3xl p-5 mb-4 max-w-md mx-auto">
+          <div className="xl:col-span-4 xl:sticky xl:top-24 w-full max-w-md mx-auto xl:max-w-none">
+            <div className="bg-slate-100/50 border border-slate-200/50 rounded-3xl p-4 mb-4 w-full">
               <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                 <Info className="h-3.5 w-3.5 text-blue-500" />
                 Tips for high click rate
@@ -688,10 +679,10 @@ export default function CreateServicePage() {
         onPublish={handlePublish}
       />
 
-      {/* Success Dialog Modal */}
+      {/* Success Dialog Modal - Fixed */}
       <AnimatePresence>
         {showSuccessModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -705,49 +696,48 @@ export default function CreateServicePage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: "spring", stiffness: 320, damping: 26 }}
-              className="bg-white border border-slate-100 rounded-3xl p-8 shadow-2xl relative z-10 w-full max-w-md text-center flex flex-col items-center gap-4"
+              className="w-[520px] max-w-[calc(100vw-2rem)] bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10 max-h-[calc(100vh-3rem)] overflow-y-auto text-center"
             >
               {/* Success Badge */}
-              <div className="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center shadow-inner relative">
+              <div className="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center shadow-inner relative mx-auto mb-5">
                 <CheckCircle2 className="h-9 w-9" />
                 <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-white animate-ping"></span>
               </div>
 
-              <div className="space-y-2">
-                <h2 className="text-2xl font-extrabold text-slate-800 leading-snug">
+              <div className="mb-6">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 leading-tight mb-3">
                   Teaching Service Published!
                 </h2>
-                <p className="text-xs text-slate-500 leading-relaxed max-w-sm">
+                <p className="text-sm text-slate-500 leading-relaxed max-w-sm mx-auto">
                   Congratulations! Your listing has been published. Local
                   students and parents searching for{" "}
-                  <strong>{formData.title}</strong> will now be able to discover
-                  and contact you.
+                  <span className="font-bold text-slate-700 break-words inline-block max-w-[180px] align-bottom">
+                    {formData.title}
+                  </span>{" "}
+                  will now be able to discover and contact you.
                 </p>
               </div>
 
-              <div className="bg-slate-50 rounded-2xl p-4 w-full text-left border border-slate-100 text-xs text-slate-650 flex flex-col gap-1.5 font-medium">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                  <span>
-                    Category:{" "}
+              <div className="bg-slate-50 rounded-2xl p-4 w-full text-left border border-slate-100 text-sm text-slate-650 space-y-3 font-medium mb-5">
+                <div className="flex items-start gap-3">
+                  <span className="text-slate-500 whitespace-nowrap min-w-[72px]">Category:</span>
+                  <span className="text-slate-800 break-words flex-1">
                     {formData.category === "Other"
                       ? formData.customCategory
                       : formData.category}
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                  <span>
-                    Location:{" "}
+                <div className="flex items-start gap-3">
+                  <span className="text-slate-500 whitespace-nowrap min-w-[72px]">Location:</span>
+                  <span className="text-slate-800 break-words flex-1">
                     {[formData.area, formData.city].filter(Boolean).join(", ")}
                   </span>
                 </div>
                 {formData.starting_price && (
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                    <span>
-                      Price: ₹{formData.starting_price} /{" "}
-                      {formData.price_unit.toLowerCase()}
+                  <div className="flex items-start gap-3">
+                    <span className="text-slate-500 whitespace-nowrap min-w-[72px]">Price:</span>
+                    <span className="text-slate-800 break-words flex-1">
+                      ₹{formData.starting_price} / {formData.price_unit.toLowerCase()}
                     </span>
                   </div>
                 )}
@@ -756,7 +746,7 @@ export default function CreateServicePage() {
               <button
                 type="button"
                 onClick={handleModalClose}
-                className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 bg-blue-600 hover:bg-blue-750 text-white font-extrabold text-sm rounded-2xl transition-all shadow-lg shadow-blue-500/20 active:scale-98 cursor-pointer"
+                className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm rounded-2xl transition-all shadow-lg shadow-blue-500/20 active:scale-98 cursor-pointer"
               >
                 <span>Go to Dashboard</span>
                 <ChevronRight className="h-4 w-4" />

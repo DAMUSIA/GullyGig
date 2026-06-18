@@ -17,6 +17,7 @@ import {
   Menu,
   Sparkles,
   X,
+  Search,
 } from "lucide-react";
 
 // ============================================
@@ -55,6 +56,7 @@ const MENU_ITEMS: MenuItem[] = [
 
 const SIDEBAR_WIDTH = 280;
 const SIDEBAR_COLLAPSED_WIDTH = 72;
+const ANIMATION_DURATION = 0.3;
 
 // ============================================
 // Custom Hook: useMediaQuery
@@ -73,9 +75,35 @@ function useMediaQuery(query: string): boolean {
     return () => media.removeEventListener("change", listener);
   }, [query]);
 
-  // Return false during SSR to avoid hydration mismatch
   return mounted ? matches : false;
 }
+
+// ============================================
+// Animation Variants
+// ============================================
+const fadeInOut = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+};
+
+const slideInLeft = {
+  initial: { x: -SIDEBAR_WIDTH, opacity: 0 },
+  animate: { x: 0, opacity: 1 },
+  exit: { x: -SIDEBAR_WIDTH, opacity: 0 },
+};
+
+const modalVariants = {
+  initial: { opacity: 0, scale: 0.95, y: 20 },
+  animate: { opacity: 1, scale: 1, y: 0 },
+  exit: { opacity: 0, scale: 0.95, y: 20 },
+};
+
+const pageTransition = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -8 },
+};
 
 // ============================================
 // Desktop Sidebar Component
@@ -95,37 +123,51 @@ function DesktopSidebar({
   profileName: string;
   profileEmail: string;
 }) {
-  const width = collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH;
-
   return (
     <motion.aside
-      initial={false}
-      animate={{ width }}
-      transition={{
-        duration: 0.3,
-        ease: [0.4, 0, 0.2, 1],
-      }}
       className="hidden md:flex fixed left-0 top-0 h-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white z-30 shadow-2xl overflow-hidden flex-col"
-      style={{ width }}
+      animate={{ width: collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH }}
+      transition={{ duration: ANIMATION_DURATION, ease: [0.4, 0, 0.2, 1] }}
+      style={{ width: collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH }}
     >
       {/* Logo Area */}
       <div className="flex items-center h-20 px-4 border-b border-white/5 flex-shrink-0">
         <div className="flex items-center gap-2.5 overflow-hidden flex-1">
-          <motion.div
-            className="flex items-center gap-2.5 flex-shrink-0"
-            animate={{
-              opacity: collapsed ? 0 : 1,
-              scale: collapsed ? 0.8 : 1,
-            }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-          >
-            <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25 flex-shrink-0">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent whitespace-nowrap">
-              Kaamao
-            </span>
-          </motion.div>
+          <AnimatePresence mode="wait">
+            {!collapsed && (
+              <motion.div
+                key="logo-expanded"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center gap-2.5 flex-shrink-0"
+              >
+                <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25 flex-shrink-0">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+                <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent whitespace-nowrap">
+                  Kaamao
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <AnimatePresence mode="wait">
+            {collapsed && (
+              <motion.div
+                key="logo-collapsed"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.2 }}
+                className="flex-shrink-0 mx-auto"
+              >
+                <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         <button
           onClick={() => setCollapsed(!collapsed)}
@@ -175,16 +217,20 @@ function DesktopSidebar({
                     isActive ? "text-white" : "group-hover:text-white"
                   }`}
                 />
-                <motion.span
-                  animate={{
-                    opacity: collapsed ? 0 : 1,
-                    width: collapsed ? 0 : "auto",
-                  }}
-                  transition={{ duration: 0.2, ease: "easeInOut" }}
-                  className="text-sm font-medium overflow-hidden whitespace-nowrap"
-                >
-                  {item.label}
-                </motion.span>
+                <AnimatePresence mode="wait">
+                  {!collapsed && (
+                    <motion.span
+                      key="label"
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="text-sm font-medium overflow-hidden whitespace-nowrap"
+                    >
+                      {item.label}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
                 {isActive && !collapsed && (
                   <motion.div
                     layoutId="activeIndicator"
@@ -203,28 +249,31 @@ function DesktopSidebar({
         <motion.div
           animate={{
             padding: collapsed ? "8px" : "12px",
+            justifyContent: collapsed ? "center" : "flex-start",
           }}
           transition={{ duration: 0.2 }}
-          className={`flex items-center gap-3 rounded-xl hover:bg-white/5 transition-colors ${
-            collapsed ? "justify-center" : ""
-          }`}
+          className="flex items-center gap-3 rounded-xl hover:bg-white/5 transition-colors"
         >
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm shadow-lg shadow-blue-500/20 flex-shrink-0">
             {profileName.charAt(0).toUpperCase()}
           </div>
-          <motion.div
-            animate={{
-              opacity: collapsed ? 0 : 1,
-              width: collapsed ? 0 : "auto",
-            }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="overflow-hidden flex-1 min-w-0"
-          >
-            <p className="text-sm font-semibold text-white truncate">
-              {profileName}
-            </p>
-            <p className="text-xs text-white/40 truncate">{profileEmail}</p>
-          </motion.div>
+          <AnimatePresence mode="wait">
+            {!collapsed && (
+              <motion.div
+                key="profile"
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden flex-1 min-w-0"
+              >
+                <p className="text-sm font-semibold text-white truncate">
+                  {profileName}
+                </p>
+                <p className="text-xs text-white/40 truncate">{profileEmail}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         <motion.button
@@ -237,16 +286,20 @@ function DesktopSidebar({
           aria-label="Logout"
         >
           <LogOut className="h-5 w-5 flex-shrink-0 group-hover:scale-110 transition-transform" />
-          <motion.span
-            animate={{
-              opacity: collapsed ? 0 : 1,
-              width: collapsed ? 0 : "auto",
-            }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="text-sm font-medium overflow-hidden whitespace-nowrap"
-          >
-            Logout
-          </motion.span>
+          <AnimatePresence mode="wait">
+            {!collapsed && (
+              <motion.span
+                key="logout"
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2 }}
+                className="text-sm font-medium overflow-hidden whitespace-nowrap"
+              >
+                Logout
+              </motion.span>
+            )}
+          </AnimatePresence>
         </motion.button>
       </div>
     </motion.aside>
@@ -288,14 +341,9 @@ function MobileSidebar({
 
       {/* Drawer */}
       <motion.aside
-        initial={false}
-        animate={{
-          x: isOpen ? 0 : -SIDEBAR_WIDTH,
-        }}
-        transition={{
-          duration: 0.3,
-          ease: [0.4, 0, 0.2, 1],
-        }}
+        initial={{ x: -SIDEBAR_WIDTH }}
+        animate={{ x: isOpen ? 0 : -SIDEBAR_WIDTH }}
+        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
         className="fixed left-0 top-0 h-full w-[280px] bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white z-50 shadow-2xl md:hidden overflow-hidden"
       >
         <div className="flex flex-col h-full w-[280px]">
@@ -409,11 +457,12 @@ function LogoutModal({
           />
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            variants={modalVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden"
+            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-[440px] mx-4 overflow-hidden"
             role="dialog"
             aria-modal="true"
             aria-labelledby="logout-title"
@@ -426,7 +475,7 @@ function LogoutModal({
               <h3 id="logout-title" className="text-xl font-bold text-slate-800 mb-2">
                 Logout?
               </h3>
-              <p className="text-sm text-slate-500 leading-relaxed max-w-sm mx-auto">
+              <p className="text-sm text-slate-500 leading-relaxed max-w mx-auto">
                 Are you sure you want to logout? You'll need to login again to access your dashboard.
               </p>
             </div>
@@ -453,6 +502,50 @@ function LogoutModal({
 }
 
 // ============================================
+// Page Content Wrapper with Transitions
+// ============================================
+function PageContent({ children, pathname }: { children: React.ReactNode; pathname: string }) {
+  const getPageTitle = () => {
+    switch (pathname) {
+      case "/dashboard":
+        return { title: "Dashboard", subtitle: "Welcome back!" };
+      case "/dashboard/create-service":
+        return { title: "Create Service", subtitle: "List your teaching service" };
+      case "/dashboard/nearby-service":
+        return { title: "Nearby Providers", subtitle: "Find tutors and services near you" };
+      case "/dashboard/analytics":
+        return { title: "Analytics", subtitle: "Track your performance" };
+      case "/dashboard/profile":
+        return { title: "My Profile", subtitle: "Manage your personal information" };
+      case "/dashboard/setting":
+        return { title: "Settings", subtitle: "Manage your preferences" };
+      default:
+        return { title: "Dashboard", subtitle: "" };
+    }
+  };
+
+  const { title, subtitle } = getPageTitle();
+
+  return (
+    <motion.div
+      key={pathname}
+      variants={pageTransition}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      className="space-y-6"
+    >
+      <div>
+        <h1 className="text-2xl font-bold text-slate-800">{title}</h1>
+        {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
+      </div>
+      {children}
+    </motion.div>
+  );
+}
+
+// ============================================
 // Main Layout
 // ============================================
 export default function DashboardLayout({
@@ -469,7 +562,6 @@ export default function DashboardLayout({
   const [profileEmail, setProfileEmail] = useState("");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  // Use media query hook for responsive detection
   const isMobile = useMediaQuery("(max-width: 767px)");
 
   // Auth check
@@ -568,12 +660,11 @@ export default function DashboardLayout({
     );
   }
 
-  // Calculate content margin based on sidebar state
   const contentMarginLeft = isMobile ? 0 : sidebarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH;
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Desktop Sidebar - Only visible on desktop */}
+    <div className="min-h-screen bg-slate-50 overflow-x-hidden">
+      {/* Desktop Sidebar */}
       <DesktopSidebar
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
@@ -583,7 +674,7 @@ export default function DashboardLayout({
         profileEmail={profileEmail}
       />
 
-      {/* Mobile Sidebar - Only visible on mobile */}
+      {/* Mobile Sidebar */}
       <MobileSidebar
         isOpen={mobileSidebarOpen}
         onClose={() => setMobileSidebarOpen(false)}
@@ -599,7 +690,7 @@ export default function DashboardLayout({
           marginLeft: contentMarginLeft,
         }}
         transition={{
-          duration: 0.3,
+          duration: ANIMATION_DURATION,
           ease: [0.4, 0, 0.2, 1],
         }}
         className="min-h-screen"
@@ -697,8 +788,14 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        {/* Page Content */}
-        <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+        {/* Page Content with Transition */}
+        <div className="p-4 sm:p-6 lg:p-8">
+          <AnimatePresence mode="wait">
+            <PageContent key={pathname} pathname={pathname || "/dashboard"}>
+              {children}
+            </PageContent>
+          </AnimatePresence>
+        </div>
       </motion.main>
 
       {/* Logout Modal */}

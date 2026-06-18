@@ -148,7 +148,7 @@ export default function DashboardPortfolioPage() {
   if (services.length === 0) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center py-10 px-4">
-        <div className="text-center bg-white border border-slate-200 rounded-3xl p-10 max-w-md w-full shadow-xs space-y-6 flex flex-col items-center">
+        <div className="text-center bg-white border border-slate-200 rounded-3xl p-10 max w-full shadow-xs space-y-6 flex flex-col items-center">
           <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center border border-blue-100/40">
             <Globe className="h-7 w-7" />
           </div>

@@ -15,10 +15,10 @@ export default function PublishStickyBar({
   onPublish,
 }: PublishStickyBarProps) {
   return (
-    <div className="mt-10 bg-white/90 border-t border-slate-200/70 shadow-sm px-4 py-4 md:py-5 animate-in fade-in duration-300">
-      <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+    <div className="mt-10 bg-white/90 border-t border-slate-200/70 shadow-sm px-4 py-4 md:py-5 animate-in fade-in duration-300 rounded-3xl">
+      <div className="max-w-4xl mx-auto flex items-center justify-between gap-4 ">
         {/* Help Tip */}
-        <div className="hidden md:block text-left">
+        <div className="hidden md:block text-left ">
           <h4 className="text-xs font-bold text-slate-700">Ready to go?</h4>
           <p className="text-[10px] text-slate-400">
             {isValid

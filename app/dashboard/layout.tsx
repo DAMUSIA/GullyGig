@@ -415,93 +415,7 @@ function MobileSidebar({
 // ============================================
 // Logout Modal Component - PORTAL RENDERED
 // ============================================
-function LogoutModalContent({
-  onClose,
-  onConfirm,
-}: {
-  onClose: () => void;
-  onConfirm: () => void;
-}) {
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-        className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
-      />
 
-      <motion.div
-        variants={modalVariants}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="logout-title"
-      >
-        <div className="p-6 text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-red-50 to-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-500/10">
-            <LogOut className="h-7 w-7" />
-          </div>
-
-          <h3 id="logout-title" className="text-xl font-bold text-slate-800 mb-2">
-            Logout?
-          </h3>
-          <p className="text-sm text-slate-500 leading-relaxed">
-            Are you sure you want to logout? You'll need to login again to access your dashboard.
-          </p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3 px-6 pb-6">
-          <button
-            onClick={onClose}
-            className="flex-1 py-3 px-4 rounded-xl border border-slate-200 text-slate-700 font-medium text-sm hover:bg-slate-50 active:scale-95 transition-all focus:ring-2 focus:ring-slate-300 focus:outline-none cursor-pointer"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-red-600 to-red-500 text-white font-medium text-sm hover:shadow-lg hover:shadow-red-500/30 active:scale-95 transition-all focus:ring-2 focus:ring-red-400 focus:outline-none cursor-pointer"
-          >
-            Logout
-          </button>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-function LogoutModal({
-  isOpen,
-  onClose,
-  onConfirm,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-}) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
-  }, []);
-
-  if (!mounted) return null;
-
-  return (
-    <AnimatePresence>
-      {isOpen && createPortal(
-        <LogoutModalContent onClose={onClose} onConfirm={onConfirm} />,
-        document.body
-      )}
-    </AnimatePresence>
-  );
-}
 
 // ============================================
 // Main Layout
@@ -596,34 +510,28 @@ export default function DashboardLayout({
     return () => document.removeEventListener("keydown", handleEscape);
   }, [showLogoutConfirm, mobileSidebarOpen]);
 
-  // Fixed logout handler
+  // Fixed logout handler - robust fallback to always redirect even if Supabase errors out
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.error("Logout error:", error);
-        alert(error.message || "Failed to logout. Please try again.");
-        setIsLoggingOut(false);
-        return;
+      if (supabase) {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+          console.error("Logout API error:", error);
+        }
       }
-
-      // Clear any stored data
+    } catch (err) {
+      console.error("Logout exception:", err);
+    } finally {
+      // Always perform local cleanup and redirect
       if (typeof window !== "undefined") {
         localStorage.clear();
         sessionStorage.clear();
       }
-
-      // Close modal and redirect
       setShowLogoutConfirm(false);
+      setIsLoggingOut(false);
       router.push("/login");
       router.refresh();
-    } catch (err) {
-      console.error("Logout failed:", err);
-      alert("Failed to logout. Please try again.");
-    } finally {
-      setIsLoggingOut(false);
     }
   };
 
@@ -667,7 +575,7 @@ export default function DashboardLayout({
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
         currentPath={pathname || ""}
-        onLogout={() => setShowLogoutConfirm(true)}
+        onLogout={handleLogout}
         profileName={profileName}
         profileEmail={profileEmail}
       />
@@ -677,7 +585,7 @@ export default function DashboardLayout({
         isOpen={mobileSidebarOpen}
         onClose={() => setMobileSidebarOpen(false)}
         currentPath={pathname || ""}
-        onLogout={() => setShowLogoutConfirm(true)}
+        onLogout={handleLogout}
         profileName={profileName}
         profileEmail={profileEmail}
       />
@@ -747,12 +655,6 @@ export default function DashboardLayout({
         </div>
       </motion.main>
 
-      {/* Logout Modal - Portal Rendered */}
-      <LogoutModal
-        isOpen={showLogoutConfirm}
-        onClose={() => setShowLogoutConfirm(false)}
-        onConfirm={handleLogout}
-      />
     </div>
   );
 }

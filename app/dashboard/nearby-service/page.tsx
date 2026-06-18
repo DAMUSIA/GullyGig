@@ -95,7 +95,7 @@ export default function NearbyServicePage() {
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [reviews, setReviews] = useState<ServiceReview[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
-  const [userRating, setUserRating] = useState<number>(5);
+  const [userRating, setUserRating] = useState<number>(0);
   const [userComment, setUserComment] = useState("");
   const [reviewSubmitLoading, setReviewSubmitLoading] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
@@ -174,6 +174,9 @@ export default function NearbyServicePage() {
   const handleOpenDetails = async (service: ServiceItem) => {
     if (!supabase) return;
     setSelectedService(service);
+    // Reset review input state when opening another service details modal
+    setUserRating(0);
+    setUserComment("");
     loadReviews(service.id);
 
     // Optimistic Update View Count
@@ -342,65 +345,34 @@ export default function NearbyServicePage() {
     setReviewSubmitLoading(true);
 
     try {
-      // Insert Review
-      const { error: reviewError } = await supabase
-        .from("service_ratings")
-        .insert({
-          service_id: selectedService.id,
-          user_id: currentUser.id,
-          rating: userRating,
-          review: userComment.trim() || null
-        });
-
-      if (reviewError) throw reviewError;
-
-      // Recalculate average and count of ratings
-      const { data: allRatings, error: ratingsFetchError } = await supabase
-        .from("service_ratings")
-        .select("rating")
-        .eq("service_id", selectedService.id);
-
-      if (ratingsFetchError) throw ratingsFetchError;
-
-      const totalReviews = allRatings.length;
-      const totalScore = allRatings.reduce((sum, r) => sum + r.rating, 0);
-      const averageRating = parseFloat((totalScore / totalReviews).toFixed(1));
-
-      // Update services table
-      await supabase
-        .from("services")
-        .update({
-          rating_average: averageRating,
-          reviews_count: totalReviews
-        })
-        .eq("id", selectedService.id);
-
-      // Update analytics table
-      const { data: analyticsRow } = await supabase
-        .from("service_analytics")
-        .select("*")
-        .eq("service_id", selectedService.id)
-        .single();
-
-      if (analyticsRow) {
-        await supabase
-          .from("service_analytics")
-          .update({
-            total_reviews: totalReviews,
-            average_rating: averageRating,
-            updated_at: new Date().toISOString()
-          })
-          .eq("service_id", selectedService.id);
-      } else {
-        await supabase
-          .from("service_analytics")
-          .insert({
-            service_id: selectedService.id,
-            total_reviews: totalReviews,
-            average_rating: averageRating,
-            updated_at: new Date().toISOString()
-          });
+      // Get the session token
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
+      if (!token) {
+        throw new Error("You must be logged in to submit a review.");
       }
+
+      // Call secure server endpoint to bypass client RLS issues
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          serviceId: selectedService.id,
+          rating: userRating,
+          comment: userComment
+        })
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to submit review.");
+      }
+
+      const { averageRating, totalReviews } = result;
 
       // Update page listing states
       setServices(prev => prev.map(s => s.id === selectedService.id ? { ...s, rating_average: averageRating, reviews_count: totalReviews } : s));
@@ -409,10 +381,14 @@ export default function NearbyServicePage() {
       // Reload reviews list
       loadReviews(selectedService.id);
       setUserComment("");
-      alert("Review posted successfully!");
-    } catch (err: unknown) {
+      setUserRating(0);
+    } catch (err: any) {
       console.error("Failed to submit review:", err);
-      const errMsg = err instanceof Error ? err.message : String(err);
+      let errMsg = err?.message || (err instanceof Error ? err.message : String(err));
+      // User-friendly translation for common Supabase schema unique constraint violation error
+      if (errMsg && errMsg.includes("service_ratings_user_service_unique")) {
+        errMsg = "You have already submitted a review for this tutor/service.";
+      }
       alert(errMsg || "Failed to submit review. Try again.");
     } finally {
       setReviewSubmitLoading(false);
@@ -853,8 +829,8 @@ export default function NearbyServicePage() {
                       
                       {/* Star Selection */}
                       <div className="space-y-1.5">
-                        <span className="block text-[10px] font-bold text-slate-400 uppercase">Your Rating</span>
-                        <div className="flex gap-1">
+                        <span className="block text-[10px] font-bold text-slate-400 uppercase">Your Rating <span className="text-red-400">*</span></span>
+                        <div className="flex gap-1 items-center">
                           {Array.from({ length: 5 }).map((_, idx) => {
                             const starVal = idx + 1;
                             const isFilled = starVal <= userRating;
@@ -863,13 +839,20 @@ export default function NearbyServicePage() {
                                 type="button"
                                 key={idx}
                                 onClick={() => setUserRating(starVal)}
-                                className="p-0.5 text-amber-500 hover:scale-110 transition cursor-pointer"
+                                className="p-0.5 hover:scale-110 transition cursor-pointer"
+                                aria-label={`Rate ${starVal} star${starVal > 1 ? 's' : ''}`}
                               >
-                                <Star className={`h-6 w-6 ${isFilled ? "fill-amber-400 text-amber-400" : "text-slate-200"}`} />
+                                <Star className={`h-6 w-6 ${isFilled ? "fill-amber-400 text-amber-400" : "text-slate-300 hover:text-amber-300"}`} />
                               </button>
                             );
                           })}
+                          {userRating > 0 && (
+                            <span className="ml-1 text-[10px] font-bold text-amber-500">{userRating}/5</span>
+                          )}
                         </div>
+                        {userRating === 0 && (
+                          <p className="text-[10px] text-slate-400">Click a star to rate</p>
+                        )}
                       </div>
 
                       {/* Comment textarea */}
@@ -887,8 +870,8 @@ export default function NearbyServicePage() {
 
                       <button
                         type="submit"
-                        disabled={reviewSubmitLoading}
-                        className="inline-flex items-center justify-center gap-1.5 px-4.5 py-2.5 bg-blue-600 hover:bg-blue-750 text-white font-extrabold text-xs rounded-xl shadow-xs transition cursor-pointer disabled:opacity-50"
+                        disabled={reviewSubmitLoading || userRating === 0}
+                        className="inline-flex items-center justify-center gap-1.5 px-4.5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {reviewSubmitLoading ? (
                           <>

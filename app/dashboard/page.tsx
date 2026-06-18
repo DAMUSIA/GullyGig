@@ -453,19 +453,26 @@ export default function DashboardPage() {
 
       {/* Inline Edit Modal */}
       {editingService && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
           <div onClick={() => setEditingService(null)} className="absolute inset-0 bg-slate-900/40 backdrop-blur-md" />
           
-          <form onSubmit={handleSaveEdit} className="bg-white border border-slate-100 rounded-3xl p-6 shadow-2xl relative z-10 w-full max-w-md flex flex-col gap-4 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-sm font-extrabold text-slate-800">Edit Service</h3>
-              <button type="button" onClick={() => setEditingService(null)} className="p-1 rounded-full hover:bg-slate-100 text-slate-400">
+          <form
+            onSubmit={handleSaveEdit}
+            style={{ width: "min(560px, calc(100vw - 32px))", maxHeight: "calc(100vh - 48px)" }}
+            className="bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10 overflow-y-auto animate-in zoom-in-95 duration-200"
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-4 mb-5">
+              <div>
+                <h3 className="text-xl font-extrabold text-slate-800 leading-tight">Edit Service</h3>
+                <p className="text-xs text-slate-500 mt-1">Update your listing details and visibility.</p>
+              </div>
+              <button type="button" onClick={() => setEditingService(null)} className="p-2 rounded-full hover:bg-slate-100 text-slate-400 shrink-0">
                 <X className="h-4.5 w-4.5" />
               </button>
             </div>
 
             {/* Title */}
-            <div className="space-y-1.5 text-xs">
+            <div className="space-y-1.5 text-xs mb-4">
               <label htmlFor="edit-title" className="font-bold text-slate-500 uppercase">Title</label>
               <input
                 id="edit-title"
@@ -473,12 +480,12 @@ export default function DashboardPage() {
                 required
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800"
+                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-semibold focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800"
               />
             </div>
 
             {/* Description */}
-            <div className="space-y-1.5 text-xs">
+            <div className="space-y-1.5 text-xs mb-4">
               <label htmlFor="edit-desc" className="font-bold text-slate-500 uppercase">Description</label>
               <textarea
                 id="edit-desc"
@@ -486,12 +493,12 @@ export default function DashboardPage() {
                 required
                 value={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-850 leading-relaxed font-sans resize-none"
+                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-850 leading-relaxed font-sans resize-y min-h-28"
               />
             </div>
 
             {/* Pricing */}
-            <div className="grid grid-cols-2 gap-3 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs mb-4">
               <div className="space-y-1.5">
                 <label htmlFor="edit-price" className="font-bold text-slate-500 uppercase">Starting Price</label>
                 <input
@@ -503,7 +510,7 @@ export default function DashboardPage() {
                     setEditPrice(v === "" ? null : Number(v));
                   }}
                   placeholder="e.g. 500"
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800"
+                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-semibold focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800"
                 />
               </div>
 
@@ -514,7 +521,7 @@ export default function DashboardPage() {
                   value={editPriceUnit}
                   onChange={(e) => setEditPriceUnit(e.target.value)}
                   disabled={editPrice === null}
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 disabled:bg-slate-50 disabled:text-slate-400"
+                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-semibold focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 disabled:bg-slate-50 disabled:text-slate-400"
                 >
                   <option value="Per Hour">Per Hour</option>
                   <option value="Per Session">Per Session</option>
@@ -525,8 +532,8 @@ export default function DashboardPage() {
             </div>
 
             {/* Toggle Status */}
-            <div className="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-2xl p-3 text-xs">
-              <div>
+            <div className="flex items-center justify-between gap-4 bg-slate-50 border border-slate-100 rounded-2xl p-4 text-xs mb-5">
+              <div className="min-w-0">
                 <span className="font-bold text-slate-700 block">Service Active Status</span>
                 <span className="text-[10px] text-slate-400 block mt-0.5">Toggle whether this service is discoverable on marketplace.</span>
               </div>
@@ -539,18 +546,18 @@ export default function DashboardPage() {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2.5 mt-2">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="button"
                 onClick={() => setEditingService(null)}
-                className="flex-1 py-2.5 border border-slate-200 text-slate-600 font-extrabold text-xs rounded-xl hover:bg-slate-50 active:scale-98 transition cursor-pointer"
+                className="flex-1 py-3 border border-slate-200 text-slate-600 font-extrabold text-sm rounded-xl hover:bg-slate-50 active:scale-98 transition cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSavingEdit}
-                className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold text-xs rounded-xl shadow-xs active:scale-98 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold text-sm rounded-xl shadow-xs active:scale-98 transition flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 {isSavingEdit ? (
                   <>
@@ -571,72 +578,75 @@ export default function DashboardPage() {
 
       {/* Listing Detail Modal */}
       {viewingService && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
           <div onClick={() => setViewingService(null)} className="absolute inset-0 bg-slate-900/40 backdrop-blur-md" />
 
-          <div className="bg-white border border-slate-100 rounded-3xl shadow-2xl relative z-10 w-full max-w-xl max-h-[85vh] overflow-y-auto flex flex-col animate-in zoom-in-95 duration-200">
-            <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between z-10">
-              <div>
+          <div
+            style={{ width: "min(680px, calc(100vw - 32px))", maxHeight: "calc(100vh - 48px)" }}
+            className="bg-white border border-slate-100 rounded-3xl shadow-2xl relative z-10 overflow-y-auto animate-in zoom-in-95 duration-200"
+          >
+            <div className="sticky top-0 bg-white border-b border-slate-100 px-6 sm:px-8 py-5 flex items-start justify-between gap-4 z-10 rounded-t-3xl">
+              <div className="min-w-0">
                 <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full uppercase border border-blue-100/30">
                   {viewingService.category}
                 </span>
-                <h2 className="text-sm font-extrabold text-slate-800 line-clamp-1 mt-1">
+                <h2 className="text-xl sm:text-2xl font-extrabold text-slate-800 leading-tight mt-2 break-words">
                   {viewingService.title}
                 </h2>
               </div>
-              <button type="button" onClick={() => setViewingService(null)} className="p-1 rounded-full hover:bg-slate-100 text-slate-400">
+              <button type="button" onClick={() => setViewingService(null)} className="p-2 rounded-full hover:bg-slate-100 text-slate-400 shrink-0">
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="p-6 space-y-6 flex-1 text-xs">
+            <div className="p-6 sm:p-8 space-y-6 text-sm">
               <div className="space-y-1.5">
                 <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Service Description</h3>
-                <p className="text-slate-650 font-medium leading-relaxed bg-blue-50/20 rounded-2xl p-4 border border-blue-100/10 whitespace-pre-line">
+                <p className="text-slate-650 font-medium leading-7 bg-blue-50/20 rounded-2xl p-4 border border-blue-100/10 whitespace-pre-line break-words">
                   {viewingService.description}
                 </p>
               </div>
 
               <div className="bg-slate-50/70 border border-slate-100 rounded-2xl p-4 space-y-3.5">
-                <h3 className="font-extrabold text-slate-700 border-b border-slate-200/50 pb-1">Specifications</h3>
+                <h3 className="font-extrabold text-slate-700 border-b border-slate-200/50 pb-2">Specifications</h3>
                 
-                <div className="space-y-1">
+                <div className="grid grid-cols-1 sm:grid-cols-[160px_minmax(0,1fr)] gap-1 sm:gap-4">
                   <span className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
                     <Home className="h-3.5 w-3.5 text-blue-500" />
                     Teaching Modes
                   </span>
-                  <p className="font-semibold text-slate-600 pl-4.5">
+                  <p className="font-semibold text-slate-600 break-words">
                     {viewingService.service_modes.join(", ") || "No modes selected"}
                   </p>
                 </div>
 
-                <div className="space-y-1">
+                <div className="grid grid-cols-1 sm:grid-cols-[160px_minmax(0,1fr)] gap-1 sm:gap-4">
                   <span className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
                     <Calendar className="h-3.5 w-3.5 text-blue-500" />
                     Availability
                   </span>
-                  <p className="font-semibold text-slate-600 pl-4.5">
+                  <p className="font-semibold text-slate-600 break-words">
                     {viewingService.availability.join(", ") || "Flexible"}
                   </p>
                 </div>
 
-                <div className="space-y-1">
+                <div className="grid grid-cols-1 sm:grid-cols-[160px_minmax(0,1fr)] gap-1 sm:gap-4">
                   <span className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
                     <Globe className="h-3.5 w-3.5 text-blue-500" />
                     Languages
                   </span>
-                  <p className="font-semibold text-slate-600 pl-4.5">
+                  <p className="font-semibold text-slate-600 break-words">
                     {viewingService.languages.join(", ") || "English"}
                   </p>
                 </div>
 
                 {viewingService.area && viewingService.city && (
-                  <div className="space-y-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-[160px_minmax(0,1fr)] gap-1 sm:gap-4">
                     <span className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
                       <MapPin className="h-3.5 w-3.5 text-blue-500" />
                       Location
                     </span>
-                    <p className="font-semibold text-slate-600 pl-4.5">
+                    <p className="font-semibold text-slate-600 break-words">
                       {viewingService.area}, {viewingService.city}
                     </p>
                   </div>

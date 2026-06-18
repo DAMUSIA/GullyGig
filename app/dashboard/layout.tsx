@@ -349,14 +349,18 @@ export default function DashboardLayout({
               </svg>
             </button>
 
-            <div className="relative flex-1 max-w-md sm:max-w-2xl">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search services..."
-                className="w-full pl-9 pr-4 py-2 rounded-xl bg-white border border-gray-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm"
-              />
-            </div>
+            {pathname !== "/dashboard/create-service" ? (
+              <div className="relative flex-1 max-w-md sm:max-w-2xl">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search services..."
+                  className="w-full pl-9 pr-4 py-2 rounded-xl bg-white border border-gray-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm"
+                />
+              </div>
+            ) : (
+              <div className="flex-1" />
+            )}
 
             <div className="flex items-center gap-2 sm:gap-4">
               <button className="relative p-2 rounded-xl hover:bg-gray-100 transition relative">

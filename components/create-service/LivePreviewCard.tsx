@@ -38,7 +38,7 @@ export default function LivePreviewCard({ data }: LivePreviewCardProps) {
   const priceUnitLabel = data.price_unit ? data.price_unit.toLowerCase() : "hour";
 
   return (
-    <div className="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-xl sticky top-24 transition-all duration-300 hover:shadow-2xl hover:border-blue-100 flex flex-col gap-5 max-w-md mx-auto w-full">
+    <div className="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-xl transition-all duration-300 hover:shadow-2xl hover:border-blue-100 flex flex-col gap-5 w-full">
       {/* Header Banner badge */}
       <div className="flex items-center justify-between">
         <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50/80 text-blue-600 text-[10px] font-bold tracking-wider uppercase rounded-full border border-blue-100">

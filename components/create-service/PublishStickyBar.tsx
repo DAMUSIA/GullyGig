@@ -15,7 +15,7 @@ export default function PublishStickyBar({
   onPublish,
 }: PublishStickyBarProps) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/70 backdrop-blur-md border-t border-slate-200/60 shadow-lg px-4 py-4 md:py-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="mt-10 bg-white/90 border-t border-slate-200/70 shadow-sm px-4 py-4 md:py-5 animate-in fade-in duration-300">
       <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
         {/* Help Tip */}
         <div className="hidden md:block text-left">

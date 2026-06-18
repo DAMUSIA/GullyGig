@@ -296,7 +296,7 @@ export default function CreateServicePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/20 pb-32">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/20">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
         
         {/* Page Header */}
@@ -324,10 +324,10 @@ export default function CreateServicePage() {
         )}
 
         {/* Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
           
           {/* Form Side */}
-          <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md space-y-8">
+          <div className="xl:col-span-8 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md space-y-8">
             
             {/* Section 1 - What Do You Teach? */}
             <div className="space-y-5">
@@ -563,8 +563,8 @@ export default function CreateServicePage() {
           </div>
 
           {/* Sticky Live Preview Column */}
-          <div className="lg:col-span-5 lg:sticky lg:top-24">
-            <div className="bg-slate-100/50 border border-slate-200/50 rounded-3xl p-5 mb-4 max-w-md mx-auto">
+          <div className="xl:col-span-4 xl:sticky xl:top-24 w-full max-w-md mx-auto xl:max-w-none">
+            <div className="bg-slate-100/50 border border-slate-200/50 rounded-3xl p-4 mb-4 w-full">
               <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                 <Info className="h-3.5 w-3.5 text-blue-500" />
                 Tips for high click rate
@@ -594,7 +594,7 @@ export default function CreateServicePage() {
       {/* Success Dialog Modal */}
       <AnimatePresence>
         {showSuccessModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -608,36 +608,42 @@ export default function CreateServicePage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: "spring", stiffness: 320, damping: 26 }}
-              className="bg-white border border-slate-100 rounded-3xl p-8 shadow-2xl relative z-10 w-full max-w-md text-center flex flex-col items-center gap-4"
+              style={{ width: "min(520px, calc(100vw - 32px))" }}
+              className="bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10 max-h-[calc(100vh-3rem)] overflow-y-auto text-center"
             >
               {/* Success Badge */}
-              <div className="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center shadow-inner relative">
+              <div className="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center shadow-inner relative mx-auto mb-5">
                 <CheckCircle2 className="h-9 w-9" />
                 <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-white animate-ping"></span>
               </div>
 
-              <div className="space-y-2">
-                <h2 className="text-2xl font-extrabold text-slate-800 leading-snug">
+              <div className="mb-6">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 leading-tight mb-3">
                   Teaching Service Published!
                 </h2>
-                <p className="text-xs text-slate-500 leading-relaxed max-w-sm">
-                  Congratulations! Your listing has been published. Local students and parents searching for <strong>{formData.title}</strong> will now be able to discover and contact you.
+                <p
+                  className="text-sm sm:text-base text-slate-500 leading-7 mx-auto"
+                  style={{ maxWidth: "420px", overflowWrap: "break-word", wordBreak: "normal" }}
+                >
+                  Congratulations! Your listing has been published. Local students and parents searching for{" "}
+                  <strong className="font-bold text-slate-700 break-words">{formData.title}</strong>{" "}
+                  will now be able to discover and contact you.
                 </p>
               </div>
 
-              <div className="bg-slate-50 rounded-2xl p-4 w-full text-left border border-slate-100 text-xs text-slate-650 flex flex-col gap-1.5 font-medium">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                  <span>Category: {formData.category === "Other" ? formData.customCategory : formData.category}</span>
+              <div className="bg-slate-50 rounded-2xl p-4 w-full text-left border border-slate-100 text-sm text-slate-650 space-y-3 font-medium mb-5">
+                <div className="grid grid-cols-[88px_minmax(0,1fr)] gap-3">
+                  <span className="text-slate-500">Category:</span>
+                  <span className="text-slate-800 break-words">{formData.category === "Other" ? formData.customCategory : formData.category}</span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                  <span>Location: {[formData.area, formData.city].filter(Boolean).join(", ")}</span>
+                <div className="grid grid-cols-[88px_minmax(0,1fr)] gap-3">
+                  <span className="text-slate-500">Location:</span>
+                  <span className="text-slate-800 break-words">{[formData.area, formData.city].filter(Boolean).join(", ")}</span>
                 </div>
                 {formData.starting_price && (
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                    <span>Price: ₹{formData.starting_price} / {formData.price_unit.toLowerCase()}</span>
+                  <div className="grid grid-cols-[88px_minmax(0,1fr)] gap-3">
+                    <span className="text-slate-500">Price:</span>
+                    <span className="text-slate-800 break-words">₹{formData.starting_price} / {formData.price_unit.toLowerCase()}</span>
                   </div>
                 )}
               </div>

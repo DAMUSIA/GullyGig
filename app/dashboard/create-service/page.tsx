@@ -3,13 +3,13 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Check, 
-  Sparkles, 
+import {
+  Check,
+  Sparkles,
   AlertCircle,
   CheckCircle2,
   ChevronRight,
-  Info
+  Info,
 } from "lucide-react";
 
 import { getCurrentUser, supabase } from "@/lib/supabase";
@@ -44,7 +44,14 @@ const CATEGORIES = [
 ];
 
 const TEACHING_MODES = ["At My Place", "At Student's Place", "Online"];
-const AVAILABILITY_OPTIONS = ["Weekdays", "Weekends", "Morning", "Afternoon", "Evening", "Flexible"];
+const AVAILABILITY_OPTIONS = [
+  "Weekdays",
+  "Weekends",
+  "Morning",
+  "Afternoon",
+  "Evening",
+  "Flexible",
+];
 const PRICE_UNITS = ["Per Hour", "Per Session", "Per Day", "Per Month"];
 
 const CATEGORY_TITLE_MAPPING: Record<string, string> = {
@@ -78,7 +85,7 @@ interface ServiceUser {
 
 export default function CreateServicePage() {
   const router = useRouter();
-  
+
   // App state
   const [user, setUser] = useState<ServiceUser | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -130,7 +137,7 @@ export default function CreateServicePage() {
   const handleCategoryChange = (val: string) => {
     setFormData((prev) => {
       const updated = { ...prev, category: val };
-      
+
       // Auto-suggest title based on category if title is empty or matching a suggestion
       if (!isTitleManuallyEdited) {
         const suggestion = CATEGORY_TITLE_MAPPING[val];
@@ -174,7 +181,12 @@ export default function CreateServicePage() {
   };
 
   // Handle location update
-  const handleLocationChange = (fields: { city: string; area: string; latitude: number | null; longitude: number | null }) => {
+  const handleLocationChange = (fields: {
+    city: string;
+    area: string;
+    latitude: number | null;
+    longitude: number | null;
+  }) => {
     setFormData((prev) => ({
       ...prev,
       ...fields,
@@ -186,7 +198,8 @@ export default function CreateServicePage() {
     formData.title.trim().length >= 3 &&
     formData.title.trim().length <= 80 &&
     formData.category !== "" &&
-    (formData.category !== "Other" || (formData.customCategory || "").trim() !== "") &&
+    (formData.category !== "Other" ||
+      (formData.customCategory || "").trim() !== "") &&
     formData.service_modes.length > 0 &&
     formData.city.trim() !== "" &&
     formData.availability.length > 0 &&
@@ -207,9 +220,10 @@ export default function CreateServicePage() {
         : formData.category;
 
     // Parse starting price
-    const finalPrice = formData.starting_price !== null && formData.starting_price !== undefined
-      ? parseInt(formData.starting_price.toString(), 10)
-      : null;
+    const finalPrice =
+      formData.starting_price !== null && formData.starting_price !== undefined
+        ? parseInt(formData.starting_price.toString(), 10)
+        : null;
 
     const insertData = {
       user_id: user.id,
@@ -231,7 +245,9 @@ export default function CreateServicePage() {
 
     try {
       if (!supabase) {
-        throw new Error("Supabase service is not configured on your environment");
+        throw new Error(
+          "Supabase service is not configured on your environment",
+        );
       }
 
       const { data: serviceData, error } = await supabase
@@ -247,18 +263,25 @@ export default function CreateServicePage() {
 
       if (serviceData) {
         // Create matching analytics record
-        const { error: analyticsError } = await supabase.from("service_analytics").insert([{
-          service_id: serviceData.id,
-          total_views: 0,
-          unique_visitors: 0,
-          total_likes: 0,
-          total_contacts: 0,
-          total_reviews: 0,
-          average_rating: 0
-        }]);
+        const { error: analyticsError } = await supabase
+          .from("service_analytics")
+          .insert([
+            {
+              service_id: serviceData.id,
+              total_views: 0,
+              unique_visitors: 0,
+              total_likes: 0,
+              total_contacts: 0,
+              total_reviews: 0,
+              average_rating: 0,
+            },
+          ]);
 
         if (analyticsError) {
-          console.warn("Could not pre-populate analytics record:", analyticsError);
+          console.warn(
+            "Could not pre-populate analytics record:",
+            analyticsError,
+          );
         }
       }
 
@@ -289,7 +312,9 @@ export default function CreateServicePage() {
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center space-y-4">
           <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
-          <p className="text-sm font-semibold text-slate-500">Checking credentials...</p>
+          <p className="text-sm font-semibold text-slate-500">
+            Checking credentials...
+          </p>
         </div>
       </div>
     );
@@ -298,7 +323,6 @@ export default function CreateServicePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/20 pb-32">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        
         {/* Page Header */}
         <div className="mb-8 max-w-4xl">
           <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-600 text-[11px] font-bold rounded-lg border border-blue-100/40 tracking-wide mb-3 animate-pulse">
@@ -309,7 +333,8 @@ export default function CreateServicePage() {
             Create Teaching Service
           </h1>
           <p className="text-slate-500 mt-1.5 text-sm sm:text-base">
-            Tell students what you teach and start receiving enquiries. Simple, fast, and listing in under 30 seconds.
+            Tell students what you teach and start receiving enquiries. Simple,
+            fast, and listing in under 30 seconds.
           </p>
         </div>
 
@@ -317,7 +342,9 @@ export default function CreateServicePage() {
           <div className="mb-6 max-w-4xl p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3 animate-in fade-in duration-200">
             <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 shrink-0" />
             <div>
-              <h4 className="text-sm font-bold text-red-800">Unable to Publish Service</h4>
+              <h4 className="text-sm font-bold text-red-800">
+                Unable to Publish Service
+              </h4>
               <p className="text-xs text-red-600 mt-1">{dbError}</p>
             </div>
           </div>
@@ -325,15 +352,17 @@ export default function CreateServicePage() {
 
         {/* Layout Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
           {/* Form Side */}
           <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md space-y-8">
-            
             {/* Section 1 - What Do You Teach? */}
             <div className="space-y-5">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">1</div>
-                <h3 className="font-extrabold text-slate-700 text-base">What Do You Teach?</h3>
+                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
+                  1
+                </div>
+                <h3 className="font-extrabold text-slate-700 text-base">
+                  What Do You Teach?
+                </h3>
               </div>
 
               {/* Category */}
@@ -344,17 +373,24 @@ export default function CreateServicePage() {
                 value={formData.category}
                 onChange={handleCategoryChange}
                 customValue={formData.customCategory}
-                onCustomChange={(val) => setFormData((prev) => ({ ...prev, customCategory: val }))}
+                onCustomChange={(val) =>
+                  setFormData((prev) => ({ ...prev, customCategory: val }))
+                }
                 placeholder="Choose a category (e.g. Science Tutor, Piano Teacher)"
               />
 
               {/* Service Title */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-sm">
-                  <label htmlFor="service-title" className="font-semibold text-slate-700">
+                  <label
+                    htmlFor="service-title"
+                    className="font-semibold text-slate-700"
+                  >
                     Service Title <span className="text-red-500">*</span>
                   </label>
-                  <span className={`text-[10px] font-semibold ${formData.title.trim().length >= 3 && formData.title.trim().length <= 80 ? "text-slate-400" : "text-amber-500"}`}>
+                  <span
+                    className={`text-[10px] font-semibold ${formData.title.trim().length >= 3 && formData.title.trim().length <= 80 ? "text-slate-400" : "text-amber-500"}`}
+                  >
                     {formData.title.trim().length} / 80
                   </span>
                 </div>
@@ -368,7 +404,8 @@ export default function CreateServicePage() {
                   className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 font-medium"
                 />
                 <p className="text-[10px] text-slate-400">
-                  Suggestive based on category. Minimum 3 characters, maximum 80.
+                  Suggestive based on category. Minimum 3 characters, maximum
+                  80.
                 </p>
               </div>
             </div>
@@ -376,8 +413,12 @@ export default function CreateServicePage() {
             {/* Section 2 - How Do You Teach? */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">2</div>
-                <h3 className="font-extrabold text-slate-700 text-base">How Do You Teach?</h3>
+                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
+                  2
+                </div>
+                <h3 className="font-extrabold text-slate-700 text-base">
+                  How Do You Teach?
+                </h3>
               </div>
 
               <div className="space-y-2">
@@ -398,7 +439,9 @@ export default function CreateServicePage() {
                             : "bg-white border-slate-200 text-slate-600 hover:border-slate-350 hover:bg-slate-55/40"
                         }`}
                       >
-                        {isSelected && <Check className="h-3.5 w-3.5 text-white" />}
+                        {isSelected && (
+                          <Check className="h-3.5 w-3.5 text-white" />
+                        )}
                         <span>{mode}</span>
                       </button>
                     );
@@ -410,8 +453,12 @@ export default function CreateServicePage() {
             {/* Section 3 - Location */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">3</div>
-                <h3 className="font-extrabold text-slate-700 text-base">Location</h3>
+                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
+                  3
+                </div>
+                <h3 className="font-extrabold text-slate-700 text-base">
+                  Location
+                </h3>
               </div>
 
               <LocationSelector
@@ -426,13 +473,18 @@ export default function CreateServicePage() {
             {/* Section 4 - Availability */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">4</div>
-                <h3 className="font-extrabold text-slate-700 text-base">Availability</h3>
+                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
+                  4
+                </div>
+                <h3 className="font-extrabold text-slate-700 text-base">
+                  Availability
+                </h3>
               </div>
 
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-slate-700">
-                  When are you usually available? <span className="text-red-500">*</span>
+                  When are you usually available?{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <div className="flex flex-wrap gap-2.5">
                   {AVAILABILITY_OPTIONS.map((option) => {
@@ -448,7 +500,9 @@ export default function CreateServicePage() {
                             : "bg-white border-slate-200 text-slate-600 hover:border-slate-350 hover:bg-slate-55/40"
                         }`}
                       >
-                        {isSelected && <Check className="h-3.5 w-3.5 text-white" />}
+                        {isSelected && (
+                          <Check className="h-3.5 w-3.5 text-white" />
+                        )}
                         <span>{option}</span>
                       </button>
                     );
@@ -460,28 +514,44 @@ export default function CreateServicePage() {
             {/* Section 5 - Languages Spoken */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">5</div>
-                <h3 className="font-extrabold text-slate-700 text-base">Languages Spoken</h3>
+                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
+                  5
+                </div>
+                <h3 className="font-extrabold text-slate-700 text-base">
+                  Languages Spoken
+                </h3>
               </div>
 
               <LanguageSelector
                 selectedLanguages={formData.languages}
-                onChange={(languages) => setFormData((prev) => ({ ...prev, languages }))}
+                onChange={(languages) =>
+                  setFormData((prev) => ({ ...prev, languages }))
+                }
               />
             </div>
 
             {/* Section 6 - Pricing */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">6</div>
-                <h3 className="font-extrabold text-slate-700 text-base">Pricing</h3>
+                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
+                  6
+                </div>
+                <h3 className="font-extrabold text-slate-700 text-base">
+                  Pricing
+                </h3>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Price Input */}
                 <div className="space-y-1.5">
-                  <label htmlFor="starting-price" className="block text-sm font-semibold text-slate-700">
-                    Starting Price <span className="text-slate-400 font-normal">(Optional)</span>
+                  <label
+                    htmlFor="starting-price"
+                    className="block text-sm font-semibold text-slate-700"
+                  >
+                    Starting Price{" "}
+                    <span className="text-slate-400 font-normal">
+                      (Optional)
+                    </span>
                   </label>
                   <div className="relative">
                     <input
@@ -500,20 +570,30 @@ export default function CreateServicePage() {
                       className="w-full pl-9 pr-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 font-medium"
                     />
                     <div className="absolute left-3.5 top-3.5 flex items-center justify-center">
-                      <span className="text-sm font-extrabold text-slate-400">₹</span>
+                      <span className="text-sm font-extrabold text-slate-400">
+                        ₹
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Price Unit Selection */}
                 <div className="space-y-1.5">
-                  <label htmlFor="price-unit" className="block text-sm font-semibold text-slate-700">
+                  <label
+                    htmlFor="price-unit"
+                    className="block text-sm font-semibold text-slate-700"
+                  >
                     Price Unit
                   </label>
                   <select
                     id="price-unit"
                     value={formData.price_unit}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, price_unit: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        price_unit: e.target.value,
+                      }))
+                    }
                     disabled={formData.starting_price === null}
                     className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-150 font-medium cursor-pointer"
                   >
@@ -530,16 +610,25 @@ export default function CreateServicePage() {
             {/* Section 7 - About Your Teaching */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">7</div>
-                <h3 className="font-extrabold text-slate-700 text-base">About Your Teaching</h3>
+                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
+                  7
+                </div>
+                <h3 className="font-extrabold text-slate-700 text-base">
+                  About Your Teaching
+                </h3>
               </div>
 
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-sm">
-                  <label htmlFor="teaching-description" className="font-semibold text-slate-700">
+                  <label
+                    htmlFor="teaching-description"
+                    className="font-semibold text-slate-700"
+                  >
                     About Your Teaching <span className="text-red-500">*</span>
                   </label>
-                  <span className={`text-[10px] font-bold ${formData.description.trim().length >= 20 && formData.description.trim().length <= 250 ? "text-slate-400" : "text-amber-500"}`}>
+                  <span
+                    className={`text-[10px] font-bold ${formData.description.trim().length >= 20 && formData.description.trim().length <= 250 ? "text-slate-400" : "text-amber-500"}`}
+                  >
                     {formData.description.trim().length} / 250
                   </span>
                 </div>
@@ -548,18 +637,23 @@ export default function CreateServicePage() {
                   rows={4}
                   required
                   value={formData.description}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
                   placeholder="Describe what you teach and who you help. Class ranges, experience, teaching style, exam successes, etc."
                   className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 leading-relaxed font-sans resize-none"
                 />
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] text-slate-400">
-                    Provide 20-250 characters. Helpful descriptions prompt students/parents to reach out!
+                    Provide 20-250 characters. Helpful descriptions prompt
+                    students/parents to reach out!
                   </p>
                 </div>
               </div>
             </div>
-
           </div>
 
           {/* Sticky Live Preview Column */}
@@ -570,18 +664,21 @@ export default function CreateServicePage() {
                 Tips for high click rate
               </h4>
               <ul className="text-[10.5px] text-slate-500 space-y-1.5 list-disc pl-4 font-medium">
-                <li>Pick the closest teaching category to match student search phrases.</li>
+                <li>
+                  Pick the closest teaching category to match student search
+                  phrases.
+                </li>
                 <li>Write a clean, action-oriented Service Title.</li>
                 <li>Add popular languages to attract diverse families.</li>
-                <li>Specify starting price to create clear pricing expectations.</li>
+                <li>
+                  Specify starting price to create clear pricing expectations.
+                </li>
               </ul>
             </div>
-            
+
             <LivePreviewCard data={formData} />
           </div>
-
         </div>
-
       </div>
 
       {/* Sticky Bottom Actions Bar */}
@@ -602,7 +699,7 @@ export default function CreateServicePage() {
               onClick={handleModalClose}
               className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
             />
-            
+
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -621,23 +718,37 @@ export default function CreateServicePage() {
                   Teaching Service Published!
                 </h2>
                 <p className="text-xs text-slate-500 leading-relaxed max-w-sm">
-                  Congratulations! Your listing has been published. Local students and parents searching for <strong>{formData.title}</strong> will now be able to discover and contact you.
+                  Congratulations! Your listing has been published. Local
+                  students and parents searching for{" "}
+                  <strong>{formData.title}</strong> will now be able to discover
+                  and contact you.
                 </p>
               </div>
 
               <div className="bg-slate-50 rounded-2xl p-4 w-full text-left border border-slate-100 text-xs text-slate-650 flex flex-col gap-1.5 font-medium">
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                  <span>Category: {formData.category === "Other" ? formData.customCategory : formData.category}</span>
+                  <span>
+                    Category:{" "}
+                    {formData.category === "Other"
+                      ? formData.customCategory
+                      : formData.category}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                  <span>Location: {[formData.area, formData.city].filter(Boolean).join(", ")}</span>
+                  <span>
+                    Location:{" "}
+                    {[formData.area, formData.city].filter(Boolean).join(", ")}
+                  </span>
                 </div>
                 {formData.starting_price && (
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                    <span>Price: ₹{formData.starting_price} / {formData.price_unit.toLowerCase()}</span>
+                    <span>
+                      Price: ₹{formData.starting_price} /{" "}
+                      {formData.price_unit.toLowerCase()}
+                    </span>
                   </div>
                 )}
               </div>
@@ -654,7 +765,6 @@ export default function CreateServicePage() {
           </div>
         )}
       </AnimatePresence>
-
     </div>
   );
 }

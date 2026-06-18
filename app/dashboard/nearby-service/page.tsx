@@ -1,21 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { 
-  Search, 
-  MapPin, 
-  Heart, 
-  Eye, 
-  MessageSquare, 
-  Star, 
-  Globe, 
-  Home, 
+import {
+  Search,
+  MapPin,
+  Heart,
+  Eye,
+  MessageSquare,
+  Star,
+  Globe,
+  Home,
   Calendar,
   Navigation,
   X,
   Plus,
   Loader2,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import { getCurrentUser, supabase } from "@/lib/supabase";
 
@@ -65,7 +65,7 @@ const CATEGORY_CHIPS = [
   "Tuition",
   "Fitness",
   "Music",
-  "Other"
+  "Other",
 ];
 
 interface ServiceUser {
@@ -79,10 +79,12 @@ interface ServiceUser {
 
 export default function NearbyServicePage() {
   const [currentUser, setCurrentUser] = useState<ServiceUser | null>(null);
-  
+
   // Data states
   const [services, setServices] = useState<ServiceItem[]>([]);
-  const [likedServiceIds, setLikedServiceIds] = useState<Set<string>>(new Set());
+  const [likedServiceIds, setLikedServiceIds] = useState<Set<string>>(
+    new Set(),
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -92,7 +94,9 @@ export default function NearbyServicePage() {
   const [sortBy, setSortBy] = useState("Newest");
 
   // Modal Details
-  const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
+  const [selectedService, setSelectedService] = useState<ServiceItem | null>(
+    null,
+  );
   const [reviews, setReviews] = useState<ServiceReview[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [userRating, setUserRating] = useState<number>(5);
@@ -105,11 +109,15 @@ export default function NearbyServicePage() {
     async function initPage() {
       try {
         setLoading(true);
-        const { user } = (await getCurrentUser()) as { user: ServiceUser | null };
+        const { user } = (await getCurrentUser()) as {
+          user: ServiceUser | null;
+        };
         setCurrentUser(user);
 
         if (!supabase) {
-          throw new Error("Supabase service is not configured on your environment");
+          throw new Error(
+            "Supabase service is not configured on your environment",
+          );
         }
 
         // Fetch services joined with users table
@@ -119,7 +127,7 @@ export default function NearbyServicePage() {
           .eq("is_active", true);
 
         if (servicesError) throw servicesError;
-        setServices(servicesData as ServiceItem[] || []);
+        setServices((servicesData as ServiceItem[]) || []);
 
         // Fetch user's likes
         if (user) {
@@ -157,7 +165,7 @@ export default function NearbyServicePage() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setReviews(data as ServiceReview[] || []);
+      setReviews((data as ServiceReview[]) || []);
 
       if (currentUser && data) {
         const reviewed = data.some((r) => r.user_id === currentUser.id);
@@ -177,7 +185,11 @@ export default function NearbyServicePage() {
     loadReviews(service.id);
 
     // Optimistic Update View Count
-    setServices(prev => prev.map(s => s.id === service.id ? { ...s, views_count: s.views_count + 1 } : s));
+    setServices((prev) =>
+      prev.map((s) =>
+        s.id === service.id ? { ...s, views_count: s.views_count + 1 } : s,
+      ),
+    );
 
     try {
       // Increment views count on services directly
@@ -185,7 +197,7 @@ export default function NearbyServicePage() {
         .from("services")
         .update({ views_count: service.views_count + 1 })
         .eq("id", service.id);
-      
+
       // Update analytics table
       const { data: analyticsRow } = await supabase
         .from("service_analytics")
@@ -202,14 +214,12 @@ export default function NearbyServicePage() {
           })
           .eq("service_id", service.id);
       } else {
-        await supabase
-          .from("service_analytics")
-          .insert({
-            service_id: service.id,
-            total_views: 1,
-            unique_visitors: 1,
-            updated_at: new Date().toISOString()
-          });
+        await supabase.from("service_analytics").insert({
+          service_id: service.id,
+          total_views: 1,
+          unique_visitors: 1,
+          updated_at: new Date().toISOString(),
+        });
       }
     } catch (err) {
       console.error("Error tracking view count:", err);
@@ -226,7 +236,10 @@ export default function NearbyServicePage() {
   };
 
   // Toggle Like ❤️
-  const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
+  const handleToggleLike = async (
+    e: React.MouseEvent,
+    service: ServiceItem,
+  ) => {
     e.stopPropagation();
     if (!supabase) return;
     if (!currentUser) {
@@ -240,10 +253,20 @@ export default function NearbyServicePage() {
     // Optimistic UI updates
     if (isLiked) {
       newLikedIds.delete(service.id);
-      setServices(prev => prev.map(s => s.id === service.id ? { ...s, likes_count: Math.max(0, s.likes_count - 1) } : s));
+      setServices((prev) =>
+        prev.map((s) =>
+          s.id === service.id
+            ? { ...s, likes_count: Math.max(0, s.likes_count - 1) }
+            : s,
+        ),
+      );
     } else {
       newLikedIds.add(service.id);
-      setServices(prev => prev.map(s => s.id === service.id ? { ...s, likes_count: s.likes_count + 1 } : s));
+      setServices((prev) =>
+        prev.map((s) =>
+          s.id === service.id ? { ...s, likes_count: s.likes_count + 1 } : s,
+        ),
+      );
     }
     setLikedServiceIds(newLikedIds);
 
@@ -306,13 +329,11 @@ export default function NearbyServicePage() {
             })
             .eq("service_id", service.id);
         } else {
-          await supabase
-            .from("service_analytics")
-            .insert({
-              service_id: service.id,
-              total_likes: 1,
-              updated_at: new Date().toISOString()
-            });
+          await supabase.from("service_analytics").insert({
+            service_id: service.id,
+            total_likes: 1,
+            updated_at: new Date().toISOString(),
+          });
         }
       }
     } catch (err) {
@@ -327,7 +348,10 @@ export default function NearbyServicePage() {
   const handleOpenMap = (e: React.MouseEvent, service: ServiceItem) => {
     e.stopPropagation();
     if (service.latitude && service.longitude) {
-      window.open(`https://www.google.com/maps?q=${service.latitude},${service.longitude}`, "_blank");
+      window.open(
+        `https://www.google.com/maps?q=${service.latitude},${service.longitude}`,
+        "_blank",
+      );
     } else {
       alert("No exact coordinates attached to this service listing.");
     }
@@ -349,7 +373,7 @@ export default function NearbyServicePage() {
           service_id: selectedService.id,
           user_id: currentUser.id,
           rating: userRating,
-          review: userComment.trim() || null
+          review: userComment.trim() || null,
         });
 
       if (reviewError) throw reviewError;
@@ -371,7 +395,7 @@ export default function NearbyServicePage() {
         .from("services")
         .update({
           rating_average: averageRating,
-          reviews_count: totalReviews
+          reviews_count: totalReviews,
         })
         .eq("id", selectedService.id);
 
@@ -388,23 +412,39 @@ export default function NearbyServicePage() {
           .update({
             total_reviews: totalReviews,
             average_rating: averageRating,
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
           })
           .eq("service_id", selectedService.id);
       } else {
-        await supabase
-          .from("service_analytics")
-          .insert({
-            service_id: selectedService.id,
-            total_reviews: totalReviews,
-            average_rating: averageRating,
-            updated_at: new Date().toISOString()
-          });
+        await supabase.from("service_analytics").insert({
+          service_id: selectedService.id,
+          total_reviews: totalReviews,
+          average_rating: averageRating,
+          updated_at: new Date().toISOString(),
+        });
       }
 
       // Update page listing states
-      setServices(prev => prev.map(s => s.id === selectedService.id ? { ...s, rating_average: averageRating, reviews_count: totalReviews } : s));
-      setSelectedService(prev => prev ? { ...prev, rating_average: averageRating, reviews_count: totalReviews } : null);
+      setServices((prev) =>
+        prev.map((s) =>
+          s.id === selectedService.id
+            ? {
+                ...s,
+                rating_average: averageRating,
+                reviews_count: totalReviews,
+              }
+            : s,
+        ),
+      );
+      setSelectedService((prev) =>
+        prev
+          ? {
+              ...prev,
+              rating_average: averageRating,
+              reviews_count: totalReviews,
+            }
+          : null,
+      );
 
       // Reload reviews list
       loadReviews(selectedService.id);
@@ -428,13 +468,62 @@ export default function NearbyServicePage() {
     if (filter === "Yoga") return catLower.includes("yoga");
     if (filter === "Dance") return catLower.includes("dance");
     if (filter === "Guitar") return catLower.includes("guitar");
-    if (filter === "Gym") return catLower.includes("gym") || catLower.includes("fitness") || catLower.includes("personal trainer");
-    if (filter === "Tuition") return catLower.includes("tutor") || catLower.includes("teacher") || catLower.includes("coach") || catLower.includes("academic") || catLower.includes("math") || catLower.includes("science") || catLower.includes("english") || catLower.includes("coding") || catLower.includes("language") || catLower.includes("exam");
-    if (filter === "Fitness") return catLower.includes("fitness") || catLower.includes("trainer") || catLower.includes("yoga") || catLower.includes("gym");
-    if (filter === "Music") return catLower.includes("music") || catLower.includes("guitar") || catLower.includes("singing") || catLower.includes("piano");
+    if (filter === "Gym")
+      return (
+        catLower.includes("gym") ||
+        catLower.includes("fitness") ||
+        catLower.includes("personal trainer")
+      );
+    if (filter === "Tuition")
+      return (
+        catLower.includes("tutor") ||
+        catLower.includes("teacher") ||
+        catLower.includes("coach") ||
+        catLower.includes("academic") ||
+        catLower.includes("math") ||
+        catLower.includes("science") ||
+        catLower.includes("english") ||
+        catLower.includes("coding") ||
+        catLower.includes("language") ||
+        catLower.includes("exam")
+      );
+    if (filter === "Fitness")
+      return (
+        catLower.includes("fitness") ||
+        catLower.includes("trainer") ||
+        catLower.includes("yoga") ||
+        catLower.includes("gym")
+      );
+    if (filter === "Music")
+      return (
+        catLower.includes("music") ||
+        catLower.includes("guitar") ||
+        catLower.includes("singing") ||
+        catLower.includes("piano")
+      );
     if (filter === "Other") {
-      const keys = ["yoga", "dance", "guitar", "gym", "fitness", "personal trainer", "tutor", "teacher", "coach", "academic", "math", "science", "english", "coding", "language", "exam", "music", "singing", "piano"];
-      return !keys.some(k => catLower.includes(k));
+      const keys = [
+        "yoga",
+        "dance",
+        "guitar",
+        "gym",
+        "fitness",
+        "personal trainer",
+        "tutor",
+        "teacher",
+        "coach",
+        "academic",
+        "math",
+        "science",
+        "english",
+        "coding",
+        "language",
+        "exam",
+        "music",
+        "singing",
+        "piano",
+      ];
+      return !keys.some((k) => catLower.includes(k));
     }
     return catLower.includes(filtLower);
   };
@@ -459,7 +548,9 @@ export default function NearbyServicePage() {
     .sort((a, b) => {
       // 3. Sorting Options
       if (sortBy === "Newest") {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
       }
       if (sortBy === "Highest Rated") {
         return b.rating_average - a.rating_average;
@@ -481,10 +572,8 @@ export default function NearbyServicePage() {
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-20">
-      
       {/* Search and Filter Panel */}
       <div className="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        
         {/* Page Titles */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -492,7 +581,8 @@ export default function NearbyServicePage() {
               Nearby Providers & Tutors
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Discover verified local instructors, academic tutors, and yoga coaches right in your neighborhood.
+              Discover verified local instructors, academic tutors, and yoga
+              coaches right in your neighborhood.
             </p>
           </div>
         </div>
@@ -513,7 +603,10 @@ export default function NearbyServicePage() {
 
           {/* Sort selection */}
           <div className="flex items-center gap-2.5 w-full md:w-auto self-stretch md:self-auto shrink-0">
-            <label htmlFor="sort-dropdown" className="text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0">
+            <label
+              htmlFor="sort-dropdown"
+              className="text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0"
+            >
               Sort By:
             </label>
             <select
@@ -557,7 +650,9 @@ export default function NearbyServicePage() {
         {loading && (
           <div className="py-20 flex flex-col items-center justify-center gap-3">
             <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
-            <p className="text-sm text-slate-500 font-bold">Scanning local database...</p>
+            <p className="text-sm text-slate-500 font-bold">
+              Scanning local database...
+            </p>
           </div>
         )}
 
@@ -575,9 +670,13 @@ export default function NearbyServicePage() {
             <div className="w-16 h-16 bg-blue-50/50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-100/50">
               <Search className="h-6 w-6" />
             </div>
-            <h3 className="text-lg font-extrabold text-slate-800">No Services Found</h3>
+            <h3 className="text-lg font-extrabold text-slate-800">
+              No Services Found
+            </h3>
             <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1 leading-relaxed">
-              We couldn&apos;t find any services matching &quot;{searchQuery}&quot; under &quot;{selectedCategory}&quot;. Try adjusting your search query or chips.
+              We couldn&apos;t find any services matching &quot;{searchQuery}
+              &quot; under &quot;{selectedCategory}&quot;. Try adjusting your
+              search query or chips.
             </p>
           </div>
         )}
@@ -603,7 +702,7 @@ export default function NearbyServicePage() {
                       <span className="text-[10px] font-bold text-blue-600 bg-blue-50/80 px-2.5 py-1 rounded-full uppercase tracking-wider border border-blue-100/30">
                         {service.category}
                       </span>
-                      
+
                       <div className="flex items-center gap-1.5 shrink-0">
                         {/* Map Button */}
                         {service.latitude && service.longitude && (
@@ -626,7 +725,9 @@ export default function NearbyServicePage() {
                               : "bg-slate-50 border-slate-200 text-slate-400 hover:text-red-500 hover:bg-red-50/50"
                           }`}
                         >
-                          <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500" : ""}`} />
+                          <Heart
+                            className={`h-4 w-4 ${isLiked ? "fill-red-500" : ""}`}
+                          />
                         </button>
                       </div>
                     </div>
@@ -650,7 +751,9 @@ export default function NearbyServicePage() {
                     <div className="flex items-center gap-3.5 text-[10px] font-bold text-slate-400 border-t border-slate-50 pt-3">
                       <span className="flex items-center gap-1">
                         <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                        <span className="text-slate-600">{service.rating_average || "0.0"}</span>
+                        <span className="text-slate-600">
+                          {service.rating_average || "0.0"}
+                        </span>
                       </span>
                       <span className="flex items-center gap-1">
                         <Eye className="h-3.5 w-3.5 text-slate-400" />
@@ -671,17 +774,21 @@ export default function NearbyServicePage() {
                   <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-auto">
                     <div className="flex items-center gap-1 text-slate-400 font-semibold text-[11px] max-w-[50%]">
                       <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                      <span className="truncate">{[service.area, service.city].filter(Boolean).join(", ")}</span>
+                      <span className="truncate">
+                        {[service.area, service.city]
+                          .filter(Boolean)
+                          .join(", ")}
+                      </span>
                     </div>
-                    <span className="text-xs font-extrabold text-blue-600 shrink-0">{priceLabel}</span>
+                    <span className="text-xs font-extrabold text-blue-600 shrink-0">
+                      {priceLabel}
+                    </span>
                   </div>
-
                 </div>
               );
             })}
           </div>
         )}
-
       </div>
 
       {/* Details Dialog Modal */}
@@ -716,14 +823,14 @@ export default function NearbyServicePage() {
 
             {/* Modal Body */}
             <div className="p-6 space-y-6 flex-1">
-              
               {/* Tutor & Description */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-                
                 {/* Details Section */}
                 <div className="md:col-span-8 space-y-5">
                   <div className="space-y-1">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Instructor Profile</h3>
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                      Instructor Profile
+                    </h3>
                     <h4 className="text-base font-extrabold text-slate-800">
                       {selectedService.users?.full_name || "Verified Tutor"}
                     </h4>
@@ -735,7 +842,9 @@ export default function NearbyServicePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">About the Service</h3>
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                      About the Service
+                    </h3>
                     <p className="text-xs text-slate-650 font-medium leading-relaxed whitespace-pre-line bg-blue-50/20 border border-blue-100/10 rounded-2xl p-4">
                       {selectedService.description}
                     </p>
@@ -744,8 +853,10 @@ export default function NearbyServicePage() {
 
                 {/* Badges / Specifications Card */}
                 <div className="md:col-span-4 bg-slate-50/70 border border-slate-100 rounded-2xl p-4.5 space-y-4">
-                  <h3 className="text-xs font-bold text-slate-700 border-b border-slate-200/60 pb-1.5">Specifications</h3>
-                  
+                  <h3 className="text-xs font-bold text-slate-700 border-b border-slate-200/60 pb-1.5">
+                    Specifications
+                  </h3>
+
                   {/* Mode */}
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
@@ -753,7 +864,8 @@ export default function NearbyServicePage() {
                       Teaching Modes
                     </span>
                     <p className="text-xs font-semibold text-slate-600 pl-4.5">
-                      {selectedService.service_modes.join(", ") || "No modes selected"}
+                      {selectedService.service_modes.join(", ") ||
+                        "No modes selected"}
                     </p>
                   </div>
 
@@ -786,20 +898,21 @@ export default function NearbyServicePage() {
                       Starting Price
                     </span>
                     <p className="text-xs font-extrabold text-blue-600 pl-4.5">
-                      {selectedService.starting_price 
+                      {selectedService.starting_price
                         ? `₹${selectedService.starting_price} / ${(selectedService.price_unit || "hour").toLowerCase()}`
                         : "Price on Enquiry"}
                     </p>
                   </div>
                 </div>
-
               </div>
 
               {/* Reviews Section */}
               <div className="border-t border-slate-100 pt-6 space-y-6">
                 <div>
                   <h3 className="text-sm font-extrabold text-slate-800 flex items-center gap-2">
-                    <span>Student Reviews ({selectedService.reviews_count || 0})</span>
+                    <span>
+                      Student Reviews ({selectedService.reviews_count || 0})
+                    </span>
                     <span className="inline-flex items-center gap-0.5 text-xs text-amber-500">
                       <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                       {selectedService.rating_average || "0.0"}
@@ -814,11 +927,16 @@ export default function NearbyServicePage() {
                     <span>Loading reviews list...</span>
                   </div>
                 ) : reviews.length === 0 ? (
-                  <p className="text-xs text-slate-400 font-medium italic">No reviews have been written for this service yet.</p>
+                  <p className="text-xs text-slate-400 font-medium italic">
+                    No reviews have been written for this service yet.
+                  </p>
                 ) : (
                   <div className="space-y-3.5 max-h-60 overflow-y-auto pr-2">
                     {reviews.map((review) => (
-                      <div key={review.id} className="p-3 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-1 text-xs">
+                      <div
+                        key={review.id}
+                        className="p-3 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-1 text-xs"
+                      >
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-slate-700">
                             {review.users?.full_name || "Student Reviewer"}
@@ -835,7 +953,11 @@ export default function NearbyServicePage() {
                             />
                           ))}
                         </div>
-                        {review.review && <p className="text-slate-600 leading-relaxed font-sans">{review.review}</p>}
+                        {review.review && (
+                          <p className="text-slate-600 leading-relaxed font-sans">
+                            {review.review}
+                          </p>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -845,15 +967,23 @@ export default function NearbyServicePage() {
                 {currentUser ? (
                   hasReviewed ? (
                     <div className="p-3 bg-blue-50/50 border border-blue-100/30 rounded-2xl text-xs text-blue-600 font-bold text-center">
-                      ✓ You have already reviewed this service. You can leave one review per service.
+                      ✓ You have already reviewed this service. You can leave
+                      one review per service.
                     </div>
                   ) : (
-                    <form onSubmit={handleSubmitReview} className="bg-slate-50/40 border border-slate-200/50 rounded-2xl p-4 space-y-4">
-                      <h4 className="text-xs font-extrabold text-slate-700">Write a Review</h4>
-                      
+                    <form
+                      onSubmit={handleSubmitReview}
+                      className="bg-slate-50/40 border border-slate-200/50 rounded-2xl p-4 space-y-4"
+                    >
+                      <h4 className="text-xs font-extrabold text-slate-700">
+                        Write a Review
+                      </h4>
+
                       {/* Star Selection */}
                       <div className="space-y-1.5">
-                        <span className="block text-[10px] font-bold text-slate-400 uppercase">Your Rating</span>
+                        <span className="block text-[10px] font-bold text-slate-400 uppercase">
+                          Your Rating
+                        </span>
                         <div className="flex gap-1">
                           {Array.from({ length: 5 }).map((_, idx) => {
                             const starVal = idx + 1;
@@ -865,7 +995,9 @@ export default function NearbyServicePage() {
                                 onClick={() => setUserRating(starVal)}
                                 className="p-0.5 text-amber-500 hover:scale-110 transition cursor-pointer"
                               >
-                                <Star className={`h-6 w-6 ${isFilled ? "fill-amber-400 text-amber-400" : "text-slate-200"}`} />
+                                <Star
+                                  className={`h-6 w-6 ${isFilled ? "fill-amber-400 text-amber-400" : "text-slate-200"}`}
+                                />
                               </button>
                             );
                           })}
@@ -874,7 +1006,12 @@ export default function NearbyServicePage() {
 
                       {/* Comment textarea */}
                       <div className="space-y-1.5">
-                        <label htmlFor="review-textarea" className="block text-[10px] font-bold text-slate-400 uppercase">Your Review (Optional)</label>
+                        <label
+                          htmlFor="review-textarea"
+                          className="block text-[10px] font-bold text-slate-400 uppercase"
+                        >
+                          Your Review (Optional)
+                        </label>
                         <textarea
                           id="review-textarea"
                           rows={3}
@@ -909,14 +1046,11 @@ export default function NearbyServicePage() {
                     Please login to leave a review for this tutor.
                   </div>
                 )}
-
               </div>
-
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 }

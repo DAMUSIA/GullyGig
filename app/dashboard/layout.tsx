@@ -64,12 +64,6 @@ function Sidebar({
       href: "/dashboard/create-service",
     },
     {
-      id: "find-services",
-      label: "Find Services",
-      icon: Search,
-      href: "/dashboard/find-service",
-    },
-    {
       id: "nearby",
       label: "Nearby Providers",
       icon: MapPin,

@@ -234,11 +234,32 @@ export default function CreateServicePage() {
         throw new Error("Supabase service is not configured on your environment");
       }
 
-      const { error } = await supabase.from("services").insert([insertData]);
+      const { data: serviceData, error } = await supabase
+        .from("services")
+        .insert([insertData])
+        .select()
+        .single();
 
       if (error) {
         console.error("Database error details:", error);
         throw new Error(error.message);
+      }
+
+      if (serviceData) {
+        // Create matching analytics record
+        const { error: analyticsError } = await supabase.from("service_analytics").insert([{
+          service_id: serviceData.id,
+          total_views: 0,
+          unique_visitors: 0,
+          total_likes: 0,
+          total_contacts: 0,
+          total_reviews: 0,
+          average_rating: 0
+        }]);
+
+        if (analyticsError) {
+          console.warn("Could not pre-populate analytics record:", analyticsError);
+        }
       }
 
       // Show Success animation

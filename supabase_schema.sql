@@ -3,8 +3,6 @@
 -- ====================================================================
 
 -- 1. Users Table Structure
--- Tracks detailed user profiles. Both email and phone_no are nullable to support
--- passwordless phone registration and Google OAuth without requiring fake data.
 CREATE TABLE IF NOT EXISTS public.users (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   full_name TEXT NOT NULL,
@@ -16,10 +14,6 @@ CREATE TABLE IF NOT EXISTS public.users (
   about TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
-
--- ====================================================================
--- ROW LEVEL SECURITY (RLS) POLICIES
--- ====================================================================
 
 -- Enable RLS on users table
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
@@ -34,55 +28,30 @@ CREATE POLICY "Allow users to insert their own profile" ON public.users
 CREATE POLICY "Allow users to update their own profile" ON public.users 
   FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 
--- ====================================================================
--- ALTER SCHEMA MIGRATION CODE (FOR EXISTING DATABASES)
--- ====================================================================
--- Run this code in your Supabase SQL Editor to apply constraints updates,
--- add new columns, and ensure they are all nullable.
-
--- Drop old location-related columns if they exist
-ALTER TABLE public.users DROP COLUMN IF EXISTS location_city;
-ALTER TABLE public.users DROP COLUMN IF EXISTS neighborhood;
-ALTER TABLE public.users DROP COLUMN IF EXISTS pincode;
-
--- Ensure columns are nullable and exist with correct types
-ALTER TABLE public.users 
-  ALTER COLUMN email DROP NOT NULL,
-  ALTER COLUMN phone_no DROP NOT NULL,
-  ALTER COLUMN dob DROP NOT NULL;
-
--- Add gender, location, and about columns to existing users table if they do not exist
-ALTER TABLE public.users 
-  ADD COLUMN IF NOT EXISTS gender TEXT,
-  ADD COLUMN IF NOT EXISTS location TEXT,
-  ADD COLUMN IF NOT EXISTS about TEXT;
-
--- ====================================================================
--- SERVICES TABLE STRUCTURE & POLICIES
--- ====================================================================
 
 -- 2. Services Table Structure
 CREATE TABLE IF NOT EXISTS public.services (
-  id uuid not null default gen_random_uuid (),
-  user_id uuid not null,
-  title text not null,
-  category text not null,
-  description text not null,
-  service_modes text[] not null default '{}'::text[],
-  city text not null,
-  area text null,
-  latitude double precision null,
-  longitude double precision null,
-  availability text[] not null default '{}'::text[],
-  languages text[] null default '{}'::text[],
-  starting_price integer null,
-  price_unit text null,
-  is_active boolean null default true,
-  views_count integer null default 0,
-  created_at timestamp with time zone null default now(),
-  updated_at timestamp with time zone null default now(),
-  constraint services_pkey primary key (id),
-  constraint services_user_id_fkey foreign KEY (user_id) references users (id) on delete CASCADE
+  id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL,
+  description TEXT NOT NULL,
+  service_modes TEXT[] NOT NULL DEFAULT '{}'::TEXT[],
+  city TEXT NOT NULL,
+  area TEXT,
+  latitude DOUBLE PRECISION,
+  longitude DOUBLE PRECISION,
+  availability TEXT[] NOT NULL DEFAULT '{}'::TEXT[],
+  languages TEXT[] DEFAULT '{}'::TEXT[],
+  starting_price INTEGER,
+  price_unit TEXT,
+  is_active BOOLEAN DEFAULT true,
+  views_count INTEGER DEFAULT 0,
+  likes_count INTEGER DEFAULT 0,
+  reviews_count INTEGER DEFAULT 0,
+  rating_average NUMERIC DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Enable RLS on services table
@@ -100,3 +69,81 @@ CREATE POLICY "Allow users to update their own services" ON public.services
 
 CREATE POLICY "Allow users to delete their own services" ON public.services 
   FOR DELETE USING (auth.uid() = user_id);
+
+
+-- 3. Service Likes Table Structure
+CREATE TABLE IF NOT EXISTS public.service_likes (
+  id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+  service_id UUID NOT NULL REFERENCES public.services(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT service_likes_user_service_unique UNIQUE (user_id, service_id)
+);
+
+-- Enable RLS on service_likes table
+ALTER TABLE public.service_likes ENABLE ROW LEVEL SECURITY;
+
+-- service_likes table policies
+CREATE POLICY "Allow public read access to service_likes" ON public.service_likes 
+  FOR SELECT USING (true);
+
+CREATE POLICY "Allow users to insert their own service_likes" ON public.service_likes 
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Allow users to delete their own service_likes" ON public.service_likes 
+  FOR DELETE USING (auth.uid() = user_id);
+
+
+-- 4. Service Ratings / Reviews Table Structure
+CREATE TABLE IF NOT EXISTS public.service_ratings (
+  id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+  service_id UUID NOT NULL REFERENCES public.services(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  review TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT service_ratings_user_service_unique UNIQUE (user_id, service_id)
+);
+
+-- Enable RLS on service_ratings table
+ALTER TABLE public.service_ratings ENABLE ROW LEVEL SECURITY;
+
+-- service_ratings table policies
+CREATE POLICY "Allow public read access to service_ratings" ON public.service_ratings 
+  FOR SELECT USING (true);
+
+CREATE POLICY "Allow users to insert their own service_ratings" ON public.service_ratings 
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Allow users to update their own service_ratings" ON public.service_ratings 
+  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Allow users to delete their own service_ratings" ON public.service_ratings 
+  FOR DELETE USING (auth.uid() = user_id);
+
+
+-- 5. Service Analytics Table Structure
+CREATE TABLE IF NOT EXISTS public.service_analytics (
+  service_id UUID NOT NULL PRIMARY KEY REFERENCES public.services(id) ON DELETE CASCADE,
+  total_views INTEGER DEFAULT 0,
+  unique_visitors INTEGER DEFAULT 0,
+  total_likes INTEGER DEFAULT 0,
+  total_contacts INTEGER DEFAULT 0,
+  total_reviews INTEGER DEFAULT 0,
+  average_rating NUMERIC DEFAULT 0,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS on service_analytics table
+ALTER TABLE public.service_analytics ENABLE ROW LEVEL SECURITY;
+
+-- service_analytics table policies
+CREATE POLICY "Allow public read access to service_analytics" ON public.service_analytics 
+  FOR SELECT USING (true);
+
+CREATE POLICY "Allow public insert to service_analytics" ON public.service_analytics 
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Allow public update to service_analytics" ON public.service_analytics 
+  FOR UPDATE USING (true) WITH CHECK (true);

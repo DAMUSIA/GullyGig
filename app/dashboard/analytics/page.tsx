@@ -1,697 +1,430 @@
 "use client";
 
-import { useState } from "react";
-import {
-  TrendingUp,
-  TrendingDown,
-  Eye,
-  Briefcase,
-  Users,
-  Star,
-  Calendar,
-  Award,
-  BarChart3,
-  CheckCircle,
-  Clock,
-  ThumbsUp,
-  ChevronDown,
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { 
+  BarChart3, 
+  Eye, 
+  Heart, 
+  Star, 
+  MessageSquare, 
+  Briefcase, 
+  Plus, 
+  Loader2, 
+  AlertCircle,
+  ArrowUpDown
 } from "lucide-react";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  Filler,
-  ChartData,
-  ChartOptions,
-} from "chart.js";
-import { Line, Bar, Pie, Doughnut } from "react-chartjs-2";
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer, 
+  PieChart, 
+  Pie, 
+  Cell 
+} from "recharts";
+import { getCurrentUser, supabase } from "@/lib/supabase";
 
-// Register ChartJS components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  Filler,
-);
-
-// Define types
-interface PeriodData {
-  profileViews: { value: number; change: number; trend: string };
-  serviceViews: { value: number; change: number; trend: string };
-  interestedUsers: { value: number; change: number; trend: string };
-  leads: number[];
-  growth: number[];
-  totalLeads: number;
-  weeks: string[];
-  months: string[];
+interface ServiceItem {
+  id: string;
+  title: string;
+  category: string;
+  views_count: number;
+  likes_count: number;
+  reviews_count: number;
+  rating_average: number;
+  created_at: string;
 }
-
-interface ServiceData {
-  name: string;
-  description: string;
-  views: number;
-  leads: number;
-  interested: number;
-  rating: number;
-}
-
-interface RatingData {
-  stars: number;
-  count: number;
-  percentage: number;
-}
-
-interface ProviderStats {
-  servicesCreated: number;
-  activeServices: number;
-  pausedServices: number;
-  completedJobs: number;
-  memberSince: string;
-}
-
-interface BestPerformingService {
-  name: string;
-  description: string;
-  views: number;
-  leads: number;
-  rating: number;
-}
-
-// Mock data for different periods
-const periodData: Record<string, PeriodData> = {
-  "7days": {
-    profileViews: { value: 98, change: 12, trend: "up" },
-    serviceViews: { value: 210, change: 15, trend: "up" },
-    interestedUsers: { value: 14, change: 8, trend: "up" },
-    leads: [4, 8, 10, 12, 14, 16, 18],
-    growth: [5, 8, 12, 15, 18, 20, 22],
-    totalLeads: 82,
-    weeks: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
-  },
-  "30days": {
-    profileViews: { value: 245, change: 18, trend: "up" },
-    serviceViews: { value: 520, change: 22, trend: "up" },
-    interestedUsers: { value: 32, change: 14, trend: "up" },
-    leads: [4, 8, 10, 12],
-    growth: [10, 15, 22, 28],
-    totalLeads: 34,
-    weeks: ["Week 1", "Week 2", "Week 3", "Week 4"],
-    months: ["Jan", "Feb", "Mar", "Apr"],
-  },
-  "90days": {
-    profileViews: { value: 680, change: 25, trend: "up" },
-    serviceViews: { value: 1450, change: 30, trend: "up" },
-    interestedUsers: { value: 89, change: 20, trend: "up" },
-    leads: [4, 8, 10, 12, 15, 18, 22, 25, 28, 30, 32, 34],
-    growth: [10, 12, 15, 18, 22, 25, 28, 30, 32, 35, 38, 42],
-    totalLeads: 238,
-    weeks: [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ],
-    months: [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ],
-  },
-};
-
-// Rating distribution data
-const ratingData: ChartData<"pie"> = {
-  labels: ["5 Stars", "4 Stars", "3 Stars", "2 Stars", "1 Star"],
-  datasets: [
-    {
-      data: [20, 5, 2, 0, 0],
-      backgroundColor: ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6"],
-      borderWidth: 0,
-    },
-  ],
-};
-
-// Top areas data
-const areasData: ChartData<"doughnut"> = {
-  labels: ["Andheri West", "Goregaon", "Jogeshwari", "Versova"],
-  datasets: [
-    {
-      data: [40, 30, 20, 10],
-      backgroundColor: ["#3b82f6", "#60a5fa", "#93c5fd", "#bfdbfe"],
-      borderWidth: 0,
-    },
-  ],
-};
-
-const analyticsData: {
-  averageRating: { value: number; reviews: number };
-  services: ServiceData[];
-  ratings: RatingData[];
-  providerStats: ProviderStats;
-  bestPerformingService: BestPerformingService;
-} = {
-  averageRating: { value: 4.8, reviews: 27 },
-
-  services: [
-    {
-      name: "Math Tutor",
-      description: "Classes 6 - 10",
-      views: 120,
-      leads: 15,
-      interested: 5,
-      rating: 4.9,
-    },
-    {
-      name: "Tailoring Service",
-      description: "Stitching & Alterations",
-      views: 80,
-      leads: 10,
-      interested: 4,
-      rating: 4.7,
-    },
-    {
-      name: "Home Cook",
-      description: "Lunch & Dinner",
-      views: 60,
-      leads: 7,
-      interested: 3,
-      rating: 4.6,
-    },
-  ],
-
-  ratings: [
-    { stars: 5, count: 20, percentage: 74 },
-    { stars: 4, count: 5, percentage: 19 },
-    { stars: 3, count: 2, percentage: 7 },
-    { stars: 2, count: 0, percentage: 0 },
-    { stars: 1, count: 0, percentage: 0 },
-  ],
-
-  providerStats: {
-    servicesCreated: 3,
-    activeServices: 2,
-    pausedServices: 1,
-    completedJobs: 18,
-    memberSince: "May 2026",
-  },
-
-  bestPerformingService: {
-    name: "Math Tutor",
-    description: "Classes 6 - 10",
-    views: 120,
-    leads: 15,
-    rating: 4.9,
-  },
-};
-
-// Chart options with proper typing - Fixed 'drawBorder' issue
-const lineChartOptions: ChartOptions<"line"> = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: "top" as const,
-      labels: {
-        usePointStyle: true,
-        boxWidth: 10,
-        font: { size: 12 },
-      },
-    },
-    tooltip: {
-      backgroundColor: "white",
-      titleColor: "#1f2937",
-      bodyColor: "#6b7280",
-      borderColor: "#e5e7eb",
-      borderWidth: 1,
-      padding: 10,
-      callbacks: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        label: function (context: any) {
-          return `${context.dataset.label}: ${context.parsed.y}`;
-        },
-      },
-    },
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-      grid: {
-        color: "#e5e7eb",
-      },
-      ticks: {
-        stepSize: 5,
-      },
-    },
-    x: {
-      grid: {
-        display: false,
-      },
-    },
-  },
-};
-
-const barChartOptions: ChartOptions<"bar"> = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: "top" as const,
-      labels: {
-        usePointStyle: true,
-        boxWidth: 10,
-        font: { size: 12 },
-      },
-    },
-    tooltip: {
-      backgroundColor: "white",
-      titleColor: "#1f2937",
-      bodyColor: "#6b7280",
-      borderColor: "#e5e7eb",
-      borderWidth: 1,
-      padding: 10,
-    },
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-      grid: {
-        color: "#e5e7eb",
-      },
-      ticks: {
-        stepSize: 10,
-      },
-    },
-    x: {
-      grid: {
-        display: false,
-      },
-    },
-  },
-};
-
-// Separate options for Pie and Doughnut charts
-const pieChartOptions: ChartOptions<"pie"> = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: "bottom" as const,
-      labels: {
-        usePointStyle: true,
-        boxWidth: 10,
-        padding: 15,
-        font: { size: 11 },
-      },
-    },
-    tooltip: {
-      callbacks: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        label: function (context: any) {
-          const label = context.label || "";
-          const value = context.parsed as number;
-          const total = (context.dataset.data as number[]).reduce(
-            (a: number, b: number) => a + b,
-            0,
-          );
-          const percentage = ((value / total) * 100).toFixed(1);
-          return `${label}: ${value} (${percentage}%)`;
-        },
-      },
-    },
-  },
-};
-
-const doughnutChartOptions: ChartOptions<"doughnut"> = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: "bottom" as const,
-      labels: {
-        usePointStyle: true,
-        boxWidth: 10,
-        padding: 15,
-        font: { size: 11 },
-      },
-    },
-    tooltip: {
-      callbacks: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        label: function (context: any) {
-          const label = context.label || "";
-          const value = context.parsed as number;
-          const total = (context.dataset.data as number[]).reduce(
-            (a: number, b: number) => a + b,
-            0,
-          );
-          const percentage = ((value / total) * 100).toFixed(1);
-          return `${label}: ${value} (${percentage}%)`;
-        },
-      },
-    },
-  },
-};
 
 export default function AnalyticsPage() {
-  const [selectedPeriod, setSelectedPeriod] = useState("30days");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const currentData = periodData[selectedPeriod as keyof typeof periodData];
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [services, setServices] = useState<ServiceItem[]>([]);
+  const [mounted, setMounted] = useState(false);
 
-  const periods = [
-    { value: "7days", label: "Last 7 days" },
-    { value: "30days", label: "Last 30 days" },
-    { value: "90days", label: "Last 90 days" },
-  ];
+  // Sorting state for table
+  const [sortField, setSortField] = useState<keyof ServiceItem>("views_count");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
-  // Leads chart data
-  const leadsChartData: ChartData<"line"> = {
-    labels: currentData.weeks,
-    datasets: [
-      {
-        label: "Leads",
-        data: currentData.leads,
-        borderColor: "rgb(59, 130, 246)",
-        backgroundColor: "rgba(59, 130, 246, 0.1)",
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: "rgb(59, 130, 246)",
-        pointBorderColor: "white",
-        pointBorderWidth: 2,
-        pointRadius: 5,
-        pointHoverRadius: 7,
-      },
-    ],
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    async function loadAnalytics() {
+      try {
+        setLoading(true);
+        const { user } = (await getCurrentUser()) as { user: { id: string } | null };
+        if (!user) {
+          router.push("/login");
+          return;
+        }
+
+        if (!supabase) {
+          throw new Error("Supabase service is not configured on your environment");
+        }
+
+        // Fetch user's services
+        const { data, error: servicesError } = await supabase
+          .from("services")
+          .select("id, title, category, views_count, likes_count, reviews_count, rating_average, created_at")
+          .eq("user_id", user.id);
+
+        if (servicesError) throw servicesError;
+        setServices((data as ServiceItem[]) || []);
+      } catch (err: unknown) {
+        console.error("Error loading analytics:", err);
+        setError("Failed to load your services analytics data.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadAnalytics();
+  }, [router]);
+
+  // Sorting function
+  const handleSort = (field: keyof ServiceItem) => {
+    const direction = sortField === field && sortDirection === "desc" ? "asc" : "desc";
+    setSortField(field);
+    setSortDirection(direction);
   };
 
-  // Growth chart data
-  const growthChartData: ChartData<"bar"> = {
-    labels: currentData.months,
-    datasets: [
-      {
-        label: "Growth",
-        data: currentData.growth,
-        backgroundColor: "rgba(139, 92, 246, 0.8)",
-        borderRadius: 8,
-        barPercentage: 0.6,
-        categoryPercentage: 0.8,
-      },
-    ],
-  };
+  const sortedServices = [...services].sort((a, b) => {
+    const aVal = a[sortField];
+    const bVal = b[sortField];
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <BarChart3 className="w-8 h-8 text-blue-600" />
-                <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
-              </div>
-              <p className="text-gray-500 ml-11">
-                Track your performance and grow your service
-              </p>
-            </div>
+    if (sortField === "created_at") {
+      return sortDirection === "desc"
+        ? new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        : new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    }
 
-            {/* Period Selector Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-              >
-                <Calendar className="w-4 h-4" />
-                {periods.find((p) => p.value === selectedPeriod)?.label}
-                <ChevronDown
-                  className={`w-4 h-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
-                />
-              </button>
+    if (typeof aVal === "string" && typeof bVal === "string") {
+      return sortDirection === "desc"
+        ? bVal.localeCompare(aVal)
+        : aVal.localeCompare(bVal);
+    }
 
-              {isDropdownOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setIsDropdownOpen(false)}
-                  />
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
-                    {periods.map((period) => (
-                      <button
-                        key={period.value}
-                        onClick={() => {
-                          setSelectedPeriod(period.value);
-                          setIsDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                          selectedPeriod === period.value
-                            ? "text-blue-600 bg-blue-50"
-                            : "text-gray-700"
-                        }`}
-                      >
-                        {period.label}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
+    // Number comparison
+    const numA = (aVal as number) || 0;
+    const numB = (bVal as number) || 0;
+    return sortDirection === "desc" ? numB - numA : numA - numB;
+  });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-10 w-10 animate-spin text-blue-600 mx-auto" />
+          <p className="text-sm font-semibold text-slate-500">Aggregating service performance...</p>
         </div>
+      </div>
+    );
+  }
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Eye className="w-5 h-5 text-blue-600" />
-              </div>
-              <span
-                className={`text-sm font-medium ${currentData.profileViews.trend === "up" ? "text-green-600" : "text-red-600"} flex items-center gap-1`}
-              >
-                {currentData.profileViews.trend === "up" ? (
-                  <TrendingUp className="w-3 h-3" />
-                ) : (
-                  <TrendingDown className="w-3 h-3" />
-                )}
-                ↑ {currentData.profileViews.change}% vs last period
-              </span>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900">
-              {currentData.profileViews.value.toLocaleString()}
-            </h3>
-            <p className="text-sm text-gray-500 mt-1">Profile Views</p>
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+        <div className="bg-white p-6 border border-slate-200 rounded-3xl shadow-xl max-w-md w-full text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-3" />
+          <h2 className="text-lg font-extrabold text-slate-800">Analytics Load Error</h2>
+          <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition"
+          >
+            Retry Loading
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 1. Empty State Check
+  if (services.length === 0) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 bg-slate-50/20">
+        <div className="text-center bg-white border border-slate-200 rounded-3xl p-8 sm:p-12 shadow-sm max-w-md w-full flex flex-col items-center gap-5">
+          <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center border border-blue-100/40 shadow-inner">
+            <BarChart3 className="h-7 w-7" />
           </div>
-
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Briefcase className="w-5 h-5 text-purple-600" />
-              </div>
-              <span className="text-sm font-medium text-green-600 flex items-center gap-1">
-                <TrendingUp className="w-3 h-3" />↑{" "}
-                {currentData.serviceViews.change}% vs last period
-              </span>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900">
-              {currentData.serviceViews.value.toLocaleString()}
-            </h3>
-            <p className="text-sm text-gray-500 mt-1">Service Views</p>
-          </div>
-
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <Users className="w-5 h-5 text-green-600" />
-              </div>
-              <span className="text-sm font-medium text-green-600 flex items-center gap-1">
-                <TrendingUp className="w-3 h-3" />↑{" "}
-                {currentData.interestedUsers.change}% vs last period
-              </span>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900">
-              {currentData.interestedUsers.value}
-            </h3>
-            <p className="text-sm text-gray-500 mt-1">Interested Users</p>
-          </div>
-
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-yellow-100 rounded-lg">
-                <Star className="w-5 h-5 text-yellow-600" />
-              </div>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900">
-              {analyticsData.averageRating.value}
-            </h3>
-            <p className="text-sm text-gray-500 mt-1">
-              Average Rating ({analyticsData.averageRating.reviews} Reviews)
+          
+          <div className="space-y-1">
+            <h2 className="text-xl font-extrabold text-slate-800">No Services Found</h2>
+            <p className="text-xs text-slate-400 leading-relaxed font-medium">
+              Create your first service to start receiving views, likes, and ratings. Performance charts will generate automatically.
             </p>
           </div>
+
+          <button
+            onClick={() => router.push("/dashboard/create-service")}
+            className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold rounded-2xl shadow-md shadow-blue-500/10 transition active:scale-98 cursor-pointer"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Create Service</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Calculate stats summaries
+  const totalServices = services.length;
+  const totalViews = services.reduce((sum, s) => sum + (s.views_count || 0), 0);
+  const totalLikes = services.reduce((sum, s) => sum + (s.likes_count || 0), 0);
+  const totalReviews = services.reduce((sum, s) => sum + (s.reviews_count || 0), 0);
+  
+  const ratedServices = services.filter((s) => (s.reviews_count || 0) > 0);
+  const averageRating = ratedServices.length > 0
+    ? parseFloat((ratedServices.reduce((sum, s) => sum + (s.rating_average || 0), 0) / ratedServices.length).toFixed(1))
+    : 0.0;
+
+  // Chart Colors
+  const COLORS = ["#2563eb", "#3b82f6", "#60a5fa", "#93c5fd", "#dbeafe"];
+
+  // Chart data: Views, Likes, Reviews, Ratings
+  const barChartData = services.map((s) => ({
+    name: s.title.length > 15 ? s.title.substring(0, 15) + "..." : s.title,
+    Views: s.views_count || 0,
+    Likes: s.likes_count || 0,
+    Reviews: s.reviews_count || 0,
+  }));
+
+  // Pie chart calculation: Rating distribution grouping
+  const ratingDistribution = [
+    { name: "5 Stars", value: services.filter(s => Math.round(s.rating_average) === 5).length },
+    { name: "4 Stars", value: services.filter(s => Math.round(s.rating_average) === 4).length },
+    { name: "3 Stars", value: services.filter(s => Math.round(s.rating_average) === 3).length },
+    { name: "Under 3 Stars", value: services.filter(s => s.rating_average > 0 && Math.round(s.rating_average) < 3).length },
+    { name: "Unrated", value: services.filter(s => (s.rating_average || 0) === 0).length },
+  ].filter(item => item.value > 0); // Only show segments with > 0 values
+
+  return (
+    <div className="min-h-screen bg-slate-50/50 pb-20">
+      <div className="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+        
+        {/* Header Title */}
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
+            Performance Analytics
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Track metrics and audience growth across your listed tutoring and teaching services.
+          </p>
         </div>
 
-        {/* Leads and Monthly Growth Side by Side */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Leads / Interested Users Chart */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Leads / Interested Users
-              </h2>
-              <span className="text-xs text-gray-400">
-                This{" "}
-                {selectedPeriod === "7days"
-                  ? "Week"
-                  : selectedPeriod === "30days"
-                    ? "Month"
-                    : "Year"}
-              </span>
+        {/* Statistic Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+          {/* Card 1: Services */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100/20">
+              <Briefcase className="h-5 w-5" />
             </div>
-            <div className="h-72">
-              <Line data={leadsChartData} options={lineChartOptions} />
-            </div>
-            <div className="mt-4 bg-blue-50 rounded-lg p-4">
-              <p className="text-gray-700">
-                You received{" "}
-                <span className="font-bold text-blue-600">
-                  {currentData.totalLeads} leads
-                </span>{" "}
-                this{" "}
-                {selectedPeriod === "7days"
-                  ? "week"
-                  : selectedPeriod === "30days"
-                    ? "month"
-                    : "period"}
-              </p>
-              <p className="text-sm text-gray-500 mt-1">
-                Keep it up! Your profile is getting good attention.
-              </p>
+            <div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Services</span>
+              <span className="text-xl font-extrabold text-slate-800">{totalServices}</span>
             </div>
           </div>
 
-          {/* Monthly Growth Chart */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Monthly Growth
-              </h2>
-              <span className="text-xs text-gray-400">
-                This {selectedPeriod === "30days" ? "Month" : "Year"}
-              </span>
+          {/* Card 2: Views */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 border border-purple-100/20">
+              <Eye className="h-5 w-5" />
             </div>
-            <div className="h-72">
-              <Bar data={growthChartData} options={barChartOptions} />
+            <div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Views</span>
+              <span className="text-xl font-extrabold text-slate-800">{totalViews}</span>
             </div>
-            <div className="mt-4 bg-purple-50 rounded-lg p-4">
-              <p className="text-gray-700">
-                Total growth of{" "}
-                <span className="font-bold text-purple-600">
-                  {currentData.growth.reduce((a, b) => a + b, 0)}
-                </span>{" "}
-                this{" "}
-                {selectedPeriod === "7days"
-                  ? "week"
-                  : selectedPeriod === "30days"
-                    ? "month"
-                    : "year"}
-              </p>
-              <p className="text-sm text-gray-500 mt-1">
-                Your business is growing steadily!
-              </p>
+          </div>
+
+          {/* Card 3: Likes */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center shrink-0 border border-red-100/20">
+              <Heart className="h-5 w-5 fill-red-500/10" />
+            </div>
+            <div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Likes</span>
+              <span className="text-xl font-extrabold text-slate-800">{totalLikes}</span>
+            </div>
+          </div>
+
+          {/* Card 4: Rating */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0 border border-amber-100/20">
+              <Star className="h-5 w-5 fill-amber-500/10" />
+            </div>
+            <div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Average Rating</span>
+              <span className="text-xl font-extrabold text-slate-800">{averageRating || "0.0"} <span className="text-xs font-semibold text-slate-400">/ 5</span></span>
+            </div>
+          </div>
+
+          {/* Card 5: Reviews */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100/20">
+              <MessageSquare className="h-5 w-5" />
+            </div>
+            <div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Reviews</span>
+              <span className="text-xl font-extrabold text-slate-800">{totalReviews}</span>
             </div>
           </div>
         </div>
 
-        {/* Service Performance Table */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm mb-8 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Service Performance
-            </h2>
+        {/* Charts Grid */}
+        {mounted && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            {/* Chart 1: Views by Service */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+              <div>
+                <h3 className="text-sm font-extrabold text-slate-800">Views by Service</h3>
+                <p className="text-[10px] text-slate-400">Number of student hits per service listing.</p>
+              </div>
+              <div className="h-64 sm:h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={barChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} fontWeight="bold" tickLine={false} />
+                    <YAxis stroke="#94a3b8" fontSize={10} fontWeight="bold" tickLine={false} />
+                    <Tooltip cursor={{ fill: "#f8fafc" }} contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0" }} />
+                    <Bar dataKey="Views" fill="#3b82f6" radius={[6, 6, 0, 0]} barSize={28} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Chart 2: Likes by Service */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+              <div>
+                <h3 className="text-sm font-extrabold text-slate-800">Likes by Service</h3>
+                <p className="text-[10px] text-slate-400">Total saves/likes given by students.</p>
+              </div>
+              <div className="h-64 sm:h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={barChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} fontWeight="bold" tickLine={false} />
+                    <YAxis stroke="#94a3b8" fontSize={10} fontWeight="bold" tickLine={false} />
+                    <Tooltip cursor={{ fill: "#f8fafc" }} contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0" }} />
+                    <Bar dataKey="Likes" fill="#ec4899" radius={[6, 6, 0, 0]} barSize={28} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Chart 3: Rating Distribution */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+              <div>
+                <h3 className="text-sm font-extrabold text-slate-800">Rating Distribution</h3>
+                <p className="text-[10px] text-slate-400">Proportional rating score splits.</p>
+              </div>
+              <div className="h-64 sm:h-72 flex items-center justify-center">
+                {ratingDistribution.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={ratingDistribution}
+                        cx="50%"
+                        cy="45%"
+                        innerRadius={50}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        {ratingDistribution.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend verticalAlign="bottom" height={36} iconSize={10} iconType="circle" wrapperStyle={{ fontSize: "11px", fontWeight: "bold" }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <span className="text-xs text-slate-400 italic">No ratings yet to group.</span>
+                )}
+              </div>
+            </div>
+
+            {/* Chart 4: Reviews by Service */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+              <div>
+                <h3 className="text-sm font-extrabold text-slate-800">Reviews by Service</h3>
+                <p className="text-[10px] text-slate-400">Review counts written by students.</p>
+              </div>
+              <div className="h-64 sm:h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={barChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} fontWeight="bold" tickLine={false} />
+                    <YAxis stroke="#94a3b8" fontSize={10} fontWeight="bold" tickLine={false} />
+                    <Tooltip cursor={{ fill: "#f8fafc" }} contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0" }} />
+                    <Bar dataKey="Reviews" fill="#10b981" radius={[6, 6, 0, 0]} barSize={28} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
           </div>
+        )}
+
+        {/* Analytics Table */}
+        <div className="bg-white border border-slate-200 rounded-3xl shadow-xs overflow-hidden">
+          <div className="px-6 py-4.5 border-b border-slate-100 bg-slate-50/50">
+            <h3 className="text-sm font-extrabold text-slate-800">Performance Breakdown</h3>
+            <p className="text-[10px] text-slate-400">Raw statistical logs for each service.</p>
+          </div>
+          
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+            <table className="w-full text-left text-xs font-semibold">
+              <thead className="bg-slate-50 border-b border-slate-200/60 text-[10px] uppercase text-slate-400 tracking-wider">
                 <tr>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Service
+                  <th className="px-6 py-3.5 select-none cursor-pointer hover:text-slate-600 transition" onClick={() => handleSort("title")}>
+                    <span className="flex items-center gap-1">Title <ArrowUpDown className="h-3 w-3" /></span>
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Description
+                  <th className="px-6 py-3.5 select-none cursor-pointer hover:text-slate-600 transition" onClick={() => handleSort("category")}>
+                    <span className="flex items-center gap-1">Category <ArrowUpDown className="h-3 w-3" /></span>
                   </th>
-                  <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Views
+                  <th className="px-6 py-3.5 text-center select-none cursor-pointer hover:text-slate-600 transition" onClick={() => handleSort("views_count")}>
+                    <span className="flex items-center justify-center gap-1">Views <ArrowUpDown className="h-3 w-3" /></span>
                   </th>
-                  <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Leads
+                  <th className="px-6 py-3.5 text-center select-none cursor-pointer hover:text-slate-600 transition" onClick={() => handleSort("likes_count")}>
+                    <span className="flex items-center justify-center gap-1">Likes <ArrowUpDown className="h-3 w-3" /></span>
                   </th>
-                  <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Interested
+                  <th className="px-6 py-3.5 text-center select-none cursor-pointer hover:text-slate-600 transition" onClick={() => handleSort("reviews_count")}>
+                    <span className="flex items-center justify-center gap-1">Reviews <ArrowUpDown className="h-3 w-3" /></span>
                   </th>
-                  <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Rating
+                  <th className="px-6 py-3.5 text-center select-none cursor-pointer hover:text-slate-600 transition" onClick={() => handleSort("rating_average")}>
+                    <span className="flex items-center justify-center gap-1">Rating <ArrowUpDown className="h-3 w-3" /></span>
+                  </th>
+                  <th className="px-6 py-3.5 text-center select-none cursor-pointer hover:text-slate-600 transition" onClick={() => handleSort("created_at")}>
+                    <span className="flex items-center justify-center gap-1">Created Date <ArrowUpDown className="h-3 w-3" /></span>
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
-                {analyticsData.services.map((service, index) => (
-                  <tr
-                    key={index}
-                    className="hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="px-6 py-4">
-                      <span className="font-medium text-gray-900">
-                        {service.name}
+              <tbody className="divide-y divide-slate-100 text-slate-700">
+                {sortedServices.map((service) => (
+                  <tr key={service.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4 font-bold text-slate-800">{service.title}</td>
+                    <td className="px-6 py-4">{service.category}</td>
+                    <td className="px-6 py-4 text-center">{service.views_count || 0}</td>
+                    <td className="px-6 py-4 text-center">{service.likes_count || 0}</td>
+                    <td className="px-6 py-4 text-center">{service.reviews_count || 0}</td>
+                    <td className="px-6 py-4 text-center">
+                      <span className="inline-flex items-center gap-0.5 text-amber-500 font-bold bg-amber-50/50 border border-amber-100/20 px-2 py-0.5 rounded-lg">
+                        <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                        {service.rating_average || "0.0"}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {service.description}
-                    </td>
-                    <td className="px-6 py-4 text-center text-sm text-gray-700">
-                      {service.views}
-                    </td>
-                    <td className="px-6 py-4 text-center text-sm text-gray-700">
-                      {service.leads}
-                    </td>
-                    <td className="px-6 py-4 text-center text-sm text-gray-700">
-                      {service.interested}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex items-center justify-center gap-1">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm font-medium text-gray-900">
-                          {service.rating}
-                        </span>
-                      </div>
+                    <td className="px-6 py-4 text-center text-slate-400">
+                      {new Date(service.created_at).toLocaleDateString()}
                     </td>
                   </tr>
                 ))}
@@ -700,159 +433,6 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Ratings Distribution - Pie Chart */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Ratings Distribution
-            </h2>
-            <div className="h-72">
-              <Pie data={ratingData} options={pieChartOptions} />
-            </div>
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <p className="text-sm text-gray-600 text-center">
-                Total Reviews:{" "}
-                <span className="font-semibold text-gray-900">27</span>
-              </p>
-            </div>
-          </div>
-
-          {/* Top Areas - Doughnut Chart */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Top Areas
-            </h2>
-            <div className="h-72">
-              <Doughnut data={areasData} options={doughnutChartOptions} />
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Provider Stats */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Provider Stats
-            </h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <Briefcase className="w-5 h-5 text-blue-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-gray-900">
-                  {analyticsData.providerStats.servicesCreated}
-                </p>
-                <p className="text-xs text-gray-500">Services Created</p>
-              </div>
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <CheckCircle className="w-5 h-5 text-green-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-gray-900">
-                  {analyticsData.providerStats.activeServices}
-                </p>
-                <p className="text-xs text-gray-500">Active Services</p>
-              </div>
-              <div className="text-center p-3 bg-yellow-50 rounded-lg">
-                <Clock className="w-5 h-5 text-yellow-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-gray-900">
-                  {analyticsData.providerStats.pausedServices}
-                </p>
-                <p className="text-xs text-gray-500">Paused Services</p>
-              </div>
-              <div className="text-center p-3 bg-purple-50 rounded-lg">
-                <ThumbsUp className="w-5 h-5 text-purple-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-gray-900">
-                  {analyticsData.providerStats.completedJobs}
-                </p>
-                <p className="text-xs text-gray-500">Completed Jobs</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-4 border-t border-gray-100 text-center">
-              <p className="text-sm text-gray-500">
-                Member Since{" "}
-                <span className="font-semibold text-gray-900">
-                  {analyticsData.providerStats.memberSince}
-                </span>
-              </p>
-            </div>
-          </div>
-
-          {/* Rating Bars */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Ratings Breakdown
-            </h2>
-            <div className="space-y-4">
-              {analyticsData.ratings.map((rating) => (
-                <div key={rating.stars} className="flex items-center gap-4">
-                  <div className="w-20 flex items-center gap-1">
-                    <span className="text-sm font-medium text-gray-700">
-                      {rating.stars}
-                    </span>
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  </div>
-                  <div className="flex-1 bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                    <div
-                      className="bg-yellow-400 h-full rounded-full transition-all"
-                      style={{ width: `${rating.percentage}%` }}
-                    />
-                  </div>
-                  <div className="w-28 text-right">
-                    <span className="text-sm text-gray-600">
-                      {rating.count} ({rating.percentage}%)
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Best Performing Service */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 shadow-lg">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Award className="w-6 h-6 text-yellow-400" />
-                <h2 className="text-xl font-bold text-white">
-                  Best Performing Service
-                </h2>
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-1">
-                {analyticsData.bestPerformingService.name}
-              </h3>
-              <p className="text-blue-100">
-                {analyticsData.bestPerformingService.description}
-              </p>
-            </div>
-            <div className="flex gap-6">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-white">
-                  {analyticsData.bestPerformingService.views}
-                </p>
-                <p className="text-xs text-blue-100">Views</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-white">
-                  {analyticsData.bestPerformingService.leads}
-                </p>
-                <p className="text-xs text-blue-100">Leads</p>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center gap-1">
-                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                  <p className="text-2xl font-bold text-white">
-                    {analyticsData.bestPerformingService.rating}
-                  </p>
-                </div>
-                <p className="text-xs text-blue-100">Rating</p>
-              </div>
-            </div>
-          </div>
-          <div className="mt-4 pt-4 border-t border-blue-500/30">
-            <p className="text-blue-100 flex items-center gap-2">
-              <ThumbsUp className="w-4 h-4" />
-              Great work! Keep it up.
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );

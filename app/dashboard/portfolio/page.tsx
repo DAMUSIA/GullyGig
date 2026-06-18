@@ -256,7 +256,7 @@ export default function DashboardPortfolioPage() {
                   <span className="text-xs font-extrabold uppercase tracking-wider">Ad Poster Generator</span>
                 </div>
                 <h3 className="text-base font-extrabold text-slate-800">Generate Service Poster</h3>
-                <p className="text-xs text-slate-500 max-w-md leading-relaxed font-medium">
+                <p className="text-xs text-slate-500 max-w leading-relaxed font-medium">
                   Create a beautifully styled marketing poster of your listing containing a QR code, contact information, pricing tags, and operations structure. Save as PNG.
                 </p>
               </div>

@@ -563,13 +563,13 @@ export default function CreateServicePage() {
           </div>
 
           {/* Sticky Live Preview Column */}
-          <div className="xl:col-span-4 xl:sticky xl:top-24 w-full max-w-md mx-auto xl:max-w-none">
-            <div className="bg-slate-100/50 border border-slate-200/50 rounded-3xl p-4 mb-4 w-full">
-              <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <Info className="h-3.5 w-3.5 text-blue-500" />
+          <div className="xl:col-span-4 xl:sticky xl:top-24 w-full">
+            <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 mb-4 w-full shadow-sm">
+              <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <Info className="h-4 w-4 text-blue-500 flex-shrink-0" />
                 Tips for high click rate
               </h4>
-              <ul className="text-[10.5px] text-slate-500 space-y-1.5 list-disc pl-4 font-medium">
+              <ul className="text-xs text-slate-600 space-y-2.5 list-disc pl-5 font-medium leading-relaxed">
                 <li>Pick the closest teaching category to match student search phrases.</li>
                 <li>Write a clean, action-oriented Service Title.</li>
                 <li>Add popular languages to attract diverse families.</li>

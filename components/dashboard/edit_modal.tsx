@@ -24,6 +24,7 @@ interface ServiceItem {
   rating_average: number;
   is_active: boolean;
   created_at: string;
+  contact_numbers?: string[];
 }
 
 interface EditServiceModalProps {
@@ -35,6 +36,7 @@ interface EditServiceModalProps {
     price: number | null;
     priceUnit: string;
     isActive: boolean;
+    contactNumbers: string[];
   }) => void;
   isSaving: boolean;
 }
@@ -50,10 +52,25 @@ export function EditServiceModal({
   const [price, setPrice] = useState<number | null>(service.starting_price);
   const [priceUnit, setPriceUnit] = useState(service.price_unit || "Per Hour");
   const [isActive, setIsActive] = useState(service.is_active);
+  const [contactNumbers, setContactNumbers] = useState<string[]>(
+    service.contact_numbers || []
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({ title, description, price, priceUnit, isActive });
+    const cleanContacts = contactNumbers.map((n) => n.trim()).filter(Boolean);
+    if (cleanContacts.length === 0) {
+      alert("At least one contact number is required.");
+      return;
+    }
+    onSave({
+      title,
+      description,
+      price,
+      priceUnit,
+      isActive,
+      contactNumbers: cleanContacts,
+    });
   };
 
   return (
@@ -140,6 +157,47 @@ export function EditServiceModal({
                   <option value="Per Day">Per Day</option>
                   <option value="Per Month">Per Month</option>
                 </select>
+              </div>
+            </div>
+
+            {/* Contact Numbers Section */}
+            <div>
+              <label className="text-xs font-bold text-slate-500 uppercase block mb-1">
+                Contact Numbers
+              </label>
+              <div className="space-y-2">
+                {contactNumbers.map((num, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      required
+                      value={num}
+                      onChange={(e) => {
+                        const updated = [...contactNumbers];
+                        updated[idx] = e.target.value;
+                        setContactNumbers(updated);
+                      }}
+                      className="flex-1 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = contactNumbers.filter((_, i) => i !== idx);
+                        setContactNumbers(updated);
+                      }}
+                      className="px-3 py-2.5 bg-red-50 hover:bg-red-100 text-red-650 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setContactNumbers([...contactNumbers, ""])}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 border border-blue-200 text-blue-600 hover:bg-blue-50 text-xs font-bold rounded-xl transition cursor-pointer"
+                >
+                  + Add Contact Number
+                </button>
               </div>
             </div>
 

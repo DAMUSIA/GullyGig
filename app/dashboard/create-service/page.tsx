@@ -101,6 +101,7 @@ export default function CreateServicePage() {
     languages: ["English"], // default pre-fill
     starting_price: null,
     price_unit: "Per Hour",
+    contact_numbers: [],
   });
 
   // Track if user has edited the title manually
@@ -115,7 +116,17 @@ export default function CreateServicePage() {
           router.push("/login");
           return;
         }
-        setUser(result.user as ServiceUser);
+        const currentUser = result.user as ServiceUser;
+        setUser(currentUser);
+
+        // Pre-fill contact numbers with user phone number if available
+        const userPhone = currentUser.user_metadata?.phone_no;
+        if (userPhone) {
+          setFormData((prev) => ({
+            ...prev,
+            contact_numbers: [userPhone],
+          }));
+        }
       } catch (err) {
         console.error("Auth check error:", err);
         router.push("/login");
@@ -191,7 +202,8 @@ export default function CreateServicePage() {
     formData.city.trim() !== "" &&
     formData.availability.length > 0 &&
     formData.description.trim().length >= 20 &&
-    formData.description.trim().length <= 250;
+    formData.description.trim().length <= 250 &&
+    (formData.contact_numbers || []).filter((n) => n.trim().length > 0).length > 0;
 
   // Handle publishing service
   const handlePublish = async () => {
@@ -227,6 +239,7 @@ export default function CreateServicePage() {
       price_unit: finalPrice ? formData.price_unit : null,
       is_active: true,
       views_count: 0,
+      contact_numbers: (formData.contact_numbers || []).map((n) => n.trim()).filter(Boolean),
     };
 
     try {
@@ -527,10 +540,64 @@ export default function CreateServicePage() {
               </div>
             </div>
 
-            {/* Section 7 - About Your Teaching */}
+            {/* Section 7 - Contact Numbers */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
                 <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">7</div>
+                <h3 className="font-extrabold text-slate-700 text-base">Contact Numbers</h3>
+              </div>
+
+              <div className="space-y-3">
+                <label className="block text-sm font-semibold text-slate-700">
+                  Contact numbers for students to reach you <span className="text-red-500">*</span>
+                </label>
+
+                {(formData.contact_numbers || []).map((num, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      required
+                      value={num}
+                      onChange={(e) => {
+                        const updated = [...(formData.contact_numbers || [])];
+                        updated[idx] = e.target.value;
+                        setFormData((prev) => ({ ...prev, contact_numbers: updated }));
+                      }}
+                      placeholder="e.g. +919876543210"
+                      className="flex-1 px-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 font-medium"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = (formData.contact_numbers || []).filter((_, i) => i !== idx);
+                        setFormData((prev) => ({ ...prev, contact_numbers: updated }));
+                      }}
+                      className="px-3.5 py-2.5 bg-red-50 hover:bg-red-100 text-red-650 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      contact_numbers: [...(prev.contact_numbers || []), ""],
+                    }));
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2.5 border border-blue-200 text-blue-600 hover:bg-blue-50 text-xs font-bold rounded-xl transition cursor-pointer"
+                >
+                  + Add Contact Number
+                </button>
+              </div>
+            </div>
+
+            {/* Section 8 - About Your Teaching */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
+                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">8</div>
                 <h3 className="font-extrabold text-slate-700 text-base">About Your Teaching</h3>
               </div>
 

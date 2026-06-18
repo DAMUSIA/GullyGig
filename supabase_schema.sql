@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS public.services (
   likes_count INTEGER DEFAULT 0,
   reviews_count INTEGER DEFAULT 0,
   rating_average NUMERIC DEFAULT 0,
+  contact_numbers TEXT[] DEFAULT '{}'::TEXT[],
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -61,6 +62,7 @@ ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public read access to services" ON public.services 
   FOR SELECT USING (true);
 
+-- Allow public insert/update/delete based on authenticated user
 CREATE POLICY "Allow users to insert their own services" ON public.services 
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
@@ -132,6 +134,7 @@ CREATE TABLE IF NOT EXISTS public.service_analytics (
   total_contacts INTEGER DEFAULT 0,
   total_reviews INTEGER DEFAULT 0,
   average_rating NUMERIC DEFAULT 0,
+  portfolio_views INTEGER DEFAULT 0,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 

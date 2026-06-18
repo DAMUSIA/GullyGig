@@ -17,6 +17,7 @@ import {
   Menu,
   Sparkles,
   X,
+  Globe,
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import { supabase } from "@/lib/supabase"; // Import supabase directly
@@ -49,6 +50,7 @@ interface MenuItem {
 const MENU_ITEMS: MenuItem[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { id: "create-service", label: "Create Service", icon: Briefcase, href: "/dashboard/create-service" },
+  { id: "portfolio", label: "My Portfolio", icon: Globe, href: "/dashboard/portfolio" },
   { id: "nearby", label: "Nearby Providers", icon: MapPin, href: "/dashboard/nearby-service" },
   { id: "analytics", label: "Analytics", icon: BarChart3, href: "/dashboard/analytics" },
   { id: "profile", label: "My Profile", icon: User, href: "/dashboard/profile" },
@@ -542,6 +544,8 @@ export default function DashboardLayout({
         return "Dashboard";
       case "/dashboard/create-service":
         return "Create Service";
+      case "/dashboard/portfolio":
+        return "My Portfolio";
       case "/dashboard/nearby-service":
         return "Nearby Providers";
       case "/dashboard/analytics":

@@ -118,6 +118,7 @@ export default function DashboardPage() {
     price: number | null;
     priceUnit: string;
     isActive: boolean;
+    contactNumbers: string[];
   }) => {
     if (!supabase || !editingService) return;
 
@@ -141,6 +142,7 @@ export default function DashboardPage() {
           starting_price: data.price,
           price_unit: data.price ? data.priceUnit : null,
           is_active: data.isActive,
+          contact_numbers: data.contactNumbers,
           updated_at: new Date().toISOString(),
         })
         .eq("id", editingService.id);
@@ -157,6 +159,7 @@ export default function DashboardPage() {
                 starting_price: data.price,
                 price_unit: data.price ? data.priceUnit : null,
                 is_active: data.isActive,
+                contact_numbers: data.contactNumbers,
               }
             : s
         )

@@ -13,6 +13,8 @@ import {
   Loader2,
   AlertCircle,
   ArrowUpDown,
+  Phone,
+  Globe,
 } from "lucide-react";
 import {
   BarChart,
@@ -38,6 +40,10 @@ interface ServiceItem {
   reviews_count: number;
   rating_average: number;
   created_at: string;
+  service_analytics?: {
+    portfolio_views: number;
+    total_contacts: number;
+  } | null;
 }
 
 export default function AnalyticsPage() {
@@ -72,11 +78,24 @@ export default function AnalyticsPage() {
 
         const { data, error: servicesError } = await supabase
           .from("services")
-          .select("id, title, category, views_count, likes_count, reviews_count, rating_average, created_at")
+          .select("id, title, category, views_count, likes_count, reviews_count, rating_average, created_at, service_analytics(portfolio_views, total_contacts)")
           .eq("user_id", user.id);
 
         if (servicesError) throw servicesError;
-        setServices((data as ServiceItem[]) || []);
+
+        const formatted = (data || []).map((s: any) => {
+          let analytics = null;
+          if (s.service_analytics) {
+            analytics = Array.isArray(s.service_analytics)
+              ? s.service_analytics[0]
+              : s.service_analytics;
+          }
+          return {
+            ...s,
+            service_analytics: analytics,
+          };
+        });
+        setServices(formatted as ServiceItem[]);
       } catch (err: unknown) {
         console.error("Error loading analytics:", err);
         setError("Failed to load your services analytics data.");
@@ -183,6 +202,14 @@ export default function AnalyticsPage() {
   const totalViews = services.reduce((sum, s) => sum + (s.views_count || 0), 0);
   const totalLikes = services.reduce((sum, s) => sum + (s.likes_count || 0), 0);
   const totalReviews = services.reduce((sum, s) => sum + (s.reviews_count || 0), 0);
+  const totalPortfolioViews = services.reduce(
+    (sum, s) => sum + (s.service_analytics?.portfolio_views || 0),
+    0
+  );
+  const totalContacts = services.reduce(
+    (sum, s) => sum + (s.service_analytics?.total_contacts || 0),
+    0
+  );
 
   const ratedServices = services.filter((s) => (s.reviews_count || 0) > 0);
   const averageRating =
@@ -256,56 +283,66 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Stat Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
-          <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100/20">
-              <Briefcase className="h-5 w-5" />
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 border border-purple-100/20">
+              <Eye className="h-4.5 w-4.5" />
             </div>
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Services</span>
-              <span className="text-xl font-extrabold text-slate-800">{totalServices}</span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">App Views</span>
+              <span className="text-lg font-black text-slate-850">{totalViews}</span>
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 border border-purple-100/20">
-              <Eye className="h-5 w-5" />
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100/20">
+              <Globe className="h-4.5 w-4.5" />
             </div>
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Views</span>
-              <span className="text-xl font-extrabold text-slate-800">{totalViews}</span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Portfolio Views</span>
+              <span className="text-lg font-black text-slate-850">{totalPortfolioViews}</span>
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center shrink-0 border border-red-100/20">
-              <Heart className="h-5 w-5 fill-red-500/10" />
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shrink-0 border border-red-100/20">
+              <Heart className="h-4.5 w-4.5 fill-red-500/10" />
             </div>
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Likes</span>
-              <span className="text-xl font-extrabold text-slate-800">{totalLikes}</span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Likes</span>
+              <span className="text-lg font-black text-slate-850">{totalLikes}</span>
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0 border border-amber-100/20">
-              <Star className="h-5 w-5 fill-amber-500/10" />
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100/20">
+              <MessageSquare className="h-4.5 w-4.5" />
             </div>
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Average Rating</span>
-              <span className="text-xl font-extrabold text-slate-800">
-                {averageRating || "0.0"} <span className="text-xs font-semibold text-slate-400">/ 5</span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Reviews</span>
+              <span className="text-lg font-black text-slate-850">{totalReviews}</span>
+            </div>
+          </div>
+
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0 border border-amber-100/20">
+              <Star className="h-4.5 w-4.5 fill-amber-55/10" />
+            </div>
+            <div>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Avg Rating</span>
+              <span className="text-lg font-black text-slate-850">
+                {averageRating || "0.0"}
               </span>
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100/20">
-              <MessageSquare className="h-5 w-5" />
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100/20">
+              <Phone className="h-4.5 w-4.5" />
             </div>
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Reviews</span>
-              <span className="text-xl font-extrabold text-slate-800">{totalReviews}</span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Contacts</span>
+              <span className="text-lg font-black text-slate-850">{totalContacts}</span>
             </div>
           </div>
         </div>
@@ -472,19 +509,25 @@ export default function AnalyticsPage() {
                     <span className="flex items-center gap-1">Category <ArrowUpDown className="h-3 w-3" /></span>
                   </th>
                   <th className="px-6 py-3.5 text-center select-none cursor-pointer hover:text-slate-600 transition" onClick={() => handleSort("views_count")}>
-                    <span className="flex items-center justify-center gap-1">Views <ArrowUpDown className="h-3 w-3" /></span>
+                    <span className="flex items-center justify-center gap-1">App Views <ArrowUpDown className="h-3 w-3" /></span>
                   </th>
-                  <th className="px-6 py-3.5 text-center select-none cursor-pointer hover:text-slate-600 transition" onClick={() => handleSort("likes_count")}>
-                    <span className="flex items-center justify-center gap-1">Likes <ArrowUpDown className="h-3 w-3" /></span>
+                  <th className="px-6 py-3.5 text-center select-none">
+                    <span className="flex items-center justify-center gap-1">Portfolio Views</span>
                   </th>
-                  <th className="px-6 py-3.5 text-center select-none cursor-pointer hover:text-slate-600 transition" onClick={() => handleSort("reviews_count")}>
-                    <span className="flex items-center justify-center gap-1">Reviews <ArrowUpDown className="h-3 w-3" /></span>
+                  <th className="px-6 py-3.5 text-center select-none">
+                    <span className="flex items-center justify-center gap-1">Likes</span>
                   </th>
-                  <th className="px-6 py-3.5 text-center select-none cursor-pointer hover:text-slate-600 transition" onClick={() => handleSort("rating_average")}>
-                    <span className="flex items-center justify-center gap-1">Rating <ArrowUpDown className="h-3 w-3" /></span>
+                  <th className="px-6 py-3.5 text-center select-none">
+                    <span className="flex items-center justify-center gap-1">Reviews</span>
                   </th>
-                  <th className="px-6 py-3.5 text-center select-none cursor-pointer hover:text-slate-600 transition" onClick={() => handleSort("created_at")}>
-                    <span className="flex items-center justify-center gap-1">Created Date <ArrowUpDown className="h-3 w-3" /></span>
+                  <th className="px-6 py-3.5 text-center select-none">
+                    <span className="flex items-center justify-center gap-1">Contacts</span>
+                  </th>
+                  <th className="px-6 py-3.5 text-center select-none">
+                    <span className="flex items-center justify-center gap-1">Rating</span>
+                  </th>
+                  <th className="px-6 py-3.5 text-center select-none">
+                    <span className="flex items-center justify-center gap-1">Created Date</span>
                   </th>
                 </tr>
               </thead>
@@ -494,8 +537,10 @@ export default function AnalyticsPage() {
                     <td className="px-6 py-4 font-bold text-slate-800">{service.title}</td>
                     <td className="px-6 py-4">{service.category}</td>
                     <td className="px-6 py-4 text-center">{service.views_count || 0}</td>
+                    <td className="px-6 py-4 text-center">{service.service_analytics?.portfolio_views || 0}</td>
                     <td className="px-6 py-4 text-center">{service.likes_count || 0}</td>
                     <td className="px-6 py-4 text-center">{service.reviews_count || 0}</td>
+                    <td className="px-6 py-4 text-center">{service.service_analytics?.total_contacts || 0}</td>
                     <td className="px-6 py-4 text-center">
                       <span className="inline-flex items-center gap-0.5 text-amber-500 font-bold bg-amber-50/50 border border-amber-100/20 px-2 py-0.5 rounded-lg">
                         <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { 
   Search, 
   MapPin, 
@@ -44,7 +44,7 @@ interface ServiceItem {
   reviews_count: number;
   rating_average: number;
   created_at: string;
-  users?: UserProfile; // Nested from Supabase join
+  users?: UserProfile;
 }
 
 interface ServiceReview {
@@ -82,9 +82,12 @@ export default function NearbyServicePage() {
   
   // Data states
   const [services, setServices] = useState<ServiceItem[]>([]);
+  // CRITICAL: This stores which service IDs the current user has liked
   const [likedServiceIds, setLikedServiceIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Track which service IDs are currently being liked/unliked
+  const [likingServiceIds, setLikingServiceIds] = useState<Set<string>>(new Set());
 
   // Search & Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -100,49 +103,118 @@ export default function NearbyServicePage() {
   const [reviewSubmitLoading, setReviewSubmitLoading] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
 
-  // Initial Fetch
+  // ============================================
+  // CRITICAL FIX: Load user's likes from database
+  // This runs on every page load to restore liked state
+  // ============================================
+  // Load user's likes from database with debug logging
+  const loadUserLikes = useCallback(async (userId: string) => {
+    if (!supabase) return new Set<string>();
+    
+    try {
+      console.log("🔍 Loading likes for user:", userId);
+      
+      // First, check if we can read the table at all
+      const { data: allLikes, error: allError } = await supabase
+        .from("service_likes")
+        .select("*");
+      
+      console.log("📊 All likes in table:", allLikes);
+      console.log("📊 All likes error:", allError);
+      
+      // Now get user-specific likes
+      const { data: likesData, error: likesError } = await supabase
+        .from("service_likes")
+        .select("service_id")
+        .eq("user_id", userId);
+
+      console.log("🔍 Query result:", likesData);
+      console.log("🔍 Query error:", likesError);
+
+      if (likesError) {
+        console.error("❌ Error loading likes:", likesError);
+        return new Set<string>();
+      }
+
+      const ids = new Set<string>(likesData?.map((l) => l.service_id) || []);
+      console.log(`✅ Loaded ${ids.size} liked services:`, [...ids]);
+      return ids;
+    } catch (err) {
+      console.error("❌ Failed to load likes:", err);
+      return new Set<string>();
+    }
+  }, []);
+
+  // ============================================
+  // Initial Fetch - Load services AND user's likes
+  // ============================================
   useEffect(() => {
+    let isMounted = true;
+
     async function initPage() {
       try {
         setLoading(true);
+        console.log("🚀 Initializing page...");
+        
+        // Get current user
         const { user } = (await getCurrentUser()) as { user: ServiceUser | null };
         setCurrentUser(user);
+        console.log("👤 Current user:", user?.id || "Not logged in");
 
         if (!supabase) {
           throw new Error("Supabase service is not configured on your environment");
         }
 
-        // Fetch services joined with users table
+        // Fetch services with user profiles
+        console.log("📦 Fetching services...");
         const { data: servicesData, error: servicesError } = await supabase
           .from("services")
           .select("*, users:user_id(full_name, about)")
           .eq("is_active", true);
 
         if (servicesError) throw servicesError;
-        setServices(servicesData as ServiceItem[] || []);
+        
+        if (isMounted) {
+          setServices(servicesData as ServiceItem[] || []);
+          console.log(`📦 Loaded ${servicesData?.length || 0} services`);
+        }
 
-        // Fetch user's likes
+        // ============================================
+        // CRITICAL: Load user's likes from database
+        // This restores the liked state on page refresh
+        // ============================================
         if (user) {
-          const { data: likesData, error: likesError } = await supabase
-            .from("service_likes")
-            .select("service_id")
-            .eq("user_id", user.id);
-
-          if (!likesError && likesData) {
-            const ids = new Set<string>(likesData.map((l) => l.service_id));
-            setLikedServiceIds(ids);
+          const likedIds = await loadUserLikes(user.id);
+          if (isMounted) {
+            setLikedServiceIds(likedIds);
+            console.log(`❤️ Restored ${likedIds.size} likes from database`);
+          }
+        } else {
+          // If no user, ensure likes are empty
+          if (isMounted) {
+            setLikedServiceIds(new Set());
+            console.log("👤 No user logged in, likes set to empty");
           }
         }
       } catch (err: unknown) {
-        console.error("Error loading marketplace:", err);
-        setError("Failed to retrieve service listings. Please reload.");
+        console.error("❌ Error loading marketplace:", err);
+        if (isMounted) {
+          setError("Failed to retrieve service listings. Please reload.");
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+          console.log("✅ Page initialization complete");
+        }
       }
     }
 
     initPage();
-  }, []);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [loadUserLikes]);
 
   // Fetch reviews when details modal is opened
   const loadReviews = async (serviceId: string) => {
@@ -174,7 +246,6 @@ export default function NearbyServicePage() {
   const handleOpenDetails = async (service: ServiceItem) => {
     if (!supabase) return;
     setSelectedService(service);
-    // Reset review input state when opening another service details modal
     setUserRating(0);
     setUserComment("");
     loadReviews(service.id);
@@ -183,18 +254,16 @@ export default function NearbyServicePage() {
     setServices(prev => prev.map(s => s.id === service.id ? { ...s, views_count: s.views_count + 1 } : s));
 
     try {
-      // Increment views count on services directly
       await supabase
         .from("services")
         .update({ views_count: service.views_count + 1 })
         .eq("id", service.id);
       
-      // Update analytics table
       const { data: analyticsRow } = await supabase
         .from("service_analytics")
         .select("*")
         .eq("service_id", service.id)
-        .single();
+        .maybeSingle();
 
       if (analyticsRow) {
         await supabase
@@ -216,115 +285,124 @@ export default function NearbyServicePage() {
       }
     } catch (err) {
       console.error("Error tracking view count:", err);
-      // Fallback direct update if RPC is missing
-      try {
-        await supabase
-          .from("services")
-          .update({ views_count: service.views_count + 1 })
-          .eq("id", service.id);
-      } catch (fallbackErr) {
-        console.error("Fallback view count tracking failed:", fallbackErr);
-      }
     }
   };
 
-  // Toggle Like ❤️
-  const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
-    e.stopPropagation();
-    if (!supabase) return;
-    if (!currentUser) {
-      alert("Please log in to like service listings.");
-      return;
-    }
+  // ============================================
+// Toggle Like - Fixed with functional updates
+// ============================================
+const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
+  e.stopPropagation();
+  if (!supabase) return;
+  if (!currentUser) {
+    alert("Please log in to like service listings.");
+    return;
+  }
 
-    const isLiked = likedServiceIds.has(service.id);
-    const newLikedIds = new Set(likedServiceIds);
+  // Use a local variable to check current state
+  const isCurrentlyLiked = likedServiceIds.has(service.id);
+  console.log(`🔄 Toggling like for service ${service.id}: currently ${isCurrentlyLiked ? 'liked' : 'unliked'}`);
+  
+  // Prevent multiple rapid clicks for this specific service
+  if (likingServiceIds.has(service.id)) return;
+  
+  // Mark this service as being processed
+  setLikingServiceIds(prev => new Set(prev).add(service.id));
 
-    // Optimistic UI updates
-    if (isLiked) {
-      newLikedIds.delete(service.id);
-      setServices(prev => prev.map(s => s.id === service.id ? { ...s, likes_count: Math.max(0, s.likes_count - 1) } : s));
+  // Store previous state for rollback
+  const previousLikedIds = new Set(likedServiceIds);
+  const previousServices = [...services];
+
+  // ============================================
+  // OPTIMISTIC UPDATE - Using functional updates
+  // ============================================
+  setLikedServiceIds(prev => {
+    const next = new Set(prev);
+    if (isCurrentlyLiked) {
+      next.delete(service.id);
     } else {
-      newLikedIds.add(service.id);
-      setServices(prev => prev.map(s => s.id === service.id ? { ...s, likes_count: s.likes_count + 1 } : s));
+      next.add(service.id);
     }
-    setLikedServiceIds(newLikedIds);
+    return next;
+  });
 
-    try {
-      if (isLiked) {
-        // Remove like
-        await supabase
-          .from("service_likes")
-          .delete()
-          .eq("user_id", currentUser.id)
-          .eq("service_id", service.id);
+  setServices(prev => prev.map(s => 
+    s.id === service.id 
+      ? { ...s, likes_count: s.likes_count + (isCurrentlyLiked ? -1 : 1) } 
+      : s
+  ));
 
-        // Update services table
-        await supabase
-          .from("services")
-          .update({ likes_count: Math.max(0, service.likes_count - 1) })
-          .eq("id", service.id);
+  try {
+    // Get session token for authorization
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    
+    if (!token) {
+      throw new Error("Authentication required");
+    }
 
-        // Update service analytics
-        const { data: analyticsRow } = await supabase
-          .from("service_analytics")
-          .select("*")
-          .eq("service_id", service.id)
-          .single();
+    // Call the API endpoint
+    const response = await fetch("/api/likes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        serviceId: service.id,
+        action: isCurrentlyLiked ? "unlike" : "like",
+      }),
+    });
 
-        if (analyticsRow) {
-          await supabase
-            .from("service_analytics")
-            .update({
-              total_likes: Math.max(0, (analyticsRow.total_likes || 0) - 1),
-              updated_at: new Date().toISOString(),
-            })
-            .eq("service_id", service.id);
-        }
-      } else {
-        // Insert like
-        await supabase
-          .from("service_likes")
-          .insert({ user_id: currentUser.id, service_id: service.id });
+    const data = await response.json();
 
-        // Update services table
-        await supabase
-          .from("services")
-          .update({ likes_count: service.likes_count + 1 })
-          .eq("id", service.id);
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to update like");
+    }
 
-        // Update service analytics
-        const { data: analyticsRow } = await supabase
-          .from("service_analytics")
-          .select("*")
-          .eq("service_id", service.id)
-          .single();
+    if (data.success) {
+      const finalLiked = data.liked || false;
+      const finalCount = data.likesCount || 0;
 
-        if (analyticsRow) {
-          await supabase
-            .from("service_analytics")
-            .update({
-              total_likes: (analyticsRow.total_likes || 0) + 1,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("service_id", service.id);
+      console.log(`✅ Like toggled successfully: ${finalLiked ? 'liked' : 'unliked'}, count: ${finalCount}`);
+
+      // ============================================
+      // UPDATE WITH SERVER STATE - Using functional updates
+      // ============================================
+      setLikedServiceIds(prev => {
+        const next = new Set(prev);
+        if (finalLiked) {
+          next.add(service.id);
         } else {
-          await supabase
-            .from("service_analytics")
-            .insert({
-              service_id: service.id,
-              total_likes: 1,
-              updated_at: new Date().toISOString()
-            });
+          next.delete(service.id);
         }
-      }
-    } catch (err) {
-      console.error("Like toggle failed:", err);
-      // Revert if error
-      setLikedServiceIds(likedServiceIds);
-      setServices(services);
+        return next;
+      });
+
+      setServices(prev => prev.map(s => 
+        s.id === service.id ? { ...s, likes_count: finalCount } : s
+      ));
+    } else {
+      throw new Error(data.error || "Failed to update like");
     }
-  };
+  } catch (err) {
+    console.error("❌ Like toggle failed:", err);
+    
+    // ============================================
+    // ROLLBACK ON ERROR
+    // ============================================
+    setLikedServiceIds(previousLikedIds);
+    setServices(previousServices);
+    
+    alert(err instanceof Error ? err.message : "Failed to update like");
+  } finally {
+    setLikingServiceIds(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(service.id);
+      return newSet;
+    });
+  }
+};
 
   // Google Maps Redirection
   const handleOpenMap = (e: React.MouseEvent, service: ServiceItem) => {
@@ -336,7 +414,7 @@ export default function NearbyServicePage() {
     }
   };
 
-  // Submit Review 📝
+  // Submit Review
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!supabase) return;
@@ -345,7 +423,6 @@ export default function NearbyServicePage() {
     setReviewSubmitLoading(true);
 
     try {
-      // Get the session token
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       
@@ -353,7 +430,6 @@ export default function NearbyServicePage() {
         throw new Error("You must be logged in to submit a review.");
       }
 
-      // Call secure server endpoint to bypass client RLS issues
       const response = await fetch("/api/reviews", {
         method: "POST",
         headers: {
@@ -374,11 +450,9 @@ export default function NearbyServicePage() {
 
       const { averageRating, totalReviews } = result;
 
-      // Update page listing states
       setServices(prev => prev.map(s => s.id === selectedService.id ? { ...s, rating_average: averageRating, reviews_count: totalReviews } : s));
       setSelectedService(prev => prev ? { ...prev, rating_average: averageRating, reviews_count: totalReviews } : null);
 
-      // Reload reviews list
       loadReviews(selectedService.id);
       setUserComment("");
       setUserRating(0);
@@ -386,7 +460,6 @@ export default function NearbyServicePage() {
       console.error("Failed to submit review:", err);
       const errorObj = err as { message?: string } | null;
       let errMsg = errorObj?.message || (err instanceof Error ? err.message : String(err));
-      // User-friendly translation for common Supabase schema unique constraint violation error
       if (errMsg && errMsg.includes("service_ratings_user_service_unique")) {
         errMsg = "You have already submitted a review for this tutor/service.";
       }
@@ -419,7 +492,6 @@ export default function NearbyServicePage() {
   // Search, Filter, Sort Logic
   const filteredServices = services
     .filter((s) => {
-      // 1. Text Search
       const text = searchQuery.toLowerCase();
       const matchText =
         s.title.toLowerCase().includes(text) ||
@@ -428,13 +500,11 @@ export default function NearbyServicePage() {
         (s.area || "").toLowerCase().includes(text) ||
         (s.users?.full_name || "").toLowerCase().includes(text);
 
-      // 2. Chip Category Selection
       const matchCategory = matchesCategoryFilter(s.category, selectedCategory);
 
       return matchText && matchCategory;
     })
     .sort((a, b) => {
-      // 3. Sorting Options
       if (sortBy === "Newest") {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       }
@@ -476,7 +546,6 @@ export default function NearbyServicePage() {
 
         {/* Search Bar & Sort Grid */}
         <div className="glass-card rounded-3xl p-5 border border-slate-200/60 shadow-xs flex flex-col md:flex-row gap-4 items-center">
-          {/* Input Search */}
           <div className="relative w-full md:flex-1">
             <Search className="absolute left-3.5 top-3.5 h-4.5 w-4.5 text-slate-400" />
             <input
@@ -488,7 +557,6 @@ export default function NearbyServicePage() {
             />
           </div>
 
-          {/* Sort selection */}
           <div className="flex items-center gap-2.5 w-full md:w-auto self-stretch md:self-auto shrink-0">
             <label htmlFor="sort-dropdown" className="text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0">
               Sort By:
@@ -563,7 +631,12 @@ export default function NearbyServicePage() {
         {!loading && !error && filteredServices.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredServices.map((service) => {
+              // ============================================
+              // CRITICAL: Check if this service is liked
+              // Uses the Set populated from database on load
+              // ============================================
               const isLiked = likedServiceIds.has(service.id);
+              const isLikingThis = likingServiceIds.has(service.id);
               const priceLabel = service.starting_price
                 ? `Starts from ₹${service.starting_price}/${(service.price_unit || "hour").toLowerCase().replace("per ", "")}`
                 : "Price on Enquiry";
@@ -593,17 +666,25 @@ export default function NearbyServicePage() {
                             <Navigation className="h-4 w-4 fill-blue-600/10" />
                           </button>
                         )}
-                        {/* Like Button */}
+                        {/* ============================================
+                            LIKE BUTTON - Instagram Style
+                            Heart fills if service.id is in likedServiceIds
+                            ============================================ */}
                         <button
                           type="button"
                           onClick={(e) => handleToggleLike(e, service)}
+                          disabled={isLikingThis}
                           className={`p-1.5 border rounded-xl transition-all hover:scale-105 active:scale-95 ${
                             isLiked
                               ? "bg-red-50 border-red-200 text-red-500"
                               : "bg-slate-50 border-slate-200 text-slate-400 hover:text-red-500 hover:bg-red-50/50"
-                          }`}
+                          } ${isLikingThis ? "opacity-50 cursor-not-allowed" : ""}`}
                         >
-                          <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500" : ""}`} />
+                          {isLikingThis ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500" : ""}`} />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -664,13 +745,11 @@ export default function NearbyServicePage() {
       {/* Details Dialog Modal */}
       {selectedService && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Glass Backdrop */}
           <div
             onClick={() => setSelectedService(null)}
             className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
           />
 
-          {/* Modal content dialog */}
           <div className="bg-white border border-slate-100 rounded-3xl shadow-2xl relative z-10 w-full max-w-3xl max-h-[90vh] overflow-y-auto flex flex-col animate-in zoom-in-95 duration-200">
             {/* Modal Header */}
             <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between z-10">

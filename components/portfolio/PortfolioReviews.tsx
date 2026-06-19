@@ -28,7 +28,7 @@ export default function PortfolioReviews({
     <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
       <div className="flex items-center gap-2">
         <MessageSquare className="h-5 w-5 text-blue-600" />
-        <h3 className="text-lg font-extrabold text-slate-800">Student Reviews</h3>
+        <h3 className="text-lg font-extrabold text-slate-800">Customer Reviews</h3>
         <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
           {reviewsCount}
         </span>

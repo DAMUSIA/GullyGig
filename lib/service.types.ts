@@ -41,7 +41,7 @@ export interface TutorServiceFormData {
   category: string;
   customCategory?: string;
   description: string;
-  service_modes: string[]; // At My Place, At Student's Place, Online
+  service_modes: string[]; // At My Place, At Customer's Place, Online
   city: string;
   area: string;
   latitude: number | null;

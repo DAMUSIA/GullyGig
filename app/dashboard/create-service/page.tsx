@@ -43,7 +43,7 @@ const CATEGORIES = [
   "Other",
 ];
 
-const TEACHING_MODES = ["At My Place", "At Student's Place", "Online"];
+const TEACHING_MODES = ["At My Place", "At Customer's Place", "Online"];
 const AVAILABILITY_OPTIONS = ["Weekdays", "Weekends", "Morning", "Afternoon", "Evening", "Flexible"];
 const PRICE_UNITS = ["Per Hour", "Per Session", "Per Day", "Per Month"];
 
@@ -322,7 +322,7 @@ export default function CreateServicePage() {
             Create Teaching Service
           </h1>
           <p className="text-slate-500 mt-1.5 text-sm sm:text-base">
-            Tell students what you teach and start receiving enquiries. Simple, fast, and listing in under 30 seconds.
+            Tell Customers what you teach and start receiving enquiries. Simple, fast, and listing in under 30 seconds.
           </p>
         </div>
 
@@ -549,7 +549,7 @@ export default function CreateServicePage() {
 
               <div className="space-y-3">
                 <label className="block text-sm font-semibold text-slate-700">
-                  Contact numbers for students to reach you <span className="text-red-500">*</span>
+                  Contact numbers for Customers to reach you <span className="text-red-500">*</span>
                 </label>
 
                 {(formData.contact_numbers || []).map((num, idx) => (
@@ -621,7 +621,7 @@ export default function CreateServicePage() {
                 />
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] text-slate-400">
-                    Provide 20-250 characters. Helpful descriptions prompt students/parents to reach out!
+                    Provide 20-250 characters. Helpful descriptions prompt Customers/parents to reach out!
                   </p>
                 </div>
               </div>
@@ -637,7 +637,7 @@ export default function CreateServicePage() {
                 Tips for high click rate
               </h4>
               <ul className="text-xs text-slate-600 space-y-2.5 list-disc pl-5 font-medium leading-relaxed">
-                <li>Pick the closest teaching category to match student search phrases.</li>
+                <li>Pick the closest teaching category to match Customer search phrases.</li>
                 <li>Write a clean, action-oriented Service Title.</li>
                 <li>Add popular languages to attract diverse families.</li>
                 <li>Specify starting price to create clear pricing expectations.</li>
@@ -692,7 +692,7 @@ export default function CreateServicePage() {
                   className="text-sm sm:text-base text-slate-500 leading-7 mx-auto"
                   style={{ maxWidth: "420px", overflowWrap: "break-word", wordBreak: "normal" }}
                 >
-                  Congratulations! Your listing has been published. Local students and parents searching for{" "}
+                  Congratulations! Your listing has been published. Local Customers and parents searching for{" "}
                   <strong className="font-bold text-slate-700 break-words">{formData.title}</strong>{" "}
                   will now be able to discover and contact you.
                 </p>

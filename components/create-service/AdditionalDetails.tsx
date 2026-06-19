@@ -72,7 +72,7 @@ export default function AdditionalDetails({
             name="shortBio"
             value={formData.shortBio}
             onChange={onInputChange}
-            placeholder="I am passionate about teaching and helping students achieve their academic goals."
+            placeholder="I am passionate about teaching and helping Customers achieve their academic goals."
             rows={2}
             className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none transition-all duration-200 font-sans bg-white"
           />

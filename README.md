@@ -1,12 +1,12 @@
 # Kaamao
 
-Kaamao Connect is a hyperlocal service marketplace that enables women, students, and skilled individuals to earn income by offering part-time services such as tutoring, sewing, cooking, home assistance, and other locals.
+Kaamao Connect is a hyperlocal service marketplace that enables women, Customers, and skilled individuals to earn income by offering part-time services such as tutoring, sewing, cooking, home assistance, and other locals.
 
 Customers can easily discover nearby service providers, view profiles, contact them, make secure payments, and leave ratings to build trust within the community.
 
 ## 🚀 Problem Statement
 
-Many skilled individuals, especially homemakers and students, struggle to find flexible income opportunities despite having valuable skills.
+Many skilled individuals, especially homemakers and Customers, struggle to find flexible income opportunities despite having valuable skills.
 
 At the same time, local customers often rely on word-of-mouth recommendations or WhatsApp groups to find trusted service providers.
 
@@ -28,7 +28,7 @@ Kaamao Connect bridges this gap by creating a trusted platform for local-based s
 ### Service Providers
 
 - Homemakers
-- Students
+- Customers
 - Tutors
 - Tailors
 - Home cooks
@@ -38,7 +38,7 @@ Kaamao Connect bridges this gap by creating a trusted platform for local-based s
 ### Customers
 
 - Families seeking local services
-- Students needing tutors
+- Customers needing tutors
 - Individuals looking for trusted nearby help
 
 ## 🏗️ MVP Scope

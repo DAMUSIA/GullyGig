@@ -35,7 +35,7 @@ export default function PortfolioQR({ portfolioUrl }: PortfolioQRProps) {
         </div>
         <h4 className="text-lg font-extrabold">Scan QR Code to Share</h4>
         <p className="text-xs text-slate-400 leading-relaxed font-medium">
-          Students, parents, or friends can scan this QR code to view your portfolio, verify details, and call you directly from their phones.
+          Customers, parents, or friends can scan this QR code to view your portfolio, verify details, and call you directly from their phones.
         </p>
 
         {/* Clickable URL */}

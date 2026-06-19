@@ -356,7 +356,7 @@ export default function AnalyticsPage() {
             <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
               <div>
                 <h3 className="text-sm font-extrabold text-slate-800">Views by Service</h3>
-                <p className="text-[10px] text-slate-400">Number of student hits per service listing.</p>
+                <p className="text-[10px] text-slate-400">Number of Customer hits per service listing.</p>
               </div>
               <div className="h-64 sm:h-72">
                 <ResponsiveContainer width="100%" height="100%">
@@ -387,7 +387,7 @@ export default function AnalyticsPage() {
             <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
               <div>
                 <h3 className="text-sm font-extrabold text-slate-800">Likes by Service</h3>
-                <p className="text-[10px] text-slate-400">Total saves/likes given by students.</p>
+                <p className="text-[10px] text-slate-400">Total saves/likes given by Customers.</p>
               </div>
               <div className="h-64 sm:h-72">
                 <ResponsiveContainer width="100%" height="100%">
@@ -462,7 +462,7 @@ export default function AnalyticsPage() {
             <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
               <div>
                 <h3 className="text-sm font-extrabold text-slate-800">Reviews by Service</h3>
-                <p className="text-[10px] text-slate-400">Review counts written by students.</p>
+                <p className="text-[10px] text-slate-400">Review counts written by Customers.</p>
               </div>
               <div className="h-64 sm:h-72">
                 <ResponsiveContainer width="100%" height="100%">

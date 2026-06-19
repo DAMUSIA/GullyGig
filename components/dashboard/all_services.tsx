@@ -145,7 +145,8 @@ function EmptyState({ onAddService }: { onAddService: () => void }) {
       </div>
       <h3 className="text-lg font-bold text-slate-800">No Services Yet</h3>
       <p className="text-sm text-slate-500 mt-1 max-w mx-auto">
-        You haven&apos;t listed any teaching services yet. Start by creating your first service.
+        You haven&apos;t listed any teaching services yet. Start by creating
+        your first service.
       </p>
       <button
         onClick={onAddService}

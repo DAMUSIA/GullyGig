@@ -38,7 +38,7 @@ export async function getPlatformStats(): Promise<PlatformStats> {
       console.log("Services count (all):", servicesCount);
     } else {
       console.error("Error fetching all services:", error1);
-      
+
       // Approach 2: Try with is_active filter
       const { count: activeServices, error: error2 } = await supabase
         .from("services")
@@ -50,7 +50,7 @@ export async function getPlatformStats(): Promise<PlatformStats> {
         console.log("Services count (active):", servicesCount);
       } else {
         console.error("Error fetching active services:", error2);
-        
+
         // Approach 3: Try using the service_analytics table as a proxy
         const { count: analyticsCount, error: error3 } = await supabase
           .from("service_analytics")

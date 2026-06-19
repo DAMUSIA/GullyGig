@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
-  
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -27,7 +27,7 @@ export async function middleware(req: NextRequest) {
           });
         },
       },
-    }
+    },
   );
 
   const {
@@ -47,8 +47,8 @@ export async function middleware(req: NextRequest) {
     "/dashboard/setting",
   ];
 
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname === route || pathname.startsWith(route + "/")
+  const isProtectedRoute = protectedRoutes.some(
+    (route) => pathname === route || pathname.startsWith(route + "/"),
   );
 
   const isAuthRoute = pathname === "/login" || pathname === "/register";
@@ -69,9 +69,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/dashboard/:path*",
-    "/login",
-    "/register",
-  ],
+  matcher: ["/dashboard/:path*", "/login", "/register"],
 };

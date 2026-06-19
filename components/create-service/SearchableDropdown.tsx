@@ -31,7 +31,10 @@ export default function SearchableDropdown({
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     }
@@ -40,7 +43,7 @@ export default function SearchableDropdown({
   }, []);
 
   const filteredOptions = options.filter((option) =>
-    option.toLowerCase().includes(searchQuery.toLowerCase())
+    option.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleSelect = (option: string) => {
@@ -56,17 +59,21 @@ export default function SearchableDropdown({
       <label className="block text-sm font-semibold text-slate-700">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
-      
+
       <div className="relative">
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           className={`w-full flex items-center justify-between px-4 py-3 bg-white border rounded-xl shadow-sm text-left text-sm transition-all focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 ${
-            isOpen ? "border-blue-500 ring-2 ring-blue-500/20" : "border-slate-200 hover:border-slate-300"
+            isOpen
+              ? "border-blue-500 ring-2 ring-blue-500/20"
+              : "border-slate-200 hover:border-slate-300"
           } ${value ? "text-slate-800 font-medium" : "text-slate-400"}`}
         >
           <span>{value || placeholder}</span>
-          <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+          <ChevronDown
+            className={`h-4 w-4 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
+          />
         </button>
 
         {isOpen && (
@@ -102,7 +109,9 @@ export default function SearchableDropdown({
                       type="button"
                       onClick={() => handleSelect(option)}
                       className={`w-full text-left px-4 py-2.5 hover:bg-blue-50/60 hover:text-blue-600 transition-colors ${
-                        value === option ? "bg-blue-50 text-blue-600 font-semibold" : "text-slate-700"
+                        value === option
+                          ? "bg-blue-50 text-blue-600 font-semibold"
+                          : "text-slate-700"
                       }`}
                     >
                       {option}

@@ -1,21 +1,21 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { 
-  Search, 
-  MapPin, 
-  Heart, 
-  Eye, 
-  MessageSquare, 
-  Star, 
-  Globe, 
-  Home, 
+import {
+  Search,
+  MapPin,
+  Heart,
+  Eye,
+  MessageSquare,
+  Star,
+  Globe,
+  Home,
   Calendar,
   Navigation,
   X,
   Plus,
   Loader2,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import { getCurrentUser, supabase } from "@/lib/supabase";
 
@@ -65,7 +65,7 @@ const CATEGORY_CHIPS = [
   "Tuition",
   "Fitness",
   "Music",
-  "Other"
+  "Other",
 ];
 
 interface ServiceUser {
@@ -79,15 +79,19 @@ interface ServiceUser {
 
 export default function NearbyServicePage() {
   const [currentUser, setCurrentUser] = useState<ServiceUser | null>(null);
-  
+
   // Data states
   const [services, setServices] = useState<ServiceItem[]>([]);
   // CRITICAL: This stores which service IDs the current user has liked
-  const [likedServiceIds, setLikedServiceIds] = useState<Set<string>>(new Set());
+  const [likedServiceIds, setLikedServiceIds] = useState<Set<string>>(
+    new Set(),
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // Track which service IDs are currently being liked/unliked
-  const [likingServiceIds, setLikingServiceIds] = useState<Set<string>>(new Set());
+  const [likingServiceIds, setLikingServiceIds] = useState<Set<string>>(
+    new Set(),
+  );
 
   // Search & Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -95,7 +99,9 @@ export default function NearbyServicePage() {
   const [sortBy, setSortBy] = useState("Newest");
 
   // Modal Details
-  const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
+  const [selectedService, setSelectedService] = useState<ServiceItem | null>(
+    null,
+  );
   const [reviews, setReviews] = useState<ServiceReview[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [userRating, setUserRating] = useState<number>(0);
@@ -110,18 +116,18 @@ export default function NearbyServicePage() {
   // Load user's likes from database with debug logging
   const loadUserLikes = useCallback(async (userId: string) => {
     if (!supabase) return new Set<string>();
-    
+
     try {
       console.log("🔍 Loading likes for user:", userId);
-      
+
       // First, check if we can read the table at all
       const { data: allLikes, error: allError } = await supabase
         .from("service_likes")
         .select("*");
-      
+
       console.log("📊 All likes in table:", allLikes);
       console.log("📊 All likes error:", allError);
-      
+
       // Now get user-specific likes
       const { data: likesData, error: likesError } = await supabase
         .from("service_likes")
@@ -155,14 +161,18 @@ export default function NearbyServicePage() {
       try {
         setLoading(true);
         console.log("🚀 Initializing page...");
-        
+
         // Get current user
-        const { user } = (await getCurrentUser()) as { user: ServiceUser | null };
+        const { user } = (await getCurrentUser()) as {
+          user: ServiceUser | null;
+        };
         setCurrentUser(user);
         console.log("👤 Current user:", user?.id || "Not logged in");
 
         if (!supabase) {
-          throw new Error("Supabase service is not configured on your environment");
+          throw new Error(
+            "Supabase service is not configured on your environment",
+          );
         }
 
         // Fetch services with user profiles
@@ -173,9 +183,9 @@ export default function NearbyServicePage() {
           .eq("is_active", true);
 
         if (servicesError) throw servicesError;
-        
+
         if (isMounted) {
-          setServices(servicesData as ServiceItem[] || []);
+          setServices((servicesData as ServiceItem[]) || []);
           console.log(`📦 Loaded ${servicesData?.length || 0} services`);
         }
 
@@ -229,7 +239,7 @@ export default function NearbyServicePage() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setReviews(data as ServiceReview[] || []);
+      setReviews((data as ServiceReview[]) || []);
 
       if (currentUser && data) {
         const reviewed = data.some((r) => r.user_id === currentUser.id);
@@ -251,14 +261,18 @@ export default function NearbyServicePage() {
     loadReviews(service.id);
 
     // Optimistic Update View Count
-    setServices(prev => prev.map(s => s.id === service.id ? { ...s, views_count: s.views_count + 1 } : s));
+    setServices((prev) =>
+      prev.map((s) =>
+        s.id === service.id ? { ...s, views_count: s.views_count + 1 } : s,
+      ),
+    );
 
     try {
       await supabase
         .from("services")
         .update({ views_count: service.views_count + 1 })
         .eq("id", service.id);
-      
+
       const { data: analyticsRow } = await supabase
         .from("service_analytics")
         .select("*")
@@ -274,14 +288,12 @@ export default function NearbyServicePage() {
           })
           .eq("service_id", service.id);
       } else {
-        await supabase
-          .from("service_analytics")
-          .insert({
-            service_id: service.id,
-            total_views: 1,
-            unique_visitors: 1,
-            updated_at: new Date().toISOString()
-          });
+        await supabase.from("service_analytics").insert({
+          service_id: service.id,
+          total_views: 1,
+          unique_visitors: 1,
+          updated_at: new Date().toISOString(),
+        });
       }
     } catch (err) {
       console.error("Error tracking view count:", err);
@@ -289,126 +301,142 @@ export default function NearbyServicePage() {
   };
 
   // ============================================
-// Toggle Like - Fixed with functional updates
-// ============================================
-const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
-  e.stopPropagation();
-  if (!supabase) return;
-  if (!currentUser) {
-    alert("Please log in to like service listings.");
-    return;
-  }
-
-  // Use a local variable to check current state
-  const isCurrentlyLiked = likedServiceIds.has(service.id);
-  console.log(`🔄 Toggling like for service ${service.id}: currently ${isCurrentlyLiked ? 'liked' : 'unliked'}`);
-  
-  // Prevent multiple rapid clicks for this specific service
-  if (likingServiceIds.has(service.id)) return;
-  
-  // Mark this service as being processed
-  setLikingServiceIds(prev => new Set(prev).add(service.id));
-
-  // Store previous state for rollback
-  const previousLikedIds = new Set(likedServiceIds);
-  const previousServices = [...services];
-
+  // Toggle Like - Fixed with functional updates
   // ============================================
-  // OPTIMISTIC UPDATE - Using functional updates
-  // ============================================
-  setLikedServiceIds(prev => {
-    const next = new Set(prev);
-    if (isCurrentlyLiked) {
-      next.delete(service.id);
-    } else {
-      next.add(service.id);
-    }
-    return next;
-  });
-
-  setServices(prev => prev.map(s => 
-    s.id === service.id 
-      ? { ...s, likes_count: s.likes_count + (isCurrentlyLiked ? -1 : 1) } 
-      : s
-  ));
-
-  try {
-    // Get session token for authorization
-    const { data: { session } } = await supabase.auth.getSession();
-    const token = session?.access_token;
-    
-    if (!token) {
-      throw new Error("Authentication required");
+  const handleToggleLike = async (
+    e: React.MouseEvent,
+    service: ServiceItem,
+  ) => {
+    e.stopPropagation();
+    if (!supabase) return;
+    if (!currentUser) {
+      alert("Please log in to like service listings.");
+      return;
     }
 
-    // Call the API endpoint
-    const response = await fetch("/api/likes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        serviceId: service.id,
-        action: isCurrentlyLiked ? "unlike" : "like",
-      }),
+    // Use a local variable to check current state
+    const isCurrentlyLiked = likedServiceIds.has(service.id);
+    console.log(
+      `🔄 Toggling like for service ${service.id}: currently ${isCurrentlyLiked ? "liked" : "unliked"}`,
+    );
+
+    // Prevent multiple rapid clicks for this specific service
+    if (likingServiceIds.has(service.id)) return;
+
+    // Mark this service as being processed
+    setLikingServiceIds((prev) => new Set(prev).add(service.id));
+
+    // Store previous state for rollback
+    const previousLikedIds = new Set(likedServiceIds);
+    const previousServices = [...services];
+
+    // ============================================
+    // OPTIMISTIC UPDATE - Using functional updates
+    // ============================================
+    setLikedServiceIds((prev) => {
+      const next = new Set(prev);
+      if (isCurrentlyLiked) {
+        next.delete(service.id);
+      } else {
+        next.add(service.id);
+      }
+      return next;
     });
 
-    const data = await response.json();
+    setServices((prev) =>
+      prev.map((s) =>
+        s.id === service.id
+          ? { ...s, likes_count: s.likes_count + (isCurrentlyLiked ? -1 : 1) }
+          : s,
+      ),
+    );
 
-    if (!response.ok) {
-      throw new Error(data.error || "Failed to update like");
-    }
+    try {
+      // Get session token for authorization
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const token = session?.access_token;
 
-    if (data.success) {
-      const finalLiked = data.liked || false;
-      const finalCount = data.likesCount || 0;
+      if (!token) {
+        throw new Error("Authentication required");
+      }
 
-      console.log(`✅ Like toggled successfully: ${finalLiked ? 'liked' : 'unliked'}, count: ${finalCount}`);
-
-      // ============================================
-      // UPDATE WITH SERVER STATE - Using functional updates
-      // ============================================
-      setLikedServiceIds(prev => {
-        const next = new Set(prev);
-        if (finalLiked) {
-          next.add(service.id);
-        } else {
-          next.delete(service.id);
-        }
-        return next;
+      // Call the API endpoint
+      const response = await fetch("/api/likes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          serviceId: service.id,
+          action: isCurrentlyLiked ? "unlike" : "like",
+        }),
       });
 
-      setServices(prev => prev.map(s => 
-        s.id === service.id ? { ...s, likes_count: finalCount } : s
-      ));
-    } else {
-      throw new Error(data.error || "Failed to update like");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to update like");
+      }
+
+      if (data.success) {
+        const finalLiked = data.liked || false;
+        const finalCount = data.likesCount || 0;
+
+        console.log(
+          `✅ Like toggled successfully: ${finalLiked ? "liked" : "unliked"}, count: ${finalCount}`,
+        );
+
+        // ============================================
+        // UPDATE WITH SERVER STATE - Using functional updates
+        // ============================================
+        setLikedServiceIds((prev) => {
+          const next = new Set(prev);
+          if (finalLiked) {
+            next.add(service.id);
+          } else {
+            next.delete(service.id);
+          }
+          return next;
+        });
+
+        setServices((prev) =>
+          prev.map((s) =>
+            s.id === service.id ? { ...s, likes_count: finalCount } : s,
+          ),
+        );
+      } else {
+        throw new Error(data.error || "Failed to update like");
+      }
+    } catch (err) {
+      console.error("❌ Like toggle failed:", err);
+
+      // ============================================
+      // ROLLBACK ON ERROR
+      // ============================================
+      setLikedServiceIds(previousLikedIds);
+      setServices(previousServices);
+
+      alert(err instanceof Error ? err.message : "Failed to update like");
+    } finally {
+      setLikingServiceIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(service.id);
+        return newSet;
+      });
     }
-  } catch (err) {
-    console.error("❌ Like toggle failed:", err);
-    
-    // ============================================
-    // ROLLBACK ON ERROR
-    // ============================================
-    setLikedServiceIds(previousLikedIds);
-    setServices(previousServices);
-    
-    alert(err instanceof Error ? err.message : "Failed to update like");
-  } finally {
-    setLikingServiceIds(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(service.id);
-      return newSet;
-    });
-  }
-};
+  };
 
   // Google Maps Redirection
   const handleOpenMap = (e: React.MouseEvent, service: ServiceItem) => {
     e.stopPropagation();
     if (service.latitude && service.longitude) {
-      window.open(`https://www.google.com/maps?q=${service.latitude},${service.longitude}`, "_blank");
+      window.open(
+        `https://www.google.com/maps?q=${service.latitude},${service.longitude}`,
+        "_blank",
+      );
     } else {
       alert("No exact coordinates attached to this service listing.");
     }
@@ -423,9 +451,11 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
     setReviewSubmitLoading(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       const token = session?.access_token;
-      
+
       if (!token) {
         throw new Error("You must be logged in to submit a review.");
       }
@@ -434,13 +464,13 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           serviceId: selectedService.id,
           rating: userRating,
-          comment: userComment
-        })
+          comment: userComment,
+        }),
       });
 
       const result = await response.json();
@@ -450,8 +480,26 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
 
       const { averageRating, totalReviews } = result;
 
-      setServices(prev => prev.map(s => s.id === selectedService.id ? { ...s, rating_average: averageRating, reviews_count: totalReviews } : s));
-      setSelectedService(prev => prev ? { ...prev, rating_average: averageRating, reviews_count: totalReviews } : null);
+      setServices((prev) =>
+        prev.map((s) =>
+          s.id === selectedService.id
+            ? {
+                ...s,
+                rating_average: averageRating,
+                reviews_count: totalReviews,
+              }
+            : s,
+        ),
+      );
+      setSelectedService((prev) =>
+        prev
+          ? {
+              ...prev,
+              rating_average: averageRating,
+              reviews_count: totalReviews,
+            }
+          : null,
+      );
 
       loadReviews(selectedService.id);
       setUserComment("");
@@ -459,7 +507,8 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
     } catch (err: unknown) {
       console.error("Failed to submit review:", err);
       const errorObj = err as { message?: string } | null;
-      let errMsg = errorObj?.message || (err instanceof Error ? err.message : String(err));
+      let errMsg =
+        errorObj?.message || (err instanceof Error ? err.message : String(err));
       if (errMsg && errMsg.includes("service_ratings_user_service_unique")) {
         errMsg = "You have already submitted a review for this tutor/service.";
       }
@@ -478,13 +527,62 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
     if (filter === "Yoga") return catLower.includes("yoga");
     if (filter === "Dance") return catLower.includes("dance");
     if (filter === "Guitar") return catLower.includes("guitar");
-    if (filter === "Gym") return catLower.includes("gym") || catLower.includes("fitness") || catLower.includes("personal trainer");
-    if (filter === "Tuition") return catLower.includes("tutor") || catLower.includes("teacher") || catLower.includes("coach") || catLower.includes("academic") || catLower.includes("math") || catLower.includes("science") || catLower.includes("english") || catLower.includes("coding") || catLower.includes("language") || catLower.includes("exam");
-    if (filter === "Fitness") return catLower.includes("fitness") || catLower.includes("trainer") || catLower.includes("yoga") || catLower.includes("gym");
-    if (filter === "Music") return catLower.includes("music") || catLower.includes("guitar") || catLower.includes("singing") || catLower.includes("piano");
+    if (filter === "Gym")
+      return (
+        catLower.includes("gym") ||
+        catLower.includes("fitness") ||
+        catLower.includes("personal trainer")
+      );
+    if (filter === "Tuition")
+      return (
+        catLower.includes("tutor") ||
+        catLower.includes("teacher") ||
+        catLower.includes("coach") ||
+        catLower.includes("academic") ||
+        catLower.includes("math") ||
+        catLower.includes("science") ||
+        catLower.includes("english") ||
+        catLower.includes("coding") ||
+        catLower.includes("language") ||
+        catLower.includes("exam")
+      );
+    if (filter === "Fitness")
+      return (
+        catLower.includes("fitness") ||
+        catLower.includes("trainer") ||
+        catLower.includes("yoga") ||
+        catLower.includes("gym")
+      );
+    if (filter === "Music")
+      return (
+        catLower.includes("music") ||
+        catLower.includes("guitar") ||
+        catLower.includes("singing") ||
+        catLower.includes("piano")
+      );
     if (filter === "Other") {
-      const keys = ["yoga", "dance", "guitar", "gym", "fitness", "personal trainer", "tutor", "teacher", "coach", "academic", "math", "science", "english", "coding", "language", "exam", "music", "singing", "piano"];
-      return !keys.some(k => catLower.includes(k));
+      const keys = [
+        "yoga",
+        "dance",
+        "guitar",
+        "gym",
+        "fitness",
+        "personal trainer",
+        "tutor",
+        "teacher",
+        "coach",
+        "academic",
+        "math",
+        "science",
+        "english",
+        "coding",
+        "language",
+        "exam",
+        "music",
+        "singing",
+        "piano",
+      ];
+      return !keys.some((k) => catLower.includes(k));
     }
     return catLower.includes(filtLower);
   };
@@ -506,7 +604,9 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
     })
     .sort((a, b) => {
       if (sortBy === "Newest") {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
       }
       if (sortBy === "Highest Rated") {
         return b.rating_average - a.rating_average;
@@ -528,10 +628,8 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-20">
-      
       {/* Search and Filter Panel */}
       <div className="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        
         {/* Page Titles */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -539,7 +637,8 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
               Nearby Providers & Tutors
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Discover verified local instructors, academic tutors, and yoga coaches right in your neighborhood.
+              Discover verified local instructors, academic tutors, and yoga
+              coaches right in your neighborhood.
             </p>
           </div>
         </div>
@@ -558,7 +657,10 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
           </div>
 
           <div className="flex items-center gap-2.5 w-full md:w-auto self-stretch md:self-auto shrink-0">
-            <label htmlFor="sort-dropdown" className="text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0">
+            <label
+              htmlFor="sort-dropdown"
+              className="text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0"
+            >
               Sort By:
             </label>
             <select
@@ -602,7 +704,9 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
         {loading && (
           <div className="py-20 flex flex-col items-center justify-center gap-3">
             <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
-            <p className="text-sm text-slate-500 font-bold">Scanning local database...</p>
+            <p className="text-sm text-slate-500 font-bold">
+              Scanning local database...
+            </p>
           </div>
         )}
 
@@ -620,9 +724,13 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
             <div className="w-16 h-16 bg-blue-50/50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-100/50">
               <Search className="h-6 w-6" />
             </div>
-            <h3 className="text-lg font-extrabold text-slate-800">No Services Found</h3>
+            <h3 className="text-lg font-extrabold text-slate-800">
+              No Services Found
+            </h3>
             <p className="text-xs text-slate-400 max-w mx-auto mt-1 leading-relaxed">
-              We couldn&apos;t find any services matching &quot;{searchQuery}&quot; under &quot;{selectedCategory}&quot;. Try adjusting your search query or chips.
+              We couldn&apos;t find any services matching &quot;{searchQuery}
+              &quot; under &quot;{selectedCategory}&quot;. Try adjusting your
+              search query or chips.
             </p>
           </div>
         )}
@@ -653,7 +761,7 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
                       <span className="text-[10px] font-bold text-blue-600 bg-blue-50/80 px-2.5 py-1 rounded-full uppercase tracking-wider border border-blue-100/30">
                         {service.category}
                       </span>
-                      
+
                       <div className="flex items-center gap-1.5 shrink-0">
                         {/* Map Button */}
                         {service.latitude && service.longitude && (
@@ -683,7 +791,9 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
                           {isLikingThis ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
                           ) : (
-                            <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500" : ""}`} />
+                            <Heart
+                              className={`h-4 w-4 ${isLiked ? "fill-red-500" : ""}`}
+                            />
                           )}
                         </button>
                       </div>
@@ -708,7 +818,9 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
                     <div className="flex items-center gap-3.5 text-[10px] font-bold text-slate-400 border-t border-slate-50 pt-3">
                       <span className="flex items-center gap-1">
                         <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                        <span className="text-slate-600">{service.rating_average || "0.0"}</span>
+                        <span className="text-slate-600">
+                          {service.rating_average || "0.0"}
+                        </span>
                       </span>
                       <span className="flex items-center gap-1">
                         <Eye className="h-3.5 w-3.5 text-slate-400" />
@@ -729,17 +841,21 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
                   <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-auto">
                     <div className="flex items-center gap-1 text-slate-400 font-semibold text-[11px] max-w-[50%]">
                       <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                      <span className="truncate">{[service.area, service.city].filter(Boolean).join(", ")}</span>
+                      <span className="truncate">
+                        {[service.area, service.city]
+                          .filter(Boolean)
+                          .join(", ")}
+                      </span>
                     </div>
-                    <span className="text-xs font-extrabold text-blue-600 shrink-0">{priceLabel}</span>
+                    <span className="text-xs font-extrabold text-blue-600 shrink-0">
+                      {priceLabel}
+                    </span>
                   </div>
-
                 </div>
               );
             })}
           </div>
         )}
-
       </div>
 
       {/* Details Dialog Modal */}
@@ -772,14 +888,14 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
 
             {/* Modal Body */}
             <div className="p-6 space-y-6 flex-1">
-              
               {/* Tutor & Description */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-                
                 {/* Details Section */}
                 <div className="md:col-span-8 space-y-5">
                   <div className="space-y-1">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Instructor Profile</h3>
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                      Instructor Profile
+                    </h3>
                     <h4 className="text-base font-extrabold text-slate-800">
                       {selectedService.users?.full_name || "Verified Tutor"}
                     </h4>
@@ -791,7 +907,9 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
                   </div>
 
                   <div className="space-y-2">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">About the Service</h3>
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                      About the Service
+                    </h3>
                     <p className="text-xs text-slate-650 font-medium leading-relaxed whitespace-pre-line bg-blue-50/20 border border-blue-100/10 rounded-2xl p-4">
                       {selectedService.description}
                     </p>
@@ -800,8 +918,10 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
 
                 {/* Badges / Specifications Card */}
                 <div className="md:col-span-4 bg-slate-50/70 border border-slate-100 rounded-2xl p-4.5 space-y-4">
-                  <h3 className="text-xs font-bold text-slate-700 border-b border-slate-200/60 pb-1.5">Specifications</h3>
-                  
+                  <h3 className="text-xs font-bold text-slate-700 border-b border-slate-200/60 pb-1.5">
+                    Specifications
+                  </h3>
+
                   {/* Mode */}
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
@@ -809,7 +929,8 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
                       Teaching Modes
                     </span>
                     <p className="text-xs font-semibold text-slate-600 pl-4.5">
-                      {selectedService.service_modes.join(", ") || "No modes selected"}
+                      {selectedService.service_modes.join(", ") ||
+                        "No modes selected"}
                     </p>
                   </div>
 
@@ -842,20 +963,21 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
                       Starting Price
                     </span>
                     <p className="text-xs font-extrabold text-blue-600 pl-4.5">
-                      {selectedService.starting_price 
+                      {selectedService.starting_price
                         ? `₹${selectedService.starting_price} / ${(selectedService.price_unit || "hour").toLowerCase()}`
                         : "Price on Enquiry"}
                     </p>
                   </div>
                 </div>
-
               </div>
 
               {/* Reviews Section */}
               <div className="border-t border-slate-100 pt-6 space-y-6">
                 <div>
                   <h3 className="text-sm font-extrabold text-slate-800 flex items-center gap-2">
-                    <span>Customer Reviews ({selectedService.reviews_count || 0})</span>
+                    <span>
+                      Customer Reviews ({selectedService.reviews_count || 0})
+                    </span>
                     <span className="inline-flex items-center gap-0.5 text-xs text-amber-500">
                       <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                       {selectedService.rating_average || "0.0"}
@@ -870,11 +992,16 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
                     <span>Loading reviews list...</span>
                   </div>
                 ) : reviews.length === 0 ? (
-                  <p className="text-xs text-slate-400 font-medium italic">No reviews have been written for this service yet.</p>
+                  <p className="text-xs text-slate-400 font-medium italic">
+                    No reviews have been written for this service yet.
+                  </p>
                 ) : (
                   <div className="space-y-3.5 max-h-60 overflow-y-auto pr-2">
                     {reviews.map((review) => (
-                      <div key={review.id} className="p-3 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-1 text-xs">
+                      <div
+                        key={review.id}
+                        className="p-3 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-1 text-xs"
+                      >
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-slate-700">
                             {review.users?.full_name || "Customer Reviewer"}
@@ -891,7 +1018,11 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
                             />
                           ))}
                         </div>
-                        {review.review && <p className="text-slate-600 leading-relaxed font-sans">{review.review}</p>}
+                        {review.review && (
+                          <p className="text-slate-600 leading-relaxed font-sans">
+                            {review.review}
+                          </p>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -901,15 +1032,23 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
                 {currentUser ? (
                   hasReviewed ? (
                     <div className="p-3 bg-blue-50/50 border border-blue-100/30 rounded-2xl text-xs text-blue-600 font-bold text-center">
-                      ✓ You have already reviewed this service. You can leave one review per service.
+                      ✓ You have already reviewed this service. You can leave
+                      one review per service.
                     </div>
                   ) : (
-                    <form onSubmit={handleSubmitReview} className="bg-slate-50/40 border border-slate-200/50 rounded-2xl p-4 space-y-4">
-                      <h4 className="text-xs font-extrabold text-slate-700">Write a Review</h4>
-                      
+                    <form
+                      onSubmit={handleSubmitReview}
+                      className="bg-slate-50/40 border border-slate-200/50 rounded-2xl p-4 space-y-4"
+                    >
+                      <h4 className="text-xs font-extrabold text-slate-700">
+                        Write a Review
+                      </h4>
+
                       {/* Star Selection */}
                       <div className="space-y-1.5">
-                        <span className="block text-[10px] font-bold text-slate-400 uppercase">Your Rating <span className="text-red-400">*</span></span>
+                        <span className="block text-[10px] font-bold text-slate-400 uppercase">
+                          Your Rating <span className="text-red-400">*</span>
+                        </span>
                         <div className="flex gap-1 items-center">
                           {Array.from({ length: 5 }).map((_, idx) => {
                             const starVal = idx + 1;
@@ -920,24 +1059,35 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
                                 key={idx}
                                 onClick={() => setUserRating(starVal)}
                                 className="p-0.5 hover:scale-110 transition cursor-pointer"
-                                aria-label={`Rate ${starVal} star${starVal > 1 ? 's' : ''}`}
+                                aria-label={`Rate ${starVal} star${starVal > 1 ? "s" : ""}`}
                               >
-                                <Star className={`h-6 w-6 ${isFilled ? "fill-amber-400 text-amber-400" : "text-slate-300 hover:text-amber-300"}`} />
+                                <Star
+                                  className={`h-6 w-6 ${isFilled ? "fill-amber-400 text-amber-400" : "text-slate-300 hover:text-amber-300"}`}
+                                />
                               </button>
                             );
                           })}
                           {userRating > 0 && (
-                            <span className="ml-1 text-[10px] font-bold text-amber-500">{userRating}/5</span>
+                            <span className="ml-1 text-[10px] font-bold text-amber-500">
+                              {userRating}/5
+                            </span>
                           )}
                         </div>
                         {userRating === 0 && (
-                          <p className="text-[10px] text-slate-400">Click a star to rate</p>
+                          <p className="text-[10px] text-slate-400">
+                            Click a star to rate
+                          </p>
                         )}
                       </div>
 
                       {/* Comment textarea */}
                       <div className="space-y-1.5">
-                        <label htmlFor="review-textarea" className="block text-[10px] font-bold text-slate-400 uppercase">Your Review (Optional)</label>
+                        <label
+                          htmlFor="review-textarea"
+                          className="block text-[10px] font-bold text-slate-400 uppercase"
+                        >
+                          Your Review (Optional)
+                        </label>
                         <textarea
                           id="review-textarea"
                           rows={3}
@@ -972,14 +1122,11 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
                     Please login to leave a review for this tutor.
                   </div>
                 )}
-
               </div>
-
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 }

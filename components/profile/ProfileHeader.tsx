@@ -137,8 +137,9 @@ export default function ProfileHeader({
                       <input
                         type="email"
                         value={formData.email}
-                        className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 text-sm cursor-not-allowed"
-                        disabled
+                        onChange={(e) => onInputChange("email", e.target.value)}
+                        className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm text-gray-900"
+                        placeholder="Enter email address"
                       />
                     </div>
                   </div>

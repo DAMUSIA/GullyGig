@@ -10,7 +10,7 @@ interface PortfolioQRProps {
 export default function PortfolioQR({ portfolioUrl }: PortfolioQRProps) {
   const [copied, setCopied] = useState(false);
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
-    portfolioUrl
+    portfolioUrl,
   )}`;
 
   const handleCopy = async () => {
@@ -31,11 +31,14 @@ export default function PortfolioQR({ portfolioUrl }: PortfolioQRProps) {
       <div className="space-y-3 max-w text-center md:text-left relative z-10">
         <div className="flex items-center justify-center md:justify-start gap-2 text-blue-400">
           <QrCode className="h-5 w-5" />
-          <span className="text-xs font-bold uppercase tracking-wider">Shareable Portfolio</span>
+          <span className="text-xs font-bold uppercase tracking-wider">
+            Shareable Portfolio
+          </span>
         </div>
         <h4 className="text-lg font-extrabold">Scan QR Code to Share</h4>
         <p className="text-xs text-slate-400 leading-relaxed font-medium">
-          Students, parents, or friends can scan this QR code to view your portfolio, verify details, and call you directly from their phones.
+          Students, parents, or friends can scan this QR code to view your
+          portfolio, verify details, and call you directly from their phones.
         </p>
 
         {/* Clickable URL */}

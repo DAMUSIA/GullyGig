@@ -63,8 +63,12 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [reviews, setReviews] = useState<ServiceReview[]>([]);
-  const [editingService, setEditingService] = useState<ServiceItem | null>(null);
-  const [viewingService, setViewingService] = useState<ServiceItem | null>(null);
+  const [editingService, setEditingService] = useState<ServiceItem | null>(
+    null,
+  );
+  const [viewingService, setViewingService] = useState<ServiceItem | null>(
+    null,
+  );
   const [isSaving, setIsSaving] = useState(false);
 
   // Load data
@@ -72,7 +76,9 @@ export default function DashboardPage() {
     async function loadData() {
       try {
         setLoading(true);
-        const { user: currentUser } = (await getCurrentUser()) as { user: ServiceUser | null };
+        const { user: currentUser } = (await getCurrentUser()) as {
+          user: ServiceUser | null;
+        };
         if (!currentUser) {
           router.push("/login");
           return;
@@ -88,7 +94,7 @@ export default function DashboardPage() {
           .order("created_at", { ascending: false });
 
         if (servicesError) throw servicesError;
-        setServices(servicesData as ServiceItem[] || []);
+        setServices((servicesData as ServiceItem[]) || []);
 
         const { data: reviewsData, error: reviewsError } = await supabase
           .from("service_ratings")
@@ -98,7 +104,7 @@ export default function DashboardPage() {
           .limit(3);
 
         if (!reviewsError && reviewsData) {
-          setReviews(reviewsData as ServiceReview[] || []);
+          setReviews((reviewsData as ServiceReview[]) || []);
         }
       } catch (err) {
         console.error("Dashboard loading error:", err);
@@ -161,8 +167,8 @@ export default function DashboardPage() {
                 is_active: data.isActive,
                 contact_numbers: data.contactNumbers,
               }
-            : s
-        )
+            : s,
+        ),
       );
 
       setEditingService(null);
@@ -186,10 +192,13 @@ export default function DashboardPage() {
           (
             ratedServices.reduce((sum, s) => sum + (s.rating_average || 0), 0) /
             ratedServices.length
-          ).toFixed(1)
+          ).toFixed(1),
         )
       : 0.0;
-  const totalReviews = services.reduce((sum, s) => sum + (s.reviews_count || 0), 0);
+  const totalReviews = services.reduce(
+    (sum, s) => sum + (s.reviews_count || 0),
+    0,
+  );
 
   // Loading state
   if (loading) {
@@ -197,7 +206,9 @@ export default function DashboardPage() {
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-10 w-10 animate-spin text-blue-600 mx-auto" />
-          <p className="text-sm font-semibold text-slate-500 mt-3">Loading your dashboard...</p>
+          <p className="text-sm font-semibold text-slate-500 mt-3">
+            Loading your dashboard...
+          </p>
         </div>
       </div>
     );

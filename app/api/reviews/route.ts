@@ -61,20 +61,24 @@ export async function POST(request: Request) {
 
     if (existingReview) {
       return NextResponse.json(
-        { error: "You have already submitted a review for this tutor/service." },
+        {
+          error: "You have already submitted a review for this tutor/service.",
+        },
         { status: 400 },
       );
     }
 
     // Insert new review using admin client
-    const { error: insertError } = await supabaseAdmin.from("service_ratings").insert({
-      service_id: serviceId,
-      user_id: user.id,
-      rating,
-      review: comment?.trim() || null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    });
+    const { error: insertError } = await supabaseAdmin
+      .from("service_ratings")
+      .insert({
+        service_id: serviceId,
+        user_id: user.id,
+        rating,
+        review: comment?.trim() || null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
 
     if (insertError) {
       console.error("Failed to insert review:", insertError);
@@ -90,15 +94,18 @@ export async function POST(request: Request) {
     if (ratingsFetchError) throw ratingsFetchError;
 
     const totalReviews = allRatings ? allRatings.length : 0;
-    const totalScore = allRatings ? allRatings.reduce((sum, r) => sum + r.rating, 0) : 0;
-    const averageRating = totalReviews > 0 ? parseFloat((totalScore / totalReviews).toFixed(1)) : 0;
+    const totalScore = allRatings
+      ? allRatings.reduce((sum, r) => sum + r.rating, 0)
+      : 0;
+    const averageRating =
+      totalReviews > 0 ? parseFloat((totalScore / totalReviews).toFixed(1)) : 0;
 
     // Update services table
     const { error: updateServiceError } = await supabaseAdmin
       .from("services")
       .update({
         rating_average: averageRating,
-        reviews_count: totalReviews
+        reviews_count: totalReviews,
       })
       .eq("id", serviceId);
 
@@ -119,18 +126,16 @@ export async function POST(request: Request) {
         .update({
           total_reviews: totalReviews,
           average_rating: averageRating,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq("service_id", serviceId);
     } else {
-      await supabaseAdmin
-        .from("service_analytics")
-        .insert({
-          service_id: serviceId,
-          total_reviews: totalReviews,
-          average_rating: averageRating,
-          updated_at: new Date().toISOString()
-        });
+      await supabaseAdmin.from("service_analytics").insert({
+        service_id: serviceId,
+        total_reviews: totalReviews,
+        average_rating: averageRating,
+        updated_at: new Date().toISOString(),
+      });
     }
 
     return NextResponse.json({
@@ -139,7 +144,6 @@ export async function POST(request: Request) {
       averageRating,
       totalReviews,
     });
-
   } catch (error: unknown) {
     console.error("API reviews error:", error);
     const err = error as { message?: string } | null;

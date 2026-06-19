@@ -20,7 +20,12 @@ import {
   Globe,
   Loader2,
 } from "lucide-react";
-import { supabase, signOut, onAuthStateChange, getCurrentUser } from "@/lib/supabase";
+import {
+  supabase,
+  signOut,
+  onAuthStateChange,
+  getCurrentUser,
+} from "@/lib/supabase";
 import { createPortal } from "react-dom";
 
 // ============================================
@@ -49,13 +54,48 @@ interface MenuItem {
 // Constants
 // ============================================
 const MENU_ITEMS: MenuItem[] = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
-  { id: "create-service", label: "Create Service", icon: Briefcase, href: "/dashboard/create-service" },
-  { id: "portfolio", label: "My Portfolio", icon: Globe, href: "/dashboard/portfolio" },
-  { id: "nearby", label: "Nearby Providers", icon: MapPin, href: "/dashboard/nearby-service" },
-  { id: "analytics", label: "Analytics", icon: BarChart3, href: "/dashboard/analytics" },
-  { id: "profile", label: "My Profile", icon: User, href: "/dashboard/profile" },
-  { id: "settings", label: "Settings", icon: SettingsIcon, href: "/dashboard/setting" },
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    href: "/dashboard",
+  },
+  {
+    id: "create-service",
+    label: "Create Service",
+    icon: Briefcase,
+    href: "/dashboard/create-service",
+  },
+  {
+    id: "portfolio",
+    label: "My Portfolio",
+    icon: Globe,
+    href: "/dashboard/portfolio",
+  },
+  {
+    id: "nearby",
+    label: "Nearby Providers",
+    icon: MapPin,
+    href: "/dashboard/nearby-service",
+  },
+  {
+    id: "analytics",
+    label: "Analytics",
+    icon: BarChart3,
+    href: "/dashboard/analytics",
+  },
+  {
+    id: "profile",
+    label: "My Profile",
+    icon: User,
+    href: "/dashboard/profile",
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    icon: SettingsIcon,
+    href: "/dashboard/setting",
+  },
 ];
 
 const SIDEBAR_WIDTH = 280;
@@ -189,9 +229,10 @@ function DesktopSidebar({
                 href={item.href}
                 className={`
                   w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group relative
-                  ${isActive
-                    ? "bg-white/15 shadow-lg text-white"
-                    : "text-white/60 hover:bg-white/10 hover:text-white"
+                  ${
+                    isActive
+                      ? "bg-white/15 shadow-lg text-white"
+                      : "text-white/60 hover:bg-white/10 hover:text-white"
                   }
                   ${collapsed ? "justify-center" : ""}
                 `}
@@ -267,8 +308,8 @@ function DesktopSidebar({
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.95 }}
           className={`w-full mt-2 flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${
-            isLoggingOut 
-              ? "text-white/30 cursor-not-allowed" 
+            isLoggingOut
+              ? "text-white/30 cursor-not-allowed"
               : "text-white/50 hover:text-red-200 hover:bg-red-500/20"
           } ${collapsed ? "justify-center" : ""}`}
           aria-label="Logout"
@@ -377,9 +418,10 @@ function MobileSidebar({
                   onClick={onClose}
                   className={`
                     w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group
-                    ${isActive
-                      ? "bg-white/15 shadow-lg text-white"
-                      : "text-white/60 hover:bg-white/10 hover:text-white"
+                    ${
+                      isActive
+                        ? "bg-white/15 shadow-lg text-white"
+                        : "text-white/60 hover:bg-white/10 hover:text-white"
                     }
                   `}
                   aria-current={isActive ? "page" : undefined}
@@ -419,8 +461,8 @@ function MobileSidebar({
               }}
               disabled={isLoggingOut}
               className={`w-full mt-2 flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${
-                isLoggingOut 
-                  ? "text-white/30 cursor-not-allowed" 
+                isLoggingOut
+                  ? "text-white/30 cursor-not-allowed"
                   : "text-white/50 hover:text-red-200 hover:bg-red-500/20"
               }`}
             >
@@ -482,14 +524,16 @@ function LogoutModalContent({
             )}
           </div>
 
-          <h3 id="logout-title" className="text-xl font-bold text-slate-800 mb-2">
+          <h3
+            id="logout-title"
+            className="text-xl font-bold text-slate-800 mb-2"
+          >
             {isLoggingOut ? "Logging out..." : "Logout?"}
           </h3>
           <p className="text-sm text-slate-500 leading-relaxed">
-            {isLoggingOut 
+            {isLoggingOut
               ? "Please wait while we log you out..."
-              : "Are you sure you want to logout? You'll need to login again to access your dashboard."
-            }
+              : "Are you sure you want to logout? You'll need to login again to access your dashboard."}
           </p>
         </div>
 
@@ -543,14 +587,15 @@ function LogoutModal({
 
   return (
     <AnimatePresence>
-      {isOpen && createPortal(
-        <LogoutModalContent 
-          onClose={onClose} 
-          onConfirm={onConfirm} 
-          isLoggingOut={isLoggingOut}
-        />,
-        document.body
-      )}
+      {isOpen &&
+        createPortal(
+          <LogoutModalContent
+            onClose={onClose}
+            onConfirm={onConfirm}
+            isLoggingOut={isLoggingOut}
+          />,
+          document.body,
+        )}
     </AnimatePresence>
   );
 }
@@ -581,7 +626,7 @@ export default function DashboardLayout({
   const checkAuth = useCallback(async () => {
     try {
       const { user, session } = await getCurrentUser();
-      
+
       if (!user || !session) {
         console.log("No session found, redirecting to login");
         router.replace("/login");
@@ -614,7 +659,7 @@ export default function DashboardLayout({
     // Set up auth state listener
     const unsubscribe = onAuthStateChange((event, session) => {
       console.log("🔐 Auth event:", event);
-      
+
       if (event === "SIGNED_OUT") {
         console.log("🔐 User signed out, redirecting...");
         setIsLoading(false);
@@ -637,31 +682,31 @@ export default function DashboardLayout({
   // ============================================
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    
+
     try {
       console.log("🔄 Starting logout process...");
-      
+
       // Step 1: Call the signOut function
       const result = await signOut();
-      
+
       if (!result.success) {
         console.error("❌ SignOut failed:", result.error);
         // Even if signOut fails, try to force redirect
       }
-      
+
       // Step 2: Close modal
       setShowLogoutConfirm(false);
-      
+
       // Step 3: Clear local state
       setProfileName("User");
       setProfileEmail("");
-      
+
       // Step 4: Navigate to login with replace (prevents back button)
       await router.replace("/login");
-      
+
       // Step 5: Refresh the router to clear any cached state
       router.refresh();
-      
+
       console.log("✅ Logout complete");
     } catch (err) {
       console.error("❌ Logout error:", err);
@@ -726,7 +771,11 @@ export default function DashboardLayout({
     );
   }
 
-  const contentMarginLeft = isMobile ? 0 : sidebarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH;
+  const contentMarginLeft = isMobile
+    ? 0
+    : sidebarCollapsed
+      ? SIDEBAR_COLLAPSED_WIDTH
+      : SIDEBAR_WIDTH;
 
   return (
     <div className="min-h-screen bg-slate-50 overflow-x-hidden">
@@ -812,9 +861,7 @@ export default function DashboardLayout({
         </header>
 
         {/* Page Content */}
-        <div className="p-4 sm:p-6 lg:p-8">
-          {children}
-        </div>
+        <div className="p-4 sm:p-6 lg:p-8">{children}</div>
       </motion.main>
 
       {/* Logout Modal - Portal Rendered */}

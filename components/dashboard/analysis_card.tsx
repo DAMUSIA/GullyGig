@@ -21,14 +21,29 @@ export function AnalyticsCard({
   totalReviews,
 }: AnalyticsCardProps) {
   const stats = [
-    { icon: Briefcase, label: "Total Services", value: totalServices, color: "blue" as const },
-    { icon: Eye, label: "Total Views", value: totalViews, color: "purple" as const },
-    { icon: Heart, label: "Total Likes", value: totalLikes, color: "red" as const },
-    { 
-      icon: Star, 
-      label: "Avg Rating", 
-      value: averageRating > 0 ? `${averageRating}` : "0.0", 
-      color: "amber" as const 
+    {
+      icon: Briefcase,
+      label: "Total Services",
+      value: totalServices,
+      color: "blue" as const,
+    },
+    {
+      icon: Eye,
+      label: "Total Views",
+      value: totalViews,
+      color: "purple" as const,
+    },
+    {
+      icon: Heart,
+      label: "Total Likes",
+      value: totalLikes,
+      color: "red" as const,
+    },
+    {
+      icon: Star,
+      label: "Avg Rating",
+      value: averageRating > 0 ? `${averageRating}` : "0.0",
+      color: "amber" as const,
     },
   ];
 

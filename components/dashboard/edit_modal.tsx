@@ -53,7 +53,7 @@ export function EditServiceModal({
   const [priceUnit, setPriceUnit] = useState(service.price_unit || "Per Hour");
   const [isActive, setIsActive] = useState(service.is_active);
   const [contactNumbers, setContactNumbers] = useState<string[]>(
-    service.contact_numbers || []
+    service.contact_numbers || [],
   );
 
   // Validate phone number - exactly 10 digits, numbers only
@@ -70,10 +70,10 @@ export function EditServiceModal({
   const handleContactChange = (index: number, value: string) => {
     // Only allow numbers
     const digitsOnly = value.replace(/\D/g, "");
-    
+
     // Limit to 10 digits
     const limitedDigits = digitsOnly.slice(0, 10);
-    
+
     const updated = [...contactNumbers];
     updated[index] = limitedDigits;
     setContactNumbers(updated);
@@ -81,7 +81,7 @@ export function EditServiceModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Clean all contact numbers
     const cleanContacts = contactNumbers
       .map((n) => cleanPhoneNumber(n))
@@ -90,7 +90,9 @@ export function EditServiceModal({
     // Validate each contact number
     const invalidNumbers = cleanContacts.filter((num) => num.length !== 10);
     if (invalidNumbers.length > 0) {
-      alert(`Invalid phone number(s): ${invalidNumbers.join(", ")}. Please enter exactly 10 digits.`);
+      alert(
+        `Invalid phone number(s): ${invalidNumbers.join(", ")}. Please enter exactly 10 digits.`,
+      );
       return;
     }
 
@@ -172,7 +174,9 @@ export function EditServiceModal({
                   type="number"
                   value={price || ""}
                   onChange={(e) =>
-                    setPrice(e.target.value === "" ? null : Number(e.target.value))
+                    setPrice(
+                      e.target.value === "" ? null : Number(e.target.value),
+                    )
                   }
                   placeholder="e.g. 500"
                   className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 transition-all"
@@ -209,7 +213,7 @@ export function EditServiceModal({
                 {contactNumbers.map((num, idx) => {
                   const isValid = num.length === 10;
                   const isComplete = num.length > 0;
-                  
+
                   return (
                     <div key={idx} className="flex items-center gap-2">
                       <div className="flex-1 relative">
@@ -217,14 +221,16 @@ export function EditServiceModal({
                           type="text"
                           required
                           value={num}
-                          onChange={(e) => handleContactChange(idx, e.target.value)}
+                          onChange={(e) =>
+                            handleContactChange(idx, e.target.value)
+                          }
                           placeholder="Enter 10-digit phone number"
                           className={`w-full px-4 py-2.5 bg-white border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 transition-all ${
                             isComplete && !isValid
                               ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
                               : isValid
-                              ? "border-green-400 focus:border-green-500 focus:ring-green-500/20"
-                              : "border-slate-200"
+                                ? "border-green-400 focus:border-green-500 focus:ring-green-500/20"
+                                : "border-slate-200"
                           }`}
                         />
                         {isComplete && isValid && (
@@ -241,7 +247,9 @@ export function EditServiceModal({
                       <button
                         type="button"
                         onClick={() => {
-                          const updated = contactNumbers.filter((_, i) => i !== idx);
+                          const updated = contactNumbers.filter(
+                            (_, i) => i !== idx,
+                          );
                           setContactNumbers(updated);
                         }}
                         className="px-3 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold transition-colors cursor-pointer"

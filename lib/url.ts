@@ -12,16 +12,18 @@ export function getBaseUrl(): string {
   if (typeof window !== "undefined") {
     return window.location.origin;
   }
-  
+
   // Server-side: use environment variable with fallback
   // This should only be used for SSR/API routes
   const serverUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (serverUrl) {
     return serverUrl;
   }
-  
+
   // Fallback for build time (should rarely be used)
-  console.warn("No base URL found, using fallback. This may cause issues in production.");
+  console.warn(
+    "No base URL found, using fallback. This may cause issues in production.",
+  );
   return "https://kaamao.com";
 }
 

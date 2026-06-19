@@ -8,7 +8,12 @@ interface LocationSelectorProps {
   area: string;
   latitude: number | null;
   longitude: number | null;
-  onChange: (fields: { city: string; area: string; latitude: number | null; longitude: number | null }) => void;
+  onChange: (fields: {
+    city: string;
+    area: string;
+    latitude: number | null;
+    longitude: number | null;
+  }) => void;
 }
 
 export default function LocationSelector({
@@ -36,15 +41,15 @@ export default function LocationSelector({
         try {
           // Fetch reverse geocoding from OpenStreetMap Nominatim
           const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
           );
-          
+
           if (!response.ok) throw new Error("Failed to fetch address details");
-          
+
           const data = await response.json();
           if (data && data.address) {
             const addr = data.address;
-            
+
             // Extract area name (neighbourhood, suburb, village, residential, etc.)
             const areaName =
               addr.neighbourhood ||
@@ -53,7 +58,7 @@ export default function LocationSelector({
               addr.residential ||
               addr.subdistrict ||
               "";
-              
+
             // Extract city/town name
             const cityName =
               addr.city ||
@@ -80,7 +85,9 @@ export default function LocationSelector({
           }
         } catch (err) {
           console.error("GPS Reverse Geocoding Error:", err);
-          setLocateError("Could not retrieve area details. Please enter manually.");
+          setLocateError(
+            "Could not retrieve area details. Please enter manually.",
+          );
           // Update lat/lon anyway so at least they are saved
           onChange({
             city,
@@ -96,12 +103,13 @@ export default function LocationSelector({
         console.error("GPS Coordinates Error:", error);
         let errorMsg = "Failed to fetch coordinates. Please fill manually.";
         if (error.code === error.PERMISSION_DENIED) {
-          errorMsg = "Location permission denied. Please search or fill manually.";
+          errorMsg =
+            "Location permission denied. Please search or fill manually.";
         }
         setLocateError(errorMsg);
         setIsLocating(false);
       },
-      { enableHighAccuracy: true, timeout: 8000 }
+      { enableHighAccuracy: true, timeout: 8000 },
     );
   };
 
@@ -111,7 +119,7 @@ export default function LocationSelector({
         <label className="block text-sm font-semibold text-slate-700">
           Location <span className="text-red-500">*</span>
         </label>
-        
+
         <button
           type="button"
           onClick={handleUseCurrentLocation}
@@ -149,7 +157,9 @@ export default function LocationSelector({
               type="text"
               required
               value={city}
-              onChange={(e) => onChange({ city: e.target.value, area, latitude, longitude })}
+              onChange={(e) =>
+                onChange({ city: e.target.value, area, latitude, longitude })
+              }
               placeholder="e.g. Navi Mumbai"
               className="w-full pl-9 pr-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800"
             />
@@ -160,13 +170,16 @@ export default function LocationSelector({
         {/* Area Input */}
         <div className="space-y-1">
           <label className="block text-xs font-semibold text-slate-500">
-            Area / Locality <span className="text-slate-400 font-normal">(Optional)</span>
+            Area / Locality{" "}
+            <span className="text-slate-400 font-normal">(Optional)</span>
           </label>
           <div className="relative">
             <input
               type="text"
               value={area}
-              onChange={(e) => onChange({ city, area: e.target.value, latitude, longitude })}
+              onChange={(e) =>
+                onChange({ city, area: e.target.value, latitude, longitude })
+              }
               placeholder="e.g. Nerul"
               className="w-full pl-9 pr-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800"
             />
@@ -178,7 +191,9 @@ export default function LocationSelector({
       {latitude && longitude && (
         <div className="text-[10px] text-slate-400 flex items-center gap-1.5 bg-slate-50 rounded-lg px-2.5 py-1 w-max border border-slate-100">
           <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-          <span>Coordinates attached: {latitude.toFixed(5)}, {longitude.toFixed(5)}</span>
+          <span>
+            Coordinates attached: {latitude.toFixed(5)}, {longitude.toFixed(5)}
+          </span>
         </div>
       )}
     </div>

@@ -34,7 +34,7 @@ export default function PosterDownload({
     y: number,
     maxWidth: number,
     lineHeight: number,
-    align: "left" | "center" = "left"
+    align: "left" | "center" = "left",
   ): number => {
     const words = text.split(" ");
     let line = "";
@@ -147,7 +147,13 @@ export default function PosterDownload({
         ctx.strokeStyle = "rgba(59, 130, 246, 0.25)";
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.roundRect(400 - (priceTextWidth / 2) - 16, titleEndY + 12, priceTextWidth + 32, 40, 12);
+        ctx.roundRect(
+          400 - priceTextWidth / 2 - 16,
+          titleEndY + 12,
+          priceTextWidth + 32,
+          40,
+          12,
+        );
         ctx.fill();
         ctx.stroke();
 
@@ -161,7 +167,15 @@ export default function PosterDownload({
       // Detailed Description
       ctx.fillStyle = "#cbd5e1"; // slate-300
       ctx.font = "500 21px system-ui, sans-serif";
-      const descEndY = wrapText(ctx, description, 400, priceEndY + 20, 640, 34, "center");
+      const descEndY = wrapText(
+        ctx,
+        description,
+        400,
+        priceEndY + 20,
+        640,
+        34,
+        "center",
+      );
 
       // Location
       ctx.fillStyle = "#ef4444"; // red-500
@@ -179,7 +193,7 @@ export default function PosterDownload({
 
       // 6. Async Load QR Code image and render it
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-        portfolioUrl
+        portfolioUrl,
       )}`;
 
       await new Promise<void>((resolve) => {
@@ -222,7 +236,8 @@ export default function PosterDownload({
 
       ctx.fillStyle = "#ffffff";
       ctx.font = "900 28px system-ui, sans-serif";
-      const activeContacts = contactNumbers && contactNumbers.length > 0 ? contactNumbers : ["-"];
+      const activeContacts =
+        contactNumbers && contactNumbers.length > 0 ? contactNumbers : ["-"];
       activeContacts.slice(0, 2).forEach((num, idx) => {
         ctx.fillText(num, 60, 938 + idx * 40);
       });

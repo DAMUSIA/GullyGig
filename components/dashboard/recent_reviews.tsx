@@ -23,7 +23,9 @@ export function RecentReviews({ reviews }: RecentReviewsProps) {
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
       <div className="flex items-center gap-2 mb-4">
         <MessageSquare className="h-5 w-5 text-blue-500" />
-        <h2 className="text-sm font-extrabold text-slate-800">Recent Reviews</h2>
+        <h2 className="text-sm font-extrabold text-slate-800">
+          Recent Reviews
+        </h2>
         <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
           {reviews.length}
         </span>

@@ -66,35 +66,43 @@ export default function AnalyticsPage() {
     async function loadAnalytics() {
       try {
         setLoading(true);
-        const { user } = (await getCurrentUser()) as { user: { id: string } | null };
+        const { user } = (await getCurrentUser()) as {
+          user: { id: string } | null;
+        };
         if (!user) {
           router.push("/login");
           return;
         }
 
         if (!supabase) {
-          throw new Error("Supabase service is not configured on your environment");
+          throw new Error(
+            "Supabase service is not configured on your environment",
+          );
         }
 
         const { data, error: servicesError } = await supabase
           .from("services")
-          .select("id, title, category, views_count, likes_count, reviews_count, rating_average, created_at, service_analytics(total_views, portfolio_views, total_contacts)")
+          .select(
+            "id, title, category, views_count, likes_count, reviews_count, rating_average, created_at, service_analytics(total_views, portfolio_views, total_contacts)",
+          )
           .eq("user_id", user.id);
 
         if (servicesError) throw servicesError;
 
-        const formatted = (data as Record<string, unknown>[] || []).map((s) => {
-          let analytics = null;
-          if (s.service_analytics) {
-            analytics = Array.isArray(s.service_analytics)
-              ? s.service_analytics[0]
-              : s.service_analytics;
-          }
-          return {
-            ...s,
-            service_analytics: analytics,
-          };
-        });
+        const formatted = ((data as Record<string, unknown>[]) || []).map(
+          (s) => {
+            let analytics = null;
+            if (s.service_analytics) {
+              analytics = Array.isArray(s.service_analytics)
+                ? s.service_analytics[0]
+                : s.service_analytics;
+            }
+            return {
+              ...s,
+              service_analytics: analytics,
+            };
+          },
+        );
         setServices(formatted as ServiceItem[]);
       } catch (err: unknown) {
         console.error("Error loading analytics:", err);
@@ -108,7 +116,8 @@ export default function AnalyticsPage() {
   }, [router]);
 
   const handleSort = (field: keyof ServiceItem) => {
-    const direction = sortField === field && sortDirection === "desc" ? "asc" : "desc";
+    const direction =
+      sortField === field && sortDirection === "desc" ? "asc" : "desc";
     setSortField(field);
     setSortDirection(direction);
   };
@@ -140,7 +149,9 @@ export default function AnalyticsPage() {
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center space-y-4">
           <Loader2 className="h-10 w-10 animate-spin text-blue-600 mx-auto" />
-          <p className="text-sm font-semibold text-slate-500">Aggregating service performance...</p>
+          <p className="text-sm font-semibold text-slate-500">
+            Aggregating service performance...
+          </p>
         </div>
       </div>
     );
@@ -152,8 +163,12 @@ export default function AnalyticsPage() {
       <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
         <div className="bg-white p-6 border border-slate-200 rounded-3xl shadow-xl max-w-md w-full text-center">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-3" />
-          <h2 className="text-lg font-extrabold text-slate-800">Analytics Load Error</h2>
-          <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">{error}</p>
+          <h2 className="text-lg font-extrabold text-slate-800">
+            Analytics Load Error
+          </h2>
+          <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+            {error}
+          </p>
           <button
             onClick={() => window.location.reload()}
             className="mt-4 px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition"
@@ -178,10 +193,12 @@ export default function AnalyticsPage() {
           </div>
 
           <div className="space-y-2 w-full">
-            <h2 className="text-xl font-extrabold text-slate-800 whitespace-nowrap">No Services Found</h2>
+            <h2 className="text-xl font-extrabold text-slate-800 whitespace-nowrap">
+              No Services Found
+            </h2>
             <p className="text-sm text-slate-500 leading-6 font-medium">
-              Create your first service to start receiving views, likes, and ratings.
-              Performance charts will generate automatically.
+              Create your first service to start receiving views, likes, and
+              ratings. Performance charts will generate automatically.
             </p>
           </div>
 
@@ -202,21 +219,31 @@ export default function AnalyticsPage() {
   const totalServices = services.length;
   const totalViews = services.reduce((sum, s) => sum + (s.views_count || 0), 0);
   const totalLikes = services.reduce((sum, s) => sum + (s.likes_count || 0), 0);
-  const totalReviews = services.reduce((sum, s) => sum + (s.reviews_count || 0), 0);
+  const totalReviews = services.reduce(
+    (sum, s) => sum + (s.reviews_count || 0),
+    0,
+  );
   const totalPortfolioViews = services.reduce(
-    (sum, s) => sum + (s.service_analytics?.total_views || s.service_analytics?.portfolio_views || 0),
-    0
+    (sum, s) =>
+      sum +
+      (s.service_analytics?.total_views ||
+        s.service_analytics?.portfolio_views ||
+        0),
+    0,
   );
   const totalContacts = services.reduce(
     (sum, s) => sum + (s.service_analytics?.total_contacts || 0),
-    0
+    0,
   );
 
   const ratedServices = services.filter((s) => (s.reviews_count || 0) > 0);
   const averageRating =
     ratedServices.length > 0
       ? parseFloat(
-          (ratedServices.reduce((sum, s) => sum + (s.rating_average || 0), 0) / ratedServices.length).toFixed(1)
+          (
+            ratedServices.reduce((sum, s) => sum + (s.rating_average || 0), 0) /
+            ratedServices.length
+          ).toFixed(1),
         )
       : 0.0;
 
@@ -225,7 +252,11 @@ export default function AnalyticsPage() {
 
   const chartMaxValue = Math.max(
     5,
-    ...services.flatMap((s) => [s.views_count || 0, s.likes_count || 0, s.reviews_count || 0])
+    ...services.flatMap((s) => [
+      s.views_count || 0,
+      s.likes_count || 0,
+      s.reviews_count || 0,
+    ]),
   );
   const yAxisMax = Math.max(5, Math.ceil(chartMaxValue * 1.2));
   const chartMargin = { top: 18, right: 18, left: 0, bottom: 8 };
@@ -239,19 +270,33 @@ export default function AnalyticsPage() {
   }));
 
   const ratingDistribution = [
-    { name: "5 Stars", value: services.filter((s) => Math.round(s.rating_average) === 5).length },
-    { name: "4 Stars", value: services.filter((s) => Math.round(s.rating_average) === 4).length },
-    { name: "3 Stars", value: services.filter((s) => Math.round(s.rating_average) === 3).length },
+    {
+      name: "5 Stars",
+      value: services.filter((s) => Math.round(s.rating_average) === 5).length,
+    },
+    {
+      name: "4 Stars",
+      value: services.filter((s) => Math.round(s.rating_average) === 4).length,
+    },
+    {
+      name: "3 Stars",
+      value: services.filter((s) => Math.round(s.rating_average) === 3).length,
+    },
     {
       name: "Under 3",
-      value: services.filter((s) => s.rating_average > 0 && Math.round(s.rating_average) < 3).length,
+      value: services.filter(
+        (s) => s.rating_average > 0 && Math.round(s.rating_average) < 3,
+      ).length,
     },
-    { name: "Unrated", value: services.filter((s) => (s.rating_average || 0) === 0).length },
+    {
+      name: "Unrated",
+      value: services.filter((s) => (s.rating_average || 0) === 0).length,
+    },
   ].filter((item) => item.value > 0);
 
   // SVG gradient ids
-  const GRAD_VIEWS   = "gradViews";
-  const GRAD_LIKES   = "gradLikes";
+  const GRAD_VIEWS = "gradViews";
+  const GRAD_LIKES = "gradLikes";
   const GRAD_REVIEWS = "gradReviews";
 
   const commonAxisProps = {
@@ -272,14 +317,14 @@ export default function AnalyticsPage() {
   return (
     <div className="min-h-screen bg-slate-50/50 pb-20">
       <div className="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
-
         {/* Header */}
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
             Performance Analytics
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Track metrics and audience growth across your listed tutoring and teaching services.
+            Track metrics and audience growth across your listed tutoring and
+            teaching services.
           </p>
         </div>
 
@@ -290,8 +335,12 @@ export default function AnalyticsPage() {
               <Eye className="h-4.5 w-4.5" />
             </div>
             <div>
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">App Views</span>
-              <span className="text-lg font-black text-slate-850">{totalViews}</span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
+                App Views
+              </span>
+              <span className="text-lg font-black text-slate-850">
+                {totalViews}
+              </span>
             </div>
           </div>
 
@@ -300,8 +349,12 @@ export default function AnalyticsPage() {
               <Globe className="h-4.5 w-4.5" />
             </div>
             <div>
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Portfolio Views</span>
-              <span className="text-lg font-black text-slate-850">{totalPortfolioViews}</span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
+                Portfolio Views
+              </span>
+              <span className="text-lg font-black text-slate-850">
+                {totalPortfolioViews}
+              </span>
             </div>
           </div>
 
@@ -310,8 +363,12 @@ export default function AnalyticsPage() {
               <Heart className="h-4.5 w-4.5 fill-red-500/10" />
             </div>
             <div>
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Likes</span>
-              <span className="text-lg font-black text-slate-850">{totalLikes}</span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
+                Likes
+              </span>
+              <span className="text-lg font-black text-slate-850">
+                {totalLikes}
+              </span>
             </div>
           </div>
 
@@ -320,8 +377,12 @@ export default function AnalyticsPage() {
               <MessageSquare className="h-4.5 w-4.5" />
             </div>
             <div>
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Reviews</span>
-              <span className="text-lg font-black text-slate-850">{totalReviews}</span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
+                Reviews
+              </span>
+              <span className="text-lg font-black text-slate-850">
+                {totalReviews}
+              </span>
             </div>
           </div>
 
@@ -330,7 +391,9 @@ export default function AnalyticsPage() {
               <Star className="h-4.5 w-4.5 fill-amber-55/10" />
             </div>
             <div>
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Avg Rating</span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
+                Avg Rating
+              </span>
               <span className="text-lg font-black text-slate-850">
                 {averageRating || "0.0"}
               </span>
@@ -342,8 +405,12 @@ export default function AnalyticsPage() {
               <Phone className="h-4.5 w-4.5" />
             </div>
             <div>
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Contacts</span>
-              <span className="text-lg font-black text-slate-850">{totalContacts}</span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
+                Contacts
+              </span>
+              <span className="text-lg font-black text-slate-850">
+                {totalContacts}
+              </span>
             </div>
           </div>
         </div>
@@ -351,26 +418,51 @@ export default function AnalyticsPage() {
         {/* Charts Grid */}
         {mounted && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
             {/* Chart 1: Views by Service */}
             <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
               <div>
-                <h3 className="text-sm font-extrabold text-slate-800">Views by Service</h3>
-                <p className="text-[10px] text-slate-400">Number of Customer hits per service listing.</p>
+                <h3 className="text-sm font-extrabold text-slate-800">
+                  Views by Service
+                </h3>
+                <p className="text-[10px] text-slate-400">
+                  Number of Customer hits per service listing.
+                </p>
               </div>
               <div className="h-64 sm:h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={barChartData} margin={chartMargin}>
                     <defs>
-                      <linearGradient id={GRAD_VIEWS} x1="0" y1="0" x2="0" y2="1">
+                      <linearGradient
+                        id={GRAD_VIEWS}
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
                         <stop offset="0%" stopColor="#6366f1" stopOpacity={1} />
-                        <stop offset="100%" stopColor="#2563eb" stopOpacity={0.85} />
+                        <stop
+                          offset="100%"
+                          stopColor="#2563eb"
+                          stopOpacity={0.85}
+                        />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#e2e8f0" />
+                    <CartesianGrid
+                      strokeDasharray="4 4"
+                      vertical={false}
+                      stroke="#e2e8f0"
+                    />
                     <XAxis dataKey="name" {...commonAxisProps} />
-                    <YAxis {...commonAxisProps} allowDecimals={false} domain={[0, yAxisMax]} tickCount={6} />
-                    <Tooltip cursor={{ fill: "#eff6ff" }} contentStyle={tooltipStyle} />
+                    <YAxis
+                      {...commonAxisProps}
+                      allowDecimals={false}
+                      domain={[0, yAxisMax]}
+                      tickCount={6}
+                    />
+                    <Tooltip
+                      cursor={{ fill: "#eff6ff" }}
+                      contentStyle={tooltipStyle}
+                    />
                     <Bar
                       dataKey="Views"
                       fill={`url(#${GRAD_VIEWS})`}
@@ -386,22 +478,48 @@ export default function AnalyticsPage() {
             {/* Chart 2: Likes by Service */}
             <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
               <div>
-                <h3 className="text-sm font-extrabold text-slate-800">Likes by Service</h3>
-                <p className="text-[10px] text-slate-400">Total saves/likes given by Customers.</p>
+                <h3 className="text-sm font-extrabold text-slate-800">
+                  Likes by Service
+                </h3>
+                <p className="text-[10px] text-slate-400">
+                  Total saves/likes given by Customers.
+                </p>
               </div>
               <div className="h-64 sm:h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={barChartData} margin={chartMargin}>
                     <defs>
-                      <linearGradient id={GRAD_LIKES} x1="0" y1="0" x2="0" y2="1">
+                      <linearGradient
+                        id={GRAD_LIKES}
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
                         <stop offset="0%" stopColor="#ec4899" stopOpacity={1} />
-                        <stop offset="100%" stopColor="#db2777" stopOpacity={0.85} />
+                        <stop
+                          offset="100%"
+                          stopColor="#db2777"
+                          stopOpacity={0.85}
+                        />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#e2e8f0" />
+                    <CartesianGrid
+                      strokeDasharray="4 4"
+                      vertical={false}
+                      stroke="#e2e8f0"
+                    />
                     <XAxis dataKey="name" {...commonAxisProps} />
-                    <YAxis {...commonAxisProps} allowDecimals={false} domain={[0, yAxisMax]} tickCount={6} />
-                    <Tooltip cursor={{ fill: "#fdf2f8" }} contentStyle={tooltipStyle} />
+                    <YAxis
+                      {...commonAxisProps}
+                      allowDecimals={false}
+                      domain={[0, yAxisMax]}
+                      tickCount={6}
+                    />
+                    <Tooltip
+                      cursor={{ fill: "#fdf2f8" }}
+                      contentStyle={tooltipStyle}
+                    />
                     <Bar
                       dataKey="Likes"
                       fill={`url(#${GRAD_LIKES})`}
@@ -417,8 +535,12 @@ export default function AnalyticsPage() {
             {/* Chart 3: Rating Distribution */}
             <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
               <div>
-                <h3 className="text-sm font-extrabold text-slate-800">Rating Distribution</h3>
-                <p className="text-[10px] text-slate-400">Proportional rating score splits.</p>
+                <h3 className="text-sm font-extrabold text-slate-800">
+                  Rating Distribution
+                </h3>
+                <p className="text-[10px] text-slate-400">
+                  Proportional rating score splits.
+                </p>
               </div>
               <div className="h-64 sm:h-72 flex items-center justify-center">
                 {ratingDistribution.length > 0 ? (
@@ -453,7 +575,9 @@ export default function AnalyticsPage() {
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
-                  <span className="text-xs text-slate-400 italic">No ratings yet to group.</span>
+                  <span className="text-xs text-slate-400 italic">
+                    No ratings yet to group.
+                  </span>
                 )}
               </div>
             </div>
@@ -461,22 +585,48 @@ export default function AnalyticsPage() {
             {/* Chart 4: Reviews by Service */}
             <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
               <div>
-                <h3 className="text-sm font-extrabold text-slate-800">Reviews by Service</h3>
-                <p className="text-[10px] text-slate-400">Review counts written by Customers.</p>
+                <h3 className="text-sm font-extrabold text-slate-800">
+                  Reviews by Service
+                </h3>
+                <p className="text-[10px] text-slate-400">
+                  Review counts written by Customers.
+                </p>
               </div>
               <div className="h-64 sm:h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={barChartData} margin={chartMargin}>
                     <defs>
-                      <linearGradient id={GRAD_REVIEWS} x1="0" y1="0" x2="0" y2="1">
+                      <linearGradient
+                        id={GRAD_REVIEWS}
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
                         <stop offset="0%" stopColor="#10b981" stopOpacity={1} />
-                        <stop offset="100%" stopColor="#059669" stopOpacity={0.85} />
+                        <stop
+                          offset="100%"
+                          stopColor="#059669"
+                          stopOpacity={0.85}
+                        />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#e2e8f0" />
+                    <CartesianGrid
+                      strokeDasharray="4 4"
+                      vertical={false}
+                      stroke="#e2e8f0"
+                    />
                     <XAxis dataKey="name" {...commonAxisProps} />
-                    <YAxis {...commonAxisProps} allowDecimals={false} domain={[0, yAxisMax]} tickCount={6} />
-                    <Tooltip cursor={{ fill: "#ecfdf5" }} contentStyle={tooltipStyle} />
+                    <YAxis
+                      {...commonAxisProps}
+                      allowDecimals={false}
+                      domain={[0, yAxisMax]}
+                      tickCount={6}
+                    />
+                    <Tooltip
+                      cursor={{ fill: "#ecfdf5" }}
+                      contentStyle={tooltipStyle}
+                    />
                     <Bar
                       dataKey="Reviews"
                       fill={`url(#${GRAD_REVIEWS})`}
@@ -488,60 +638,107 @@ export default function AnalyticsPage() {
                 </ResponsiveContainer>
               </div>
             </div>
-
           </div>
         )}
 
         {/* Performance Table */}
         <div className="bg-white border border-slate-200 rounded-3xl shadow-xs overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-            <h3 className="text-sm font-extrabold text-slate-800">Performance Breakdown</h3>
-            <p className="text-[10px] text-slate-400">Raw statistical logs for each service.</p>
+            <h3 className="text-sm font-extrabold text-slate-800">
+              Performance Breakdown
+            </h3>
+            <p className="text-[10px] text-slate-400">
+              Raw statistical logs for each service.
+            </p>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs font-semibold">
               <thead className="bg-slate-50 border-b border-slate-200/60 text-[10px] uppercase text-slate-400 tracking-wider">
                 <tr>
-                  <th className="px-6 py-3.5 select-none cursor-pointer hover:text-slate-600 transition" onClick={() => handleSort("title")}>
-                    <span className="flex items-center gap-1">Title <ArrowUpDown className="h-3 w-3" /></span>
+                  <th
+                    className="px-6 py-3.5 select-none cursor-pointer hover:text-slate-600 transition"
+                    onClick={() => handleSort("title")}
+                  >
+                    <span className="flex items-center gap-1">
+                      Title <ArrowUpDown className="h-3 w-3" />
+                    </span>
                   </th>
-                  <th className="px-6 py-3.5 select-none cursor-pointer hover:text-slate-600 transition" onClick={() => handleSort("category")}>
-                    <span className="flex items-center gap-1">Category <ArrowUpDown className="h-3 w-3" /></span>
+                  <th
+                    className="px-6 py-3.5 select-none cursor-pointer hover:text-slate-600 transition"
+                    onClick={() => handleSort("category")}
+                  >
+                    <span className="flex items-center gap-1">
+                      Category <ArrowUpDown className="h-3 w-3" />
+                    </span>
                   </th>
-                  <th className="px-6 py-3.5 text-center select-none cursor-pointer hover:text-slate-600 transition" onClick={() => handleSort("views_count")}>
-                    <span className="flex items-center justify-center gap-1">App Views <ArrowUpDown className="h-3 w-3" /></span>
+                  <th
+                    className="px-6 py-3.5 text-center select-none cursor-pointer hover:text-slate-600 transition"
+                    onClick={() => handleSort("views_count")}
+                  >
+                    <span className="flex items-center justify-center gap-1">
+                      App Views <ArrowUpDown className="h-3 w-3" />
+                    </span>
                   </th>
                   <th className="px-6 py-3.5 text-center select-none">
-                    <span className="flex items-center justify-center gap-1">Portfolio Views</span>
+                    <span className="flex items-center justify-center gap-1">
+                      Portfolio Views
+                    </span>
                   </th>
                   <th className="px-6 py-3.5 text-center select-none">
-                    <span className="flex items-center justify-center gap-1">Likes</span>
+                    <span className="flex items-center justify-center gap-1">
+                      Likes
+                    </span>
                   </th>
                   <th className="px-6 py-3.5 text-center select-none">
-                    <span className="flex items-center justify-center gap-1">Reviews</span>
+                    <span className="flex items-center justify-center gap-1">
+                      Reviews
+                    </span>
                   </th>
                   <th className="px-6 py-3.5 text-center select-none">
-                    <span className="flex items-center justify-center gap-1">Contacts</span>
+                    <span className="flex items-center justify-center gap-1">
+                      Contacts
+                    </span>
                   </th>
                   <th className="px-6 py-3.5 text-center select-none">
-                    <span className="flex items-center justify-center gap-1">Rating</span>
+                    <span className="flex items-center justify-center gap-1">
+                      Rating
+                    </span>
                   </th>
                   <th className="px-6 py-3.5 text-center select-none">
-                    <span className="flex items-center justify-center gap-1">Created Date</span>
+                    <span className="flex items-center justify-center gap-1">
+                      Created Date
+                    </span>
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {sortedServices.map((service) => (
-                  <tr key={service.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4 font-bold text-slate-800">{service.title}</td>
+                  <tr
+                    key={service.id}
+                    className="hover:bg-slate-50/50 transition-colors"
+                  >
+                    <td className="px-6 py-4 font-bold text-slate-800">
+                      {service.title}
+                    </td>
                     <td className="px-6 py-4">{service.category}</td>
-                    <td className="px-6 py-4 text-center">{service.views_count || 0}</td>
-                    <td className="px-6 py-4 text-center">{service.service_analytics?.total_views || service.service_analytics?.portfolio_views || 0}</td>
-                    <td className="px-6 py-4 text-center">{service.likes_count || 0}</td>
-                    <td className="px-6 py-4 text-center">{service.reviews_count || 0}</td>
-                    <td className="px-6 py-4 text-center">{service.service_analytics?.total_contacts || 0}</td>
+                    <td className="px-6 py-4 text-center">
+                      {service.views_count || 0}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      {service.service_analytics?.total_views ||
+                        service.service_analytics?.portfolio_views ||
+                        0}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      {service.likes_count || 0}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      {service.reviews_count || 0}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      {service.service_analytics?.total_contacts || 0}
+                    </td>
                     <td className="px-6 py-4 text-center">
                       <span className="inline-flex items-center gap-0.5 text-amber-500 font-bold bg-amber-50/50 border border-amber-100/20 px-2 py-0.5 rounded-lg">
                         <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
@@ -557,7 +754,6 @@ export default function AnalyticsPage() {
             </table>
           </div>
         </div>
-
       </div>
     </div>
   );

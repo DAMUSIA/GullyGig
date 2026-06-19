@@ -50,9 +50,7 @@ export default function PortfolioHero({
           <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-300">
             <div className="flex items-center gap-1">
               <MapPin className="h-4 w-4 text-red-400 flex-shrink-0" />
-              <span>
-                {[area, city].filter(Boolean).join(", ")}
-              </span>
+              <span>{[area, city].filter(Boolean).join(", ")}</span>
             </div>
 
             <span className="h-3 w-[1px] bg-white/10 hidden sm:inline" />
@@ -66,13 +64,15 @@ export default function PortfolioHero({
                       i < fullRating
                         ? "fill-amber-400"
                         : i === fullRating && hasHalfStar
-                        ? "fill-amber-400 opacity-70"
-                        : "opacity-30"
+                          ? "fill-amber-400 opacity-70"
+                          : "opacity-30"
                     }`}
                   />
                 ))}
               </div>
-              <span className="font-extrabold text-white text-xs">{ratingAverage.toFixed(1)}</span>
+              <span className="font-extrabold text-white text-xs">
+                {ratingAverage.toFixed(1)}
+              </span>
               <span className="text-slate-400">({reviewsCount} reviews)</span>
             </div>
           </div>

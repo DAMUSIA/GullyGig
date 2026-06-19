@@ -30,7 +30,10 @@ export default function Footer({ onShowToast }: FooterProps) {
     const shareData = {
       title: "Kaamao - Find Trusted Local Service Providers",
       text: "Discover verified tutors, cooks, babysitters, and skilled professionals near you on Kaamao!",
-      url: typeof window !== "undefined" ? window.location.origin : "https://kaamao.com",
+      url:
+        typeof window !== "undefined"
+          ? window.location.origin
+          : "https://kaamao.com",
     };
 
     if (navigator.share) {
@@ -56,7 +59,10 @@ export default function Footer({ onShowToast }: FooterProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           {/* Left - Brand */}
           <div className="text-center md:text-left">
-            <Link href="/" className="flex items-center justify-center md:justify-start gap-2 mb-4">
+            <Link
+              href="/"
+              className="flex items-center justify-center md:justify-start gap-2 mb-4"
+            >
               <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-600 flex-shrink-0">
                 <Icon name="check" fill className="text-xs text-white" />
               </div>

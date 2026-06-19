@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     if (!serviceId) {
       return NextResponse.json(
         { error: "serviceId is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -60,13 +60,16 @@ export async function POST(request: Request) {
         .update({
           total_views: currentTotalViews + 1,
           portfolio_views: currentPortViews + 1,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq("service_id", serviceId);
 
       if (updateError) {
         console.error("Error updating service analytics:", updateError);
-        return NextResponse.json({ error: updateError.message }, { status: 500 });
+        return NextResponse.json(
+          { error: updateError.message },
+          { status: 500 },
+        );
       }
     } else {
       const { error: insertError } = await supabaseAdmin
@@ -75,25 +78,28 @@ export async function POST(request: Request) {
           service_id: serviceId,
           total_views: 1,
           portfolio_views: 1,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         });
 
       if (insertError) {
         console.error("Error inserting service analytics:", insertError);
-        return NextResponse.json({ error: insertError.message }, { status: 500 });
+        return NextResponse.json(
+          { error: insertError.message },
+          { status: 500 },
+        );
       }
     }
 
     return NextResponse.json({
       success: true,
-      message: "Portfolio view logged successfully"
+      message: "Portfolio view logged successfully",
     });
   } catch (error: unknown) {
     console.error("API portfolio view error:", error);
     const err = error as { message?: string } | null;
     return NextResponse.json(
       { error: err?.message || "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

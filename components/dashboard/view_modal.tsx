@@ -1,14 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  X,
-  Home,
-  Calendar,
-  Globe,
-  MapPin,
-  TrendingUp,
-} from "lucide-react";
+import { X, Home, Calendar, Globe, MapPin, TrendingUp } from "lucide-react";
 
 interface ServiceItem {
   id: string;
@@ -40,9 +33,21 @@ interface ViewServiceModalProps {
 
 export function ViewServiceModal({ service, onClose }: ViewServiceModalProps) {
   const detailItems = [
-    { icon: Home, label: "Modes", value: service.service_modes.join(", ") || "Not specified" },
-    { icon: Calendar, label: "Availability", value: service.availability.join(", ") || "Flexible" },
-    { icon: Globe, label: "Languages", value: service.languages.join(", ") || "English" },
+    {
+      icon: Home,
+      label: "Modes",
+      value: service.service_modes.join(", ") || "Not specified",
+    },
+    {
+      icon: Calendar,
+      label: "Availability",
+      value: service.availability.join(", ") || "Flexible",
+    },
+    {
+      icon: Globe,
+      label: "Languages",
+      value: service.languages.join(", ") || "English",
+    },
   ];
 
   return (
@@ -94,7 +99,9 @@ export function ViewServiceModal({ service, onClose }: ViewServiceModalProps) {
                   <item.icon className="h-3.5 w-3.5 text-blue-500" />
                   {item.label}
                 </span>
-                <span className="font-semibold text-slate-600">{item.value}</span>
+                <span className="font-semibold text-slate-600">
+                  {item.value}
+                </span>
               </div>
             ))}
 
@@ -117,7 +124,8 @@ export function ViewServiceModal({ service, onClose }: ViewServiceModalProps) {
                   Pricing
                 </span>
                 <span className="font-bold text-blue-600">
-                  ₹{service.starting_price} / {service.price_unit?.toLowerCase()}
+                  ₹{service.starting_price} /{" "}
+                  {service.price_unit?.toLowerCase()}
                 </span>
               </div>
             )}

@@ -51,7 +51,9 @@ export default function DashboardPortfolioPage() {
     async function loadPortfolioServices() {
       try {
         setLoading(true);
-        const { user } = (await getCurrentUser()) as { user: { id: string } | null };
+        const { user } = (await getCurrentUser()) as {
+          user: { id: string } | null;
+        };
         if (!user) {
           router.push("/login");
           return;
@@ -67,18 +69,20 @@ export default function DashboardPortfolioPage() {
 
         if (fetchError) throw fetchError;
 
-        const formatted = (data as Record<string, unknown>[] || []).map((s) => {
-          let analytics = null;
-          if (s.service_analytics) {
-            analytics = Array.isArray(s.service_analytics)
-              ? s.service_analytics[0]
-              : s.service_analytics;
-          }
-          return {
-            ...s,
-            service_analytics: analytics,
-          } as ServiceItem;
-        });
+        const formatted = ((data as Record<string, unknown>[]) || []).map(
+          (s) => {
+            let analytics = null;
+            if (s.service_analytics) {
+              analytics = Array.isArray(s.service_analytics)
+                ? s.service_analytics[0]
+                : s.service_analytics;
+            }
+            return {
+              ...s,
+              service_analytics: analytics,
+            } as ServiceItem;
+          },
+        );
 
         setServices(formatted);
 
@@ -117,7 +121,9 @@ export default function DashboardPortfolioPage() {
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-10 w-10 animate-spin text-blue-600 mx-auto" />
-          <p className="text-sm font-semibold text-slate-500 mt-3">Loading portfolio options...</p>
+          <p className="text-sm font-semibold text-slate-500 mt-3">
+            Loading portfolio options...
+          </p>
         </div>
       </div>
     );
@@ -128,7 +134,9 @@ export default function DashboardPortfolioPage() {
       <div className="flex items-center justify-center min-h-[60vh] p-4">
         <div className="bg-white p-6 border border-slate-200 rounded-2xl shadow-xl max-w-md w-full text-center space-y-3">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto" />
-          <h2 className="text-lg font-extrabold text-slate-800">Unable to load Portfolio page</h2>
+          <h2 className="text-lg font-extrabold text-slate-800">
+            Unable to load Portfolio page
+          </h2>
           <p className="text-sm text-slate-500">{error}</p>
           <button
             onClick={() => window.location.reload()}
@@ -149,9 +157,12 @@ export default function DashboardPortfolioPage() {
             <Globe className="h-7 w-7" />
           </div>
           <div className="space-y-2">
-            <h3 className="text-lg font-extrabold text-slate-800">No Services Available</h3>
+            <h3 className="text-lg font-extrabold text-slate-800">
+              No Services Available
+            </h3>
             <p className="text-sm text-slate-500 leading-relaxed font-medium">
-              You must create a tutoring service listing before you can generate public portfolios or download advertising posters.
+              You must create a tutoring service listing before you can generate
+              public portfolios or download advertising posters.
             </p>
           </div>
           <button
@@ -178,8 +189,12 @@ export default function DashboardPortfolioPage() {
       {/* Selector and Main Head */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 border border-slate-200 rounded-3xl shadow-xs">
         <div>
-          <h2 className="text-lg font-extrabold text-slate-800">My Public Portfolios</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Select a service to manage sharing and posters</p>
+          <h2 className="text-lg font-extrabold text-slate-800">
+            My Public Portfolios
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Select a service to manage sharing and posters
+          </p>
         </div>
 
         <div className="min-w-[240px]">
@@ -208,7 +223,9 @@ export default function DashboardPortfolioPage() {
                 Portfolio Link
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                This public, shareable URL displays your service details, languages, pricing, contact buttons, reviews, and a scan-to-call QR code. Perfect for sharing on WhatsApp status or social media.
+                This public, shareable URL displays your service details,
+                languages, pricing, contact buttons, reviews, and a scan-to-call
+                QR code. Perfect for sharing on WhatsApp status or social media.
               </p>
 
               <div className="flex items-center gap-2.5 bg-slate-50 p-3 rounded-2xl border border-slate-100">
@@ -249,16 +266,24 @@ export default function DashboardPortfolioPage() {
               <div className="space-y-1.5 text-center sm:text-left">
                 <div className="flex items-center justify-center sm:justify-start gap-1.5 text-blue-600">
                   <Sparkles className="h-4.5 w-4.5" />
-                  <span className="text-xs font-extrabold uppercase tracking-wider">Ad Poster Generator</span>
+                  <span className="text-xs font-extrabold uppercase tracking-wider">
+                    Ad Poster Generator
+                  </span>
                 </div>
-                <h3 className="text-base font-extrabold text-slate-800">Generate Service Poster</h3>
+                <h3 className="text-base font-extrabold text-slate-800">
+                  Generate Service Poster
+                </h3>
                 <p className="text-xs text-slate-500 max-w leading-relaxed font-medium">
-                  Create a beautifully styled marketing poster of your listing containing a QR code, contact information, pricing tags, and operations structure. Save as PNG.
+                  Create a beautifully styled marketing poster of your listing
+                  containing a QR code, contact information, pricing tags, and
+                  operations structure. Save as PNG.
                 </p>
               </div>
 
               <button
-                onClick={() => router.push(`/dashboard/portfolio/poster/${activeService.id}`)}
+                onClick={() =>
+                  router.push(`/dashboard/portfolio/poster/${activeService.id}`)
+                }
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold rounded-2xl transition cursor-pointer active:scale-95 shrink-0 shadow-md shadow-blue-500/10"
               >
                 <FileImage className="h-4 w-4" />
@@ -343,7 +368,9 @@ export default function DashboardPortfolioPage() {
                   </span>
                   <span className="text-lg font-black text-slate-850 mt-0.5 flex items-center gap-1">
                     <Star className="h-4 w-4 fill-amber-400 text-amber-400 inline" />
-                    {stats.average_rating ? stats.average_rating.toFixed(1) : "0.0"}
+                    {stats.average_rating
+                      ? stats.average_rating.toFixed(1)
+                      : "0.0"}
                   </span>
                 </div>
                 <div className="w-10 h-10 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center">

@@ -273,10 +273,10 @@ export async function signOut(): Promise<{ success: boolean; error?: string }> {
 
   try {
     console.log("🔄 Attempting to sign out...");
-    
+
     // Step 1: Call Supabase signOut
     const { error } = await supabaseClient.auth.signOut();
-    
+
     if (error) {
       console.error("❌ SignOut error:", error);
       return { success: false, error: error.message };
@@ -290,18 +290,21 @@ export async function signOut(): Promise<{ success: boolean; error?: string }> {
         // Clear Supabase auth storage
         localStorage.removeItem("sb-auth-token");
         localStorage.removeItem("supabase.auth.token");
-        
+
         // Clear all application data
         localStorage.clear();
         sessionStorage.clear();
-        
+
         // Clear cookies
         document.cookie.split(";").forEach((c) => {
           document.cookie = c
             .replace(/^ +/, "")
-            .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+            .replace(
+              /=.*/,
+              "=;expires=" + new Date().toUTCString() + ";path=/",
+            );
         });
-        
+
         console.log("🗑️ Local storage and cookies cleared");
       } catch (storageError) {
         console.warn("⚠️ Storage cleanup warning:", storageError);
@@ -316,7 +319,9 @@ export async function signOut(): Promise<{ success: boolean; error?: string }> {
 }
 
 // ==================== AUTH LISTENER ====================
-export function onAuthStateChange(callback: (event: string, session: any) => void) {
+export function onAuthStateChange(
+  callback: (event: string, session: any) => void,
+) {
   if (!supabaseClient) {
     console.error("Supabase client not available for auth listener");
     return () => {};

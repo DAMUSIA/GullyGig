@@ -25,7 +25,7 @@ export default function PosterTemplate({
   portfolioUrl,
 }: PosterTemplateProps) {
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-    portfolioUrl
+    portfolioUrl,
   )}`;
 
   return (
@@ -40,7 +40,9 @@ export default function PosterTemplate({
           <div className="w-7 h-7 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
-          <span className="font-extrabold text-base tracking-tight text-white">Kaamao Connect</span>
+          <span className="font-extrabold text-base tracking-tight text-white">
+            Kaamao Connect
+          </span>
         </div>
         <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded-md">
           {category}
@@ -56,11 +58,18 @@ export default function PosterTemplate({
         {/* Pricing badge */}
         {startingPrice && (
           <div className="inline-flex items-center gap-1.5 self-center bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-xl">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Starting at</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Starting at
+            </span>
             <div className="flex items-center text-white font-extrabold text-base">
               <IndianRupee className="h-4 w-4 shrink-0" />
               <span>{startingPrice}</span>
-              {priceUnit && <span className="text-xs font-normal text-slate-400"> / {priceUnit.toLowerCase()}</span>}
+              {priceUnit && (
+                <span className="text-xs font-normal text-slate-400">
+                  {" "}
+                  / {priceUnit.toLowerCase()}
+                </span>
+              )}
             </div>
           </div>
         )}
@@ -89,13 +98,18 @@ export default function PosterTemplate({
             {contactNumbers.length > 0 ? (
               <div className="space-y-0.5">
                 {contactNumbers.slice(0, 2).map((num, idx) => (
-                  <span key={idx} className="block text-xs font-black text-white">
+                  <span
+                    key={idx}
+                    className="block text-xs font-black text-white"
+                  >
                     {num}
                   </span>
                 ))}
               </div>
             ) : (
-              <span className="block text-xs font-bold text-slate-500 italic">Call or scan below</span>
+              <span className="block text-xs font-bold text-slate-500 italic">
+                Call or scan below
+              </span>
             )}
           </div>
 

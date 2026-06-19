@@ -23,9 +23,12 @@ export default function PortfolioContact({
   const [copied, setCopied] = useState(false);
 
   // Determine active contact list
-  const activeNumbers = contactNumbers && contactNumbers.length > 0
-    ? contactNumbers
-    : (fallbackPhone ? [fallbackPhone] : []);
+  const activeNumbers =
+    contactNumbers && contactNumbers.length > 0
+      ? contactNumbers
+      : fallbackPhone
+        ? [fallbackPhone]
+        : [];
 
   const cleanNumber = (num: string) => num.replace(/\D/g, "");
 
@@ -59,12 +62,18 @@ export default function PortfolioContact({
   return (
     <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-6">
       <div>
-        <h3 className="text-lg font-extrabold text-slate-800">Contact Details</h3>
-        <p className="text-xs text-slate-500 mt-1">Get in touch directly with the provider</p>
+        <h3 className="text-lg font-extrabold text-slate-800">
+          Contact Details
+        </h3>
+        <p className="text-xs text-slate-500 mt-1">
+          Get in touch directly with the provider
+        </p>
       </div>
 
       {activeNumbers.length === 0 ? (
-        <p className="text-xs text-slate-400 italic">No contact numbers listed.</p>
+        <p className="text-xs text-slate-400 italic">
+          No contact numbers listed.
+        </p>
       ) : (
         <div className="space-y-4">
           {activeNumbers.map((number, idx) => {
@@ -82,7 +91,9 @@ export default function PortfolioContact({
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                       Number {activeNumbers.length > 1 ? `#${idx + 1}` : ""}
                     </span>
-                    <span className="text-sm font-extrabold text-slate-850">{number}</span>
+                    <span className="text-sm font-extrabold text-slate-850">
+                      {number}
+                    </span>
                   </div>
                 </div>
 
@@ -116,8 +127,12 @@ export default function PortfolioContact({
       {/* Share Section */}
       <div className="border-t border-slate-100 pt-5 flex items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-bold text-slate-700 block">Share Listing</span>
-          <span className="text-[10px] text-slate-400">Share this portfolio with friends or family</span>
+          <span className="text-xs font-bold text-slate-700 block">
+            Share Listing
+          </span>
+          <span className="text-[10px] text-slate-400">
+            Share this portfolio with friends or family
+          </span>
         </div>
         <button
           onClick={handleShare}

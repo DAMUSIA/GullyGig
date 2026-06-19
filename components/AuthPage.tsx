@@ -365,32 +365,32 @@ export default function AuthPage({
 
               {/* Name Input Field - Register Mode Only */}
               <AnimatePresence initial={false} mode="wait">
-              {mode === "register" && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0, marginBottom: 0 }}
-                  animate={{ opacity: 1, height: "auto", marginBottom: 16 }}
-                  exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-                  transition={{ duration: 0.25, ease: "easeInOut" }}
-                  // Remove overflow-hidden to prevent focus ring clipping
-                  className="overflow-visible"
-                >
-                  <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Full name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      disabled={isLoading || isGoogleLoading}
-                      className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-all duration-200"
-                      placeholder="Enter your full name"
-                      required={mode === "register"}
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                {mode === "register" && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                    animate={{ opacity: 1, height: "auto", marginBottom: 16 }}
+                    exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                    transition={{ duration: 0.25, ease: "easeInOut" }}
+                    // Remove overflow-hidden to prevent focus ring clipping
+                    className="overflow-visible"
+                  >
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Full name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        disabled={isLoading || isGoogleLoading}
+                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-all duration-200"
+                        placeholder="Enter your full name"
+                        required={mode === "register"}
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Phone Input Field */}
               <div>

@@ -34,7 +34,11 @@ const SLIDES = [
 ];
 
 // Custom hook for counting animation
-const useCountUp = (target: number, duration: number = 2000, delay: number = 500) => {
+const useCountUp = (
+  target: number,
+  duration: number = 2000,
+  delay: number = 500,
+) => {
   const [count, setCount] = useState(0);
   const [isCounting, setIsCounting] = useState(false);
 
@@ -58,11 +62,11 @@ const useCountUp = (target: number, duration: number = 2000, delay: number = 500
     const animate = (timestamp: number) => {
       if (!startTime) startTime = timestamp;
       const progress = Math.min((timestamp - startTime) / duration, 1);
-      
+
       // Ease out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       const currentCount = Math.round(eased * target);
-      
+
       setCount(currentCount);
 
       if (progress < 1) {
@@ -175,8 +179,8 @@ export default function Hero({ onShowToast }: HeroProps) {
             transition={{ delay: 0.5, duration: 0.6 }}
             className="text-[15px] sm:text-[17px] text-slate-600 dark:text-slate-300 leading-relaxed max-w-[480px] font-medium mb-6"
           >
-            Discover verified tutors, cooks, babysitters, tailors,
-            and skilled professionals in your neighborhood.
+            Discover verified tutors, cooks, babysitters, tailors, and skilled
+            professionals in your neighborhood.
           </motion.p>
 
           {/* CTAs */}
@@ -216,7 +220,7 @@ export default function Hero({ onShowToast }: HeroProps) {
                 <Icon name="people" className="text-sm" fill />
               </div>
               <div>
-                <motion.p 
+                <motion.p
                   key={stats.users}
                   className="text-[32px] text-base font-extrabold text-slate-800 dark:text-slate-200 leading-tight tabular-nums"
                 >
@@ -232,7 +236,7 @@ export default function Hero({ onShowToast }: HeroProps) {
                 <Icon name="work" className="text-sm" fill />
               </div>
               <div>
-                <motion.p 
+                <motion.p
                   key={stats.services}
                   className="text-[32px] text-base font-extrabold text-slate-800 dark:text-slate-200 leading-tight tabular-nums"
                 >
@@ -331,7 +335,9 @@ export default function Hero({ onShowToast }: HeroProps) {
           >
             <div className="flex items-center justify-center gap-1.5">
               <span className="text-amber-500 text-lg">★</span>
-              <span className="text-sm font-bold text-slate-800 dark:text-slate-200">4.9</span>
+              <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                4.9
+              </span>
             </div>
             <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium text-center">
               Trusted Community

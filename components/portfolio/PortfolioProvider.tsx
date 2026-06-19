@@ -28,7 +28,9 @@ export default function PortfolioProvider({
         </div>
 
         <div className="space-y-1.5 flex-1 min-w-0">
-          <h4 className="text-base font-extrabold text-slate-800 truncate">{fullName}</h4>
+          <h4 className="text-base font-extrabold text-slate-800 truncate">
+            {fullName}
+          </h4>
           {location && (
             <div className="flex items-center gap-1 text-xs font-semibold text-slate-500">
               <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
@@ -40,7 +42,9 @@ export default function PortfolioProvider({
 
       {about && (
         <div className="space-y-2">
-          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Provider Bio</h4>
+          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            Provider Bio
+          </h4>
           <p className="text-xs sm:text-sm text-slate-650 leading-relaxed whitespace-pre-wrap font-medium">
             {about}
           </p>

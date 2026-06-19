@@ -39,10 +39,11 @@ export default function LanguageSelector({
     e.preventDefault();
     const cleanLang = customLang.trim();
     if (!cleanLang) return;
-    
+
     // Capitalize first letter of language
-    const formattedLang = cleanLang.charAt(0).toUpperCase() + cleanLang.slice(1);
-    
+    const formattedLang =
+      cleanLang.charAt(0).toUpperCase() + cleanLang.slice(1);
+
     if (!selectedLanguages.includes(formattedLang)) {
       onChange([...selectedLanguages, formattedLang]);
     }
@@ -89,7 +90,9 @@ export default function LanguageSelector({
 
       {/* Popular Options Chips Grid */}
       <div className="space-y-2">
-        <label className="block text-xs font-semibold text-slate-500">Popular Choices</label>
+        <label className="block text-xs font-semibold text-slate-500">
+          Popular Choices
+        </label>
         <div className="flex flex-wrap gap-2">
           {POPULAR_LANGUAGES.map((lang) => {
             const isSelected = selectedLanguages.includes(lang);
@@ -112,7 +115,10 @@ export default function LanguageSelector({
       </div>
 
       {/* Custom Language Input */}
-      <form onSubmit={handleAddCustomLanguage} className="flex gap-2 max-w-sm pt-1">
+      <form
+        onSubmit={handleAddCustomLanguage}
+        className="flex gap-2 max-w-sm pt-1"
+      >
         <input
           type="text"
           value={customLang}

@@ -13,10 +13,13 @@ export function WelcomeHeader({ userName, onAddService }: WelcomeHeaderProps) {
     <div className="relative bg-blue-600 rounded-3xl p-6 sm:p-8 shadow-lg border border-blue-500/20">
       {/* Subtle Pattern */}
       <div className="absolute inset-0 opacity-[0.03]">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }}></div>
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: "40px 40px",
+          }}
+        ></div>
       </div>
 
       {/* Decorative Circles */}
@@ -31,7 +34,7 @@ export function WelcomeHeader({ userName, onAddService }: WelcomeHeaderProps) {
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-800 text-white tracking-tight font-sans">
-            Welcome back, <span className="text-blue-100">{userName}</span>! 
+            Welcome back, <span className="text-blue-100">{userName}</span>!
           </h1>
           <p className="text-blue-100/70 mt-1 text-sm">
             Here&apos;s what&apos;s happening with your teaching services.

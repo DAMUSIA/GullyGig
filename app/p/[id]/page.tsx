@@ -29,7 +29,9 @@ async function getPortfolioData(id: string) {
     // 1. Fetch service detail with user profile and analytics
     const { data: serviceData, error: serviceError } = await supabaseAdmin
       .from("services")
-      .select("*, users:user_id(full_name, location, about, phone_no, created_at, social_links), service_analytics(*)")
+      .select(
+        "*, users:user_id(full_name, location, about, phone_no, created_at, social_links), service_analytics(*)",
+      )
       .eq("id", id)
       .single();
 
@@ -65,14 +67,17 @@ async function getPortfolioData(id: string) {
 }
 
 // Generate dynamic Metadata for SEO
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { id } = await params;
   const data = await getPortfolioData(id);
 
   if (!data || !data.service) {
     return {
       title: "Portfolio Not Found | Kaamao",
-      description: "This service listing could not be found or has been deactivated.",
+      description:
+        "This service listing could not be found or has been deactivated.",
     };
   }
 
@@ -84,9 +89,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     : "";
 
   const title = `${service.title} by ${providerName} - Kaamao`;
-  const description = `${service.category} service in ${location}${priceStr}. ${
-    service.description.substring(0, 150)
-  }...`;
+  const description = `${service.category} service in ${location}${priceStr}. ${service.description.substring(
+    0,
+    150,
+  )}...`;
 
   // Use getBaseUrl() for dynamic URL generation
   const baseUrl = getBaseUrl();
@@ -119,7 +125,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: "summary",
       title,
       description,
-      images: [`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pageUrl)}`],
+      images: [
+        `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pageUrl)}`,
+      ],
     },
   };
 }
@@ -133,9 +141,12 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4 font-sans transition-colors duration-300">
         <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl max-w-md w-full text-center space-y-4">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto" />
-          <h2 className="text-lg font-extrabold text-slate-850 dark:text-slate-105">Portfolio Not Found</h2>
+          <h2 className="text-lg font-extrabold text-slate-850 dark:text-slate-105">
+            Portfolio Not Found
+          </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            The service portfolio you are looking for does not exist or has been deactivated.
+            The service portfolio you are looking for does not exist or has been
+            deactivated.
           </p>
           <Link
             href="/"

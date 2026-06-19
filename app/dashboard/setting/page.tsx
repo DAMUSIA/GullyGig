@@ -68,7 +68,7 @@ export default function SettingsPage() {
         }
 
         const { success, profile: dbProfile } = await getUserProfile(user.id);
-        
+
         if (success && dbProfile) {
           setProfile(dbProfile);
         } else {
@@ -112,7 +112,7 @@ export default function SettingsPage() {
       }
 
       const { error } = await supabase.auth.updateUser({
-        password: passwordData.newPassword
+        password: passwordData.newPassword,
       });
 
       if (error) {
@@ -129,7 +129,9 @@ export default function SettingsPage() {
     } catch (err: unknown) {
       console.error("Failed to change password:", err);
       const errorObj = err as { message?: string } | null;
-      alert(errorObj?.message || "Failed to change password. Please try again.");
+      alert(
+        errorObj?.message || "Failed to change password. Please try again.",
+      );
     } finally {
       setIsUpdatingPassword(false);
     }
@@ -152,12 +154,12 @@ export default function SettingsPage() {
       }
 
       const { error } = await supabase.auth.signOut();
-      
+
       if (error) {
         throw error;
       }
 
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         localStorage.clear();
         sessionStorage.clear();
       }
@@ -214,7 +216,9 @@ export default function SettingsPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-              <p className="text-gray-500 text-sm">Manage your account preferences</p>
+              <p className="text-gray-500 text-sm">
+                Manage your account preferences
+              </p>
             </div>
           </div>
         </div>
@@ -228,8 +232,12 @@ export default function SettingsPage() {
                 <User className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Profile Information</h2>
-                <p className="text-sm text-gray-500">View your personal details</p>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Profile Information
+                </h2>
+                <p className="text-sm text-gray-500">
+                  View your personal details
+                </p>
               </div>
             </div>
 
@@ -239,9 +247,13 @@ export default function SettingsPage() {
                   <div className="p-1.5 sm:p-2 bg-blue-50 rounded-lg">
                     <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600" />
                   </div>
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Full Name</p>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Full Name
+                  </p>
                 </div>
-                <p className="text-gray-900 font-medium sm:ml-auto break-all">{profile.full_name || "Not set"}</p>
+                <p className="text-gray-900 font-medium sm:ml-auto break-all">
+                  {profile.full_name || "Not set"}
+                </p>
               </div>
 
               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 p-3 rounded-xl hover:bg-gray-50/50 transition-colors">
@@ -249,9 +261,13 @@ export default function SettingsPage() {
                   <div className="p-1.5 sm:p-2 bg-purple-50 rounded-lg">
                     <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-600" />
                   </div>
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Email</p>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Email
+                  </p>
                 </div>
-                <p className="text-gray-900 sm:ml-auto break-all">{profile.email || "Not set"}</p>
+                <p className="text-gray-900 sm:ml-auto break-all">
+                  {profile.email || "Not set"}
+                </p>
               </div>
 
               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 p-3 rounded-xl hover:bg-gray-50/50 transition-colors">
@@ -259,9 +275,13 @@ export default function SettingsPage() {
                   <div className="p-1.5 sm:p-2 bg-green-50 rounded-lg">
                     <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600" />
                   </div>
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Phone</p>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Phone
+                  </p>
                 </div>
-                <p className="text-gray-900 sm:ml-auto break-all">{profile.phone_no || "Not set"}</p>
+                <p className="text-gray-900 sm:ml-auto break-all">
+                  {profile.phone_no || "Not set"}
+                </p>
               </div>
             </div>
           </div>
@@ -274,7 +294,9 @@ export default function SettingsPage() {
                   <Shield className="w-5 h-5 text-amber-600" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Security</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Security
+                  </h2>
                   <p className="text-sm text-gray-500">Manage your password</p>
                 </div>
               </div>
@@ -310,7 +332,9 @@ export default function SettingsPage() {
                     />
                     <button
                       type="button"
-                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      onClick={() =>
+                        setShowCurrentPassword(!showCurrentPassword)
+                      }
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                     >
                       {showCurrentPassword ? (
@@ -376,7 +400,9 @@ export default function SettingsPage() {
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                     >
                       {showConfirmPassword ? (
@@ -416,7 +442,9 @@ export default function SettingsPage() {
                     <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Password</p>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Password
+                    </p>
                     <p className="text-gray-900 text-sm">••••••••</p>
                   </div>
                 </div>
@@ -442,8 +470,12 @@ export default function SettingsPage() {
                     <LogOut className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
                   </div>
                   <div className="text-left">
-                    <p className="font-semibold text-gray-900 text-sm sm:text-base">Logout</p>
-                    <p className="text-xs sm:text-sm text-gray-500">Sign out of your account</p>
+                    <p className="font-semibold text-gray-900 text-sm sm:text-base">
+                      Logout
+                    </p>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      Sign out of your account
+                    </p>
                   </div>
                 </div>
                 <LogOut className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
@@ -457,7 +489,9 @@ export default function SettingsPage() {
                       <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-semibold text-gray-900 text-sm sm:text-base">Confirm Logout</p>
+                      <p className="font-semibold text-gray-900 text-sm sm:text-base">
+                        Confirm Logout
+                      </p>
                       <p className="text-xs sm:text-sm text-gray-600 mt-0.5">
                         Are you sure you want to logout?
                       </p>

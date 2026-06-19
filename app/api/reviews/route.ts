@@ -14,6 +14,48 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   },
 });
 
+export async function GET(request: Request) {
+  try {
+    const url = new URL(request.url);
+    const serviceId = url.searchParams.get("serviceId");
+    
+    if (!serviceId) {
+      return NextResponse.json({ error: "Missing serviceId parameter" }, { status: 400 });
+    }
+
+    // Fetch the service to get its owner's user_id
+    const { data: service } = await supabaseAdmin
+      .from("services")
+      .select("user_id")
+      .eq("id", serviceId)
+      .maybeSingle();
+
+    const serviceOwnerId = service?.user_id || null;
+
+    const { data: reviews, error } = await supabaseAdmin
+      .from("service_ratings")
+      .select("*, users:user_id(full_name, about)")
+      .eq("service_id", serviceId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Failed to load reviews:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    // Filter out any self-reviews (where reviewer === service owner)
+    const filteredReviews = serviceOwnerId
+      ? (reviews || []).filter((r) => r.user_id !== serviceOwnerId)
+      : (reviews || []);
+
+    return NextResponse.json({ success: true, reviews: filteredReviews });
+  } catch (error: unknown) {
+    const err = error as { message?: string } | null;
+    console.error("API get reviews error:", error);
+    return NextResponse.json({ error: err?.message || "Internal server error" }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get("Authorization");
@@ -49,6 +91,24 @@ export async function POST(request: Request) {
     if (authError || !user) {
       console.error("JWT verification failed:", authError);
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Check if the user is the owner of the service listing
+    const { data: service, error: serviceError } = await supabaseAdmin
+      .from("services")
+      .select("user_id")
+      .eq("id", serviceId)
+      .maybeSingle();
+
+    if (serviceError || !service) {
+      return NextResponse.json({ error: "Service listing not found." }, { status: 404 });
+    }
+
+    if (service.user_id === user.id) {
+      return NextResponse.json(
+        { error: "You cannot review your own service listing." },
+        { status: 400 }
+      );
     }
 
     // Check if user already reviewed this service (unique constraint check)

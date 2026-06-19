@@ -413,7 +413,10 @@ function MobileSidebar({
             </div>
 
             <button
-              onClick={onLogout}
+              onClick={() => {
+                onClose();
+                onLogout();
+              }}
               disabled={isLoggingOut}
               className={`w-full mt-2 flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${
                 isLoggingOut 
@@ -732,7 +735,7 @@ export default function DashboardLayout({
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
         currentPath={pathname || ""}
-        onLogout={() => setShowLogoutConfirm(true)}
+        onLogout={handleLogout}
         profileName={profileName}
         profileEmail={profileEmail}
         isLoggingOut={isLoggingOut}
@@ -743,7 +746,7 @@ export default function DashboardLayout({
         isOpen={mobileSidebarOpen}
         onClose={() => setMobileSidebarOpen(false)}
         currentPath={pathname || ""}
-        onLogout={() => setShowLogoutConfirm(true)}
+        onLogout={handleLogout}
         profileName={profileName}
         profileEmail={profileEmail}
         isLoggingOut={isLoggingOut}

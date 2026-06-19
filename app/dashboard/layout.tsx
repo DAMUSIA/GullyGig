@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,8 +18,10 @@ import {
   Sparkles,
   X,
   Globe,
+  Loader2,
 } from "lucide-react";
-import { supabase } from "@/lib/supabase"; // Import supabase directly
+import { supabase, signOut, onAuthStateChange, getCurrentUser } from "@/lib/supabase";
+import { createPortal } from "react-dom";
 
 // ============================================
 // Types
@@ -68,7 +70,6 @@ function useMediaQuery(query: string): boolean {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     const media = window.matchMedia(query);
     setMatches(media.matches);
@@ -84,11 +85,11 @@ function useMediaQuery(query: string): boolean {
 // ============================================
 // Animation Variants
 // ============================================
-// const modalVariants = {
-//   initial: { opacity: 0, scale: 0.95, y: 20 },
-//   animate: { opacity: 1, scale: 1, y: 0 },
-//   exit: { opacity: 0, scale: 0.95, y: 20 },
-// };
+const modalVariants = {
+  initial: { opacity: 0, scale: 0.95, y: 20 },
+  animate: { opacity: 1, scale: 1, y: 0 },
+  exit: { opacity: 0, scale: 0.95, y: 20 },
+};
 
 // ============================================
 // Desktop Sidebar Component
@@ -100,6 +101,7 @@ function DesktopSidebar({
   onLogout,
   profileName,
   profileEmail,
+  isLoggingOut,
 }: {
   collapsed: boolean;
   setCollapsed: (val: boolean) => void;
@@ -107,6 +109,7 @@ function DesktopSidebar({
   onLogout: () => void;
   profileName: string;
   profileEmail: string;
+  isLoggingOut: boolean;
 }) {
   return (
     <motion.aside
@@ -260,14 +263,21 @@ function DesktopSidebar({
 
         <motion.button
           onClick={onLogout}
+          disabled={isLoggingOut}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.95 }}
-          className={`w-full mt-2 flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/50 hover:text-red-200 hover:bg-red-500/20 transition-all group ${
-            collapsed ? "justify-center" : ""
-          }`}
+          className={`w-full mt-2 flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${
+            isLoggingOut 
+              ? "text-white/30 cursor-not-allowed" 
+              : "text-white/50 hover:text-red-200 hover:bg-red-500/20"
+          } ${collapsed ? "justify-center" : ""}`}
           aria-label="Logout"
         >
-          <LogOut className="h-5 w-5 flex-shrink-0 group-hover:scale-110 transition-transform" />
+          {isLoggingOut ? (
+            <Loader2 className="h-5 w-5 flex-shrink-0 animate-spin" />
+          ) : (
+            <LogOut className="h-5 w-5 flex-shrink-0 group-hover:scale-110 transition-transform" />
+          )}
           <AnimatePresence mode="wait">
             {!collapsed && (
               <motion.span
@@ -278,7 +288,7 @@ function DesktopSidebar({
                 transition={{ duration: 0.2 }}
                 className="text-sm font-medium overflow-hidden whitespace-nowrap"
               >
-                Logout
+                {isLoggingOut ? "Logging out..." : "Logout"}
               </motion.span>
             )}
           </AnimatePresence>
@@ -298,6 +308,7 @@ function MobileSidebar({
   onLogout,
   profileName,
   profileEmail,
+  isLoggingOut,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -305,6 +316,7 @@ function MobileSidebar({
   onLogout: () => void;
   profileName: string;
   profileEmail: string;
+  isLoggingOut: boolean;
 }) {
   return (
     <>
@@ -402,10 +414,21 @@ function MobileSidebar({
 
             <button
               onClick={onLogout}
-              className="w-full mt-2 flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/50 hover:text-red-200 hover:bg-red-500/20 transition-all group"
+              disabled={isLoggingOut}
+              className={`w-full mt-2 flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${
+                isLoggingOut 
+                  ? "text-white/30 cursor-not-allowed" 
+                  : "text-white/50 hover:text-red-200 hover:bg-red-500/20"
+              }`}
             >
-              <LogOut className="h-5 w-5 flex-shrink-0 group-hover:scale-110 transition-transform" />
-              <span className="text-sm font-medium">Logout</span>
+              {isLoggingOut ? (
+                <Loader2 className="h-5 w-5 flex-shrink-0 animate-spin" />
+              ) : (
+                <LogOut className="h-5 w-5 flex-shrink-0 group-hover:scale-110 transition-transform" />
+              )}
+              <span className="text-sm font-medium">
+                {isLoggingOut ? "Logging out..." : "Logout"}
+              </span>
             </button>
           </div>
         </div>
@@ -417,7 +440,117 @@ function MobileSidebar({
 // ============================================
 // Logout Modal Component - PORTAL RENDERED
 // ============================================
+function LogoutModalContent({
+  onClose,
+  onConfirm,
+  isLoggingOut,
+}: {
+  onClose: () => void;
+  onConfirm: () => void;
+  isLoggingOut: boolean;
+}) {
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+      />
 
+      <motion.div
+        variants={modalVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="logout-title"
+      >
+        <div className="p-6 text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-red-50 to-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-500/10">
+            {isLoggingOut ? (
+              <Loader2 className="h-7 w-7 animate-spin" />
+            ) : (
+              <LogOut className="h-7 w-7" />
+            )}
+          </div>
+
+          <h3 id="logout-title" className="text-xl font-bold text-slate-800 mb-2">
+            {isLoggingOut ? "Logging out..." : "Logout?"}
+          </h3>
+          <p className="text-sm text-slate-500 leading-relaxed">
+            {isLoggingOut 
+              ? "Please wait while we log you out..."
+              : "Are you sure you want to logout? You'll need to login again to access your dashboard."
+            }
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 px-6 pb-6">
+          <button
+            onClick={onClose}
+            disabled={isLoggingOut}
+            className="flex-1 py-3 px-4 rounded-xl border border-slate-200 text-slate-700 font-medium text-sm hover:bg-slate-50 active:scale-95 transition-all focus:ring-2 focus:ring-slate-300 focus:outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={isLoggingOut}
+            className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-red-600 to-red-500 text-white font-medium text-sm hover:shadow-lg hover:shadow-red-500/30 active:scale-95 transition-all focus:ring-2 focus:ring-red-400 focus:outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {isLoggingOut ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Logging out...
+              </>
+            ) : (
+              "Logout"
+            )}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function LogoutModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  isLoggingOut,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  isLoggingOut: boolean;
+}) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  if (!mounted) return null;
+
+  return (
+    <AnimatePresence>
+      {isOpen && createPortal(
+        <LogoutModalContent 
+          onClose={onClose} 
+          onConfirm={onConfirm} 
+          isLoggingOut={isLoggingOut}
+        />,
+        document.body
+      )}
+    </AnimatePresence>
+  );
+}
 
 // ============================================
 // Main Layout
@@ -435,72 +568,115 @@ export default function DashboardLayout({
   const [profileName, setProfileName] = useState("User");
   const [profileEmail, setProfileEmail] = useState("");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const isMobile = useMediaQuery("(max-width: 767px)");
 
-  // Auth check
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { getCurrentUser } = await import("@/lib/supabase");
-        const result = await getCurrentUser();
-        const user = result.user as User | null;
-        const session = result.session as { access_token?: string } | null;
-
-        if (!user) {
-          router.push("/login");
-          return;
-        }
-
-        const name =
-          user.user_metadata?.full_name ||
-          (user.email ? user.email.split("@")[0] : null) ||
-          "User";
-        const email = user.email || "";
-
-        setProfileName(name);
-        setProfileEmail(email);
-
-        const token = session?.access_token;
-        if (user.id && token) {
-          try {
-            await fetch("/api/auth/sync-profile", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({
-                id: user.id,
-                fullName: name,
-                email: email,
-                phoneNo: user.user_metadata?.phone_no || "",
-              }),
-            });
-          } catch (syncError) {
-            console.error("Failed to sync profile:", syncError);
-          }
-        }
-      } catch (error) {
-        console.error("Auth check failed:", error);
-        router.push("/login");
-      } finally {
-        setIsLoading(false);
+  // ============================================
+  // FIXED: Auth check with proper session validation
+  // ============================================
+  const checkAuth = useCallback(async () => {
+    try {
+      const { user, session } = await getCurrentUser();
+      
+      if (!user || !session) {
+        console.log("No session found, redirecting to login");
+        router.replace("/login");
+        return;
       }
-    };
 
-    checkAuth();
+      // User is authenticated, set profile info
+      const name =
+        (user as any)?.user_metadata?.full_name ||
+        (user as any)?.email?.split("@")[0] ||
+        "User";
+      const email = (user as any)?.email || "";
+
+      setProfileName(name);
+      setProfileEmail(email);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Auth check failed:", error);
+      router.replace("/login");
+    }
   }, [router]);
+
+  // ============================================
+  // FIXED: Auth state listener
+  // ============================================
+  useEffect(() => {
+    // Initial auth check
+    checkAuth();
+
+    // Set up auth state listener
+    const unsubscribe = onAuthStateChange((event, session) => {
+      console.log("🔐 Auth event:", event);
+      
+      if (event === "SIGNED_OUT") {
+        console.log("🔐 User signed out, redirecting...");
+        setIsLoading(false);
+        router.replace("/login");
+      } else if (event === "SIGNED_IN") {
+        console.log("🔐 User signed in, refreshing...");
+        checkAuth();
+      } else if (event === "TOKEN_REFRESHED") {
+        console.log("🔐 Token refreshed");
+      }
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [checkAuth, router]);
+
+  // ============================================
+  // FIXED: Production-ready logout handler
+  // ============================================
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    
+    try {
+      console.log("🔄 Starting logout process...");
+      
+      // Step 1: Call the signOut function
+      const result = await signOut();
+      
+      if (!result.success) {
+        console.error("❌ SignOut failed:", result.error);
+        // Even if signOut fails, try to force redirect
+      }
+      
+      // Step 2: Close modal
+      setShowLogoutConfirm(false);
+      
+      // Step 3: Clear local state
+      setProfileName("User");
+      setProfileEmail("");
+      
+      // Step 4: Navigate to login with replace (prevents back button)
+      await router.replace("/login");
+      
+      // Step 5: Refresh the router to clear any cached state
+      router.refresh();
+      
+      console.log("✅ Logout complete");
+    } catch (err) {
+      console.error("❌ Logout error:", err);
+      // Even on error, force redirect
+      setShowLogoutConfirm(false);
+      router.replace("/login");
+      router.refresh();
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   // Close mobile sidebar on route change
   useEffect(() => {
-    if (isMobile && mobileSidebarOpen) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (isMobile) {
       setMobileSidebarOpen(false);
     }
-  }, [pathname, isMobile, mobileSidebarOpen]);
+  }, [pathname, isMobile]);
 
   // Handle escape key
   useEffect(() => {
@@ -513,31 +689,6 @@ export default function DashboardLayout({
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
   }, [showLogoutConfirm, mobileSidebarOpen]);
-
-  // Fixed logout handler - robust fallback to always redirect even if Supabase errors out
-  const handleLogout = async () => {
-    setIsLoggingOut(true);
-    try {
-      if (supabase) {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-          console.error("Logout API error:", error);
-        }
-      }
-    } catch (err) {
-      console.error("Logout exception:", err);
-    } finally {
-      // Always perform local cleanup and redirect
-      if (typeof window !== "undefined") {
-        localStorage.clear();
-        sessionStorage.clear();
-      }
-      setShowLogoutConfirm(false);
-      setIsLoggingOut(false);
-      router.push("/login");
-      router.refresh();
-    }
-  };
 
   // Get page title based on pathname
   const getPageTitle = () => {
@@ -581,9 +732,10 @@ export default function DashboardLayout({
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
         currentPath={pathname || ""}
-        onLogout={handleLogout}
+        onLogout={() => setShowLogoutConfirm(true)}
         profileName={profileName}
         profileEmail={profileEmail}
+        isLoggingOut={isLoggingOut}
       />
 
       {/* Mobile Sidebar */}
@@ -591,9 +743,10 @@ export default function DashboardLayout({
         isOpen={mobileSidebarOpen}
         onClose={() => setMobileSidebarOpen(false)}
         currentPath={pathname || ""}
-        onLogout={handleLogout}
+        onLogout={() => setShowLogoutConfirm(true)}
         profileName={profileName}
         profileEmail={profileEmail}
+        isLoggingOut={isLoggingOut}
       />
 
       {/* Main Content */}
@@ -661,6 +814,13 @@ export default function DashboardLayout({
         </div>
       </motion.main>
 
+      {/* Logout Modal - Portal Rendered */}
+      <LogoutModal
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={handleLogout}
+        isLoggingOut={isLoggingOut}
+      />
     </div>
   );
 }

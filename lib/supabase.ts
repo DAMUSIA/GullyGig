@@ -265,23 +265,72 @@ export async function signIn(
   }
 }
 
+// ==================== FIXED SIGNOUT ====================
 export async function signOut(): Promise<{ success: boolean; error?: string }> {
   if (!isSupabaseConfigured || !supabaseClient) {
     return { success: false, error: "Supabase not configured" };
   }
 
   try {
+    console.log("🔄 Attempting to sign out...");
+    
+    // Step 1: Call Supabase signOut
     const { error } = await supabaseClient.auth.signOut();
+    
     if (error) {
+      console.error("❌ SignOut error:", error);
       return { success: false, error: error.message };
     }
+
+    console.log("✅ Supabase signOut successful");
+
+    // Step 2: Clear all local storage (client-side cleanup)
+    if (typeof window !== "undefined") {
+      try {
+        // Clear Supabase auth storage
+        localStorage.removeItem("sb-auth-token");
+        localStorage.removeItem("supabase.auth.token");
+        
+        // Clear all application data
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Clear cookies
+        document.cookie.split(";").forEach((c) => {
+          document.cookie = c
+            .replace(/^ +/, "")
+            .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+        
+        console.log("🗑️ Local storage and cookies cleared");
+      } catch (storageError) {
+        console.warn("⚠️ Storage cleanup warning:", storageError);
+      }
+    }
+
     return { success: true };
   } catch (err) {
-    console.error("Signout error:", err);
+    console.error("❌ Signout error:", err);
     return { success: false, error: "Failed to sign out" };
   }
 }
 
+// ==================== AUTH LISTENER ====================
+export function onAuthStateChange(callback: (event: string, session: any) => void) {
+  if (!supabaseClient) {
+    console.error("Supabase client not available for auth listener");
+    return () => {};
+  }
+
+  const { data } = supabaseClient.auth.onAuthStateChange((event, session) => {
+    console.log("🔐 Auth state changed:", event);
+    callback(event, session);
+  });
+
+  return data?.subscription?.unsubscribe || (() => {});
+}
+
+// ==================== GET CURRENT USER ====================
 export async function getCurrentUser(): Promise<{
   user: unknown | null;
   session: unknown | null;
@@ -300,6 +349,24 @@ export async function getCurrentUser(): Promise<{
   } catch (err) {
     console.error("Get current user error:", err);
     return { user: null, session: null };
+  }
+}
+
+export async function getSession() {
+  if (!isSupabaseConfigured || !supabaseClient) {
+    return { session: null };
+  }
+
+  try {
+    const { data, error } = await supabaseClient.auth.getSession();
+    if (error) {
+      console.error("Get session error:", error);
+      return { session: null };
+    }
+    return { session: data.session };
+  } catch (err) {
+    console.error("Get session error:", err);
+    return { session: null };
   }
 }
 

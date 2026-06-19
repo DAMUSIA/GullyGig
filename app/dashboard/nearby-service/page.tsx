@@ -102,6 +102,8 @@ export default function NearbyServicePage() {
   const [userComment, setUserComment] = useState("");
   const [reviewSubmitLoading, setReviewSubmitLoading] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [reviewSuccess, setReviewSuccess] = useState(false);
 
   // ============================================
   // CRITICAL FIX: Load user's likes from database
@@ -216,22 +218,19 @@ export default function NearbyServicePage() {
     };
   }, [loadUserLikes]);
 
-  // Fetch reviews when details modal is opened
+  // Fetch reviews via the admin API endpoint (bypasses RLS so reviews always show)
   const loadReviews = async (serviceId: string) => {
-    if (!supabase) return;
     setReviewsLoading(true);
     setHasReviewed(false);
     try {
-      const { data, error } = await supabase
-        .from("service_ratings")
-        .select("*, users:user_id(full_name, about)")
-        .eq("service_id", serviceId)
-        .order("created_at", { ascending: false });
+      const res = await fetch(`/api/reviews?serviceId=${encodeURIComponent(serviceId)}`);
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to load reviews");
 
-      if (error) throw error;
-      setReviews(data as ServiceReview[] || []);
+      const data: ServiceReview[] = json.reviews || [];
+      setReviews(data);
 
-      if (currentUser && data) {
+      if (currentUser && data.length > 0) {
         const reviewed = data.some((r) => r.user_id === currentUser.id);
         setHasReviewed(reviewed);
       }
@@ -248,6 +247,8 @@ export default function NearbyServicePage() {
     setSelectedService(service);
     setUserRating(0);
     setUserComment("");
+    setReviewError(null);
+    setReviewSuccess(false);
     loadReviews(service.id);
 
     // Optimistic Update View Count
@@ -421,6 +422,8 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
     if (!currentUser || !selectedService) return;
 
     setReviewSubmitLoading(true);
+    setReviewError(null);
+    setReviewSuccess(false);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -453,9 +456,12 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
       setServices(prev => prev.map(s => s.id === selectedService.id ? { ...s, rating_average: averageRating, reviews_count: totalReviews } : s));
       setSelectedService(prev => prev ? { ...prev, rating_average: averageRating, reviews_count: totalReviews } : null);
 
-      loadReviews(selectedService.id);
+      // Reload reviews via API so the new review appears immediately
+      await loadReviews(selectedService.id);
       setUserComment("");
       setUserRating(0);
+      setReviewSuccess(true);
+      setHasReviewed(true);
     } catch (err: unknown) {
       console.error("Failed to submit review:", err);
       const errorObj = err as { message?: string } | null;
@@ -463,7 +469,7 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
       if (errMsg && errMsg.includes("service_ratings_user_service_unique")) {
         errMsg = "You have already submitted a review for this tutor/service.";
       }
-      alert(errMsg || "Failed to submit review. Try again.");
+      setReviewError(errMsg || "Failed to submit review. Try again.");
     } finally {
       setReviewSubmitLoading(false);
     }
@@ -635,6 +641,7 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
               // CRITICAL: Check if this service is liked
               // Uses the Set populated from database on load
               // ============================================
+              const isOwnService = currentUser?.id === service.user_id;
               const isLiked = likedServiceIds.has(service.id);
               const isLikingThis = likingServiceIds.has(service.id);
               const priceLabel = service.starting_price
@@ -670,22 +677,24 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
                             LIKE BUTTON - Instagram Style
                             Heart fills if service.id is in likedServiceIds
                             ============================================ */}
-                        <button
-                          type="button"
-                          onClick={(e) => handleToggleLike(e, service)}
-                          disabled={isLikingThis}
-                          className={`p-1.5 border rounded-xl transition-all hover:scale-105 active:scale-95 ${
-                            isLiked
-                              ? "bg-red-50 border-red-200 text-red-500"
-                              : "bg-slate-50 border-slate-200 text-slate-400 hover:text-red-500 hover:bg-red-50/50"
-                          } ${isLikingThis ? "opacity-50 cursor-not-allowed" : ""}`}
-                        >
-                          {isLikingThis ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500" : ""}`} />
-                          )}
-                        </button>
+                        {!isOwnService && (
+                          <button
+                            type="button"
+                            onClick={(e) => handleToggleLike(e, service)}
+                            disabled={isLikingThis}
+                            className={`p-1.5 border rounded-xl transition-all hover:scale-105 active:scale-95 ${
+                              isLiked
+                                ? "bg-red-50 border-red-200 text-red-500"
+                                : "bg-slate-50 border-slate-200 text-slate-400 hover:text-red-500 hover:bg-red-50/50"
+                            } ${isLikingThis ? "opacity-50 cursor-not-allowed" : ""}`}
+                          >
+                            {isLikingThis ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500" : ""}`} />
+                            )}
+                          </button>
+                        )}
                       </div>
                     </div>
 
@@ -898,14 +907,41 @@ const handleToggleLike = async (e: React.MouseEvent, service: ServiceItem) => {
                 )}
 
                 {/* Add Review Panel */}
-                {currentUser ? (
-                  hasReviewed ? (
-                    <div className="p-3 bg-blue-50/50 border border-blue-100/30 rounded-2xl text-xs text-blue-600 font-bold text-center">
-                      ✓ You have already reviewed this service. You can leave one review per service.
+                {/* Determine if the current user is the provider of this service */}
+                {currentUser && selectedService && currentUser.id === selectedService.user_id ? (
+                  /* Provider cannot review their own service */
+                  <div className="flex items-start gap-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                    <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center shrink-0">
+                      <AlertCircle className="h-4 w-4 text-slate-500" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-700">This is your listing</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">You cannot like or review your own service listing.</p>
+                    </div>
+                  </div>
+                ) : currentUser ? (
+                  hasReviewed || reviewSuccess ? (
+                    /* Already reviewed — success banner */
+                    <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-2xl">
+                      <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                        <Star className="h-4 w-4 fill-green-500 text-green-500" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-green-800">Review submitted!</p>
+                        <p className="text-[11px] text-green-700 mt-0.5 leading-relaxed">Thank you for your feedback. You can only submit one review per service. Your review is now visible below.</p>
+                      </div>
                     </div>
                   ) : (
                     <form onSubmit={handleSubmitReview} className="bg-slate-50/40 border border-slate-200/50 rounded-2xl p-4 space-y-4">
                       <h4 className="text-xs font-extrabold text-slate-700">Write a Review</h4>
+
+                      {/* Inline error banner */}
+                      {reviewError && (
+                        <div className="flex items-start gap-2.5 p-3 bg-red-50 border border-red-200 rounded-xl">
+                          <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
+                          <p className="text-[11px] font-semibold text-red-700 leading-relaxed">{reviewError}</p>
+                        </div>
+                      )}
                       
                       {/* Star Selection */}
                       <div className="space-y-1.5">

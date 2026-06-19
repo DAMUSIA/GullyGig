@@ -98,6 +98,17 @@ export async function POST(request: Request) {
 }
 
 async function handleLikeAction(userId: string, serviceId: string, action: string) {
+  // Check if user is trying to like their own service
+  const { data: service } = await supabaseAdmin
+    .from("services")
+    .select("user_id")
+    .eq("id", serviceId)
+    .maybeSingle();
+
+  if (service && service.user_id === userId) {
+    return NextResponse.json({ error: "You cannot like your own service listing." }, { status: 400 });
+  }
+
   // Check if user already liked this service
   const { data: existingLike, error: checkError } = await supabaseAdmin
     .from("service_likes")

@@ -98,7 +98,7 @@ export default function CreateServicePage() {
     latitude: null,
     longitude: null,
     availability: [],
-    languages: ["English"], // default pre-fill
+    languages: ["English"],
     starting_price: null,
     price_unit: "Per Hour",
     contact_numbers: [],
@@ -137,12 +137,32 @@ export default function CreateServicePage() {
     checkUser();
   }, [router]);
 
+  // Phone number validation helpers
+  const cleanPhoneNumber = (value: string): string => {
+    return value.replace(/\D/g, "");
+  };
+
+  const isValidPhoneNumber = (value: string): boolean => {
+    const clean = cleanPhoneNumber(value);
+    return clean.length === 10;
+  };
+
+  const handleContactChange = (index: number, value: string) => {
+    // Only allow numbers
+    const digitsOnly = value.replace(/\D/g, "");
+    // Limit to 10 digits
+    const limitedDigits = digitsOnly.slice(0, 10);
+    
+    const updated = [...(formData.contact_numbers || [])];
+    updated[index] = limitedDigits;
+    setFormData((prev) => ({ ...prev, contact_numbers: updated }));
+  };
+
   // Handle Category selection
   const handleCategoryChange = (val: string) => {
     setFormData((prev) => {
       const updated = { ...prev, category: val };
       
-      // Auto-suggest title based on category if title is empty or matching a suggestion
       if (!isTitleManuallyEdited) {
         const suggestion = CATEGORY_TITLE_MAPPING[val];
         if (suggestion) {
@@ -192,25 +212,54 @@ export default function CreateServicePage() {
     }));
   };
 
-  // Validation Check
-  const isFormValid =
-    formData.title.trim().length >= 3 &&
-    formData.title.trim().length <= 80 &&
-    formData.category !== "" &&
-    (formData.category !== "Other" || (formData.customCategory || "").trim() !== "") &&
-    formData.service_modes.length > 0 &&
-    formData.city.trim() !== "" &&
-    formData.availability.length > 0 &&
-    formData.description.trim().length >= 20 &&
-    formData.description.trim().length <= 250 &&
-    (formData.contact_numbers || []).filter((n) => n.trim().length > 0).length > 0;
+  // Validation Check - Updated to validate phone numbers
+  const isFormValid = () => {
+    // Basic validations
+    if (formData.title.trim().length < 3 || formData.title.trim().length > 80) return false;
+    if (formData.category === "") return false;
+    if (formData.category === "Other" && (formData.customCategory || "").trim() === "") return false;
+    if (formData.service_modes.length === 0) return false;
+    if (formData.city.trim() === "") return false;
+    if (formData.availability.length === 0) return false;
+    if (formData.description.trim().length < 20 || formData.description.trim().length > 250) return false;
+    
+    // Validate contact numbers
+    const cleanContacts = (formData.contact_numbers || [])
+      .map((n) => cleanPhoneNumber(n))
+      .filter(Boolean);
+    
+    if (cleanContacts.length === 0) return false;
+    
+    // Check if all contacts are exactly 10 digits
+    const allValid = cleanContacts.every((num) => num.length === 10);
+    return allValid;
+  };
 
   // Handle publishing service
   const handlePublish = async () => {
-    if (!isFormValid || !user) return;
+    if (!isFormValid() || !user) return;
 
     setIsSubmitting(true);
     setDbError(null);
+
+    // Clean and validate contact numbers
+    const cleanContacts = (formData.contact_numbers || [])
+      .map((n) => cleanPhoneNumber(n))
+      .filter(Boolean);
+
+    // Final validation before publish
+    const invalidContacts = cleanContacts.filter((num) => num.length !== 10);
+    if (invalidContacts.length > 0) {
+      alert(`Invalid phone number(s): ${invalidContacts.join(", ")}. Please enter exactly 10 digits.`);
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (cleanContacts.length === 0) {
+      alert("At least one valid contact number is required.");
+      setIsSubmitting(false);
+      return;
+    }
 
     // Compute category
     const finalCategory =
@@ -239,7 +288,7 @@ export default function CreateServicePage() {
       price_unit: finalPrice ? formData.price_unit : null,
       is_active: true,
       views_count: 0,
-      contact_numbers: (formData.contact_numbers || []).map((n) => n.trim()).filter(Boolean),
+      contact_numbers: cleanContacts,
     };
 
     try {
@@ -259,7 +308,6 @@ export default function CreateServicePage() {
       }
 
       if (serviceData) {
-        // Create matching analytics record
         const { error: analyticsError } = await supabase.from("service_analytics").insert([{
           service_id: serviceData.id,
           total_views: 0,
@@ -275,12 +323,10 @@ export default function CreateServicePage() {
         }
       }
 
-      // Show Success animation
       setShowSuccessModal(true);
     } catch (err: unknown) {
       console.error("Failed to publish service:", err);
       const errMsg = err instanceof Error ? err.message : String(err);
-      // For local development or mock-run when Supabase table isn't created yet or env missing:
       if (errMsg.includes("relation") || errMsg.includes("configured")) {
         console.warn("Falling back to demo flow success (mock connection)");
         setShowSuccessModal(true);
@@ -349,7 +395,6 @@ export default function CreateServicePage() {
                 <h3 className="font-extrabold text-slate-700 text-base">What Do You Teach?</h3>
               </div>
 
-              {/* Category */}
               <SearchableDropdown
                 label="Teaching Category"
                 required
@@ -361,7 +406,6 @@ export default function CreateServicePage() {
                 placeholder="Choose a category (e.g. Science Tutor, Piano Teacher)"
               />
 
-              {/* Service Title */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-sm">
                   <label htmlFor="service-title" className="font-semibold text-slate-700">
@@ -491,7 +535,6 @@ export default function CreateServicePage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Price Input */}
                 <div className="space-y-1.5">
                   <label htmlFor="starting-price" className="block text-sm font-semibold text-slate-700">
                     Starting Price <span className="text-slate-400 font-normal">(Optional)</span>
@@ -518,7 +561,6 @@ export default function CreateServicePage() {
                   </div>
                 </div>
 
-                {/* Price Unit Selection */}
                 <div className="space-y-1.5">
                   <label htmlFor="price-unit" className="block text-sm font-semibold text-slate-700">
                     Price Unit
@@ -540,7 +582,7 @@ export default function CreateServicePage() {
               </div>
             </div>
 
-            {/* Section 7 - Contact Numbers */}
+            {/* Section 7 - Contact Numbers - UPDATED with validation */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
                 <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">7</div>
@@ -550,34 +592,57 @@ export default function CreateServicePage() {
               <div className="space-y-3">
                 <label className="block text-sm font-semibold text-slate-700">
                   Contact numbers for Customers to reach you <span className="text-red-500">*</span>
+                  <span className="text-[10px] font-normal text-slate-400 ml-2">
+                    (Enter exactly 10 digits)
+                  </span>
                 </label>
 
-                {(formData.contact_numbers || []).map((num, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      required
-                      value={num}
-                      onChange={(e) => {
-                        const updated = [...(formData.contact_numbers || [])];
-                        updated[idx] = e.target.value;
-                        setFormData((prev) => ({ ...prev, contact_numbers: updated }));
-                      }}
-                      placeholder="e.g. +919876543210"
-                      className="flex-1 px-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 font-medium"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const updated = (formData.contact_numbers || []).filter((_, i) => i !== idx);
-                        setFormData((prev) => ({ ...prev, contact_numbers: updated }));
-                      }}
-                      className="px-3.5 py-2.5 bg-red-50 hover:bg-red-100 text-red-650 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
+                {(formData.contact_numbers || []).map((num, idx) => {
+                  const cleanNum = cleanPhoneNumber(num);
+                  const isValid = cleanNum.length === 10;
+                  const isComplete = num.length > 0;
+                  
+                  return (
+                    <div key={idx} className="flex items-center gap-2">
+                      <div className="flex-1 relative">
+                        <input
+                          type="text"
+                          required
+                          value={num}
+                          onChange={(e) => handleContactChange(idx, e.target.value)}
+                          placeholder="Enter 10-digit phone number"
+                          className={`w-full px-4 py-2.5 bg-white border rounded-xl shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 font-medium transition-all ${
+                            isComplete && !isValid
+                              ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
+                              : isValid
+                              ? "border-green-400 focus:border-green-500 focus:ring-green-500/20"
+                              : "border-slate-200"
+                          }`}
+                        />
+                        {isComplete && isValid && (
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500 text-xs font-bold">
+                            ✓
+                          </span>
+                        )}
+                        {isComplete && !isValid && (
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500 text-[10px] font-bold">
+                            Need 10 digits
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = (formData.contact_numbers || []).filter((_, i) => i !== idx);
+                          setFormData((prev) => ({ ...prev, contact_numbers: updated }));
+                        }}
+                        className="px-3.5 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  );
+                })}
 
                 <button
                   type="button"
@@ -591,6 +656,9 @@ export default function CreateServicePage() {
                 >
                   + Add Contact Number
                 </button>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Enter up to 10 digits (numbers only). Example: 9876543210
+                </p>
               </div>
             </div>
 
@@ -641,6 +709,7 @@ export default function CreateServicePage() {
                 <li>Write a clean, action-oriented Service Title.</li>
                 <li>Add popular languages to attract diverse families.</li>
                 <li>Specify starting price to create clear pricing expectations.</li>
+                <li>Add valid 10-digit contact numbers for Customers to reach you.</li>
               </ul>
             </div>
             
@@ -653,7 +722,7 @@ export default function CreateServicePage() {
 
       {/* Sticky Bottom Actions Bar */}
       <PublishStickyBar
-        isValid={isFormValid}
+        isValid={isFormValid()}
         isLoading={isSubmitting}
         onPublish={handlePublish}
       />

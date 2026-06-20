@@ -15,7 +15,7 @@ import Icon from "@/components/Icon";
 const TEAM_MEMBERS = [
   {
     name: "Sabnis Akshat Shailesh",
-    role: "Founder & CEO",
+    role: "CEO & Co-Founder",
     initials: "AS",
     image: "/assets/teams/Akshat.png",
     socials: {
@@ -26,7 +26,7 @@ const TEAM_MEMBERS = [
   },
   {
     name: "Pathinenchil Indresh Suresh",
-    role: "Co-Founder & CTO",
+    role: "CTO & Co-Founder",
     initials: "IS",
     image: "/assets/teams/indresh.jpeg",
     socials: {
@@ -37,7 +37,7 @@ const TEAM_MEMBERS = [
   },
   {
     name: "Sharma Divya Gurudev",
-    role: "Co-Founder & Community Lead",
+    role: "CMO & Co-Founder",
     initials: "DS",
     image: "/assets/teams/divya.png",
     socials: {
@@ -59,7 +59,7 @@ const TEAM_MEMBERS = [
   },
   {
     name: "Sharma Monish Mukesh",
-    role: "Product Lead & Developer",
+    role: "Operating Officer & Developer",
     initials: "MS",
     image: "/assets/teams/Monish.png",
     socials: {
@@ -81,7 +81,7 @@ const TEAM_MEMBERS = [
   },
   {
     name: "Pandey Utkarsh Ramesh",
-    role: "Founding Eng. & Developer",
+    role: "Marketing Advisor & Developer",
     initials: "UP",
     image: "/assets/teams/Utkarsh.png",
     socials: {

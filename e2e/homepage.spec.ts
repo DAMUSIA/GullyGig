@@ -12,7 +12,7 @@ test.describe("Kaamao Landing Page E2E Tests", () => {
     await expect(heading).toContainText("Skilled Workers");
 
     // Verify the rating rating section is present
-    await expect(page.locator("text=Verified")).toBeVisible();
+    await expect(page.locator("text=Verified").first()).toBeVisible();
   });
 
   test("should navigate to register page when clicking Register Now", async ({

@@ -111,6 +111,12 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - name: Build Next.js Production Bundle
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://qzndncraiteaiktdtvkz.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "mockKeyPart1.mockKeyPart2.mockKeyPart3"
+          NEXT_PUBLIC_GA_ID: "G-CI_CD_MOCK"
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
       - name: Run E2E Tests

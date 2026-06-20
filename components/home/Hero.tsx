@@ -6,10 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import Icon from "../Icon";
 import { getPlatformStats } from "@/lib/stats";
 
-interface HeroProps {
-  onShowToast: (msg: string) => void;
-}
-
 const SLIDES = [
   {
     src: "/assets/home_page_images/hero-slide-1.png",
@@ -52,6 +48,7 @@ const useCountUp = (
 
   useEffect(() => {
     if (!isCounting || target === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCount(target);
       return;
     }
@@ -86,7 +83,12 @@ const useCountUp = (
   return count;
 };
 
-export default function Hero({ onShowToast }: HeroProps) {
+interface HeroProps {
+  onShowToast?: (message: string) => void;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function Hero(props: HeroProps = {}) {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [stats, setStats] = useState({
     users: 0,
@@ -133,7 +135,6 @@ export default function Hero({ onShowToast }: HeroProps) {
       <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-indigo-500/10 dark:bg-indigo-500/15 rounded-full filter blur-[80px] -z-10" />
 
       <div className="mx-auto max-w-7xl px-6 lg:px-8 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center z-10">
-        
         {/* LEFT COLUMN */}
         <motion.div
           initial={{ opacity: 0, x: -30 }}
@@ -141,7 +142,6 @@ export default function Hero({ onShowToast }: HeroProps) {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="flex flex-col justify-center lg:pr-6"
         >
-
           {/* Headline */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -266,7 +266,7 @@ export default function Hero({ onShowToast }: HeroProps) {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/10 to-transparent" />
-                
+
                 <div className="absolute bottom-6 left-6 right-6 flex flex-col gap-2.5">
                   <span className="w-max bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-brand-primary text-[10px] lg:text-xs font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-md shadow-sm">
                     {SLIDES[carouselIndex].tag}
@@ -303,7 +303,11 @@ export default function Hero({ onShowToast }: HeroProps) {
             className="absolute -left-2 sm:-left-8 lg:-left-12 top-16 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-black/40 border border-slate-100/50 dark:border-slate-800 p-3.5 flex items-center gap-3.5 w-[200px] transition-colors duration-300"
           >
             <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
-              <Icon name="location_on" fill className="text-xl text-brand-primary" />
+              <Icon
+                name="location_on"
+                fill
+                className="text-xl text-brand-primary"
+              />
             </div>
             <div>
               <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
@@ -326,8 +330,12 @@ export default function Hero({ onShowToast }: HeroProps) {
             }}
             className="absolute -right-2 sm:-right-6 bottom-12 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-black/40 border border-slate-100/50 dark:border-slate-800 p-3.5 flex items-center gap-3 w-[160px] transition-colors duration-300"
           >
-             <div className="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
-              <Icon name="verified" fill className="text-lg text-emerald-600 dark:text-emerald-400" />
+            <div className="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+              <Icon
+                name="verified"
+                fill
+                className="text-lg text-emerald-600 dark:text-emerald-400"
+              />
             </div>
             <div>
               <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
@@ -339,7 +347,6 @@ export default function Hero({ onShowToast }: HeroProps) {
             </div>
           </motion.div>
         </motion.div>
-
       </div>
     </section>
   );

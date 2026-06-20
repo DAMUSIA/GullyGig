@@ -2,11 +2,7 @@
 
 import Link from "next/link";
 import { Share2 } from "lucide-react";
-import {
-  FaInstagram,
-  FaTwitter,
-  FaLinkedinIn,
-} from "react-icons/fa";
+import { FaInstagram, FaTwitter, FaLinkedinIn } from "react-icons/fa";
 import Icon from "../Icon";
 
 interface FooterProps {

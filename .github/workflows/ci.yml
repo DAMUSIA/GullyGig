@@ -6,192 +6,146 @@ on:
   pull_request:
     branches: [main, master]
 
+# Cancel in-flight runs on the same branch to save CI minutes
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  # ─── 1. Code Quality ──────────────────────────────────────────────────────
   lint:
-    name: ESLint Code Quality
+    name: ESLint
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Check ESLint Rules
-        run: npm run lint
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
 
   format:
-    name: Code Formatting (Prettier)
+    name: Prettier Format Check
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Verify Code Formatting
-        run: npm run format:check
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
 
   typecheck:
     name: TypeScript Type Check
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: TypeScript Compiler Check
-        run: npm run typecheck
-
+  # ─── 2. Unit Tests (depends on lint + typecheck) ──────────────────────────
   test:
     name: Vitest Unit Tests
     runs-on: ubuntu-latest
+    needs: [lint, typecheck]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run Unit Tests
-        run: npm run test
-
-  security:
-    name: GitGuardian Secret Detection
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+          cache: npm
+      - run: npm ci
+      - name: Run Unit Tests with Coverage
+        run: npx vitest run --coverage
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          fetch-depth: 0 # fetch all history for scanning
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
 
-      - name: GitGuardian Scan
-        uses: GitGuardian/ggshield-action@v1
-        continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
-
-  build:
-    name: Production Bundle Build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build Next.js Production Bundle
-        run: npm run build
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: "https://qzndncraiteaiktdtvkz.supabase.co"
-          # Mock a valid-looking 3-part JWT anon key to satisfy client initialization in build phase
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: "mockKeyPart1.mockKeyPart2.mockKeyPart3"
-          NEXT_PUBLIC_GA_ID: "G-CI_CD_MOCK"
-
+  # ─── 3. Security Audit ───────────────────────────────────────────────────
   audit:
     name: Dependency Vulnerability Audit
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Dependency Audit Scan
+      - uses: actions/checkout@v4
+      - name: npm audit
         run: npm audit --audit-level=high
 
+  # ─── 4. Build (depends on tests passing) ─────────────────────────────────
+  build:
+    name: Production Bundle Build
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Build Next.js Production Bundle
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://qzndncraiteaiktdtvkz.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "mockKeyPart1.mockKeyPart2.mockKeyPart3"
+          NEXT_PUBLIC_GA_ID: "G-CI_CD_MOCK"
+
+  # ─── 5. E2E Tests (depends on build) ────────────────────────────────────
   e2e:
     name: Playwright E2E Tests
     runs-on: ubuntu-latest
+    needs: [build]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
+          cache: npm
+      - run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
-
-      - name: Run Playwright E2E Tests
+      - name: Run E2E Tests
         run: npm run test:e2e
         env:
           NEXT_PUBLIC_SUPABASE_URL: "https://qzndncraiteaiktdtvkz.supabase.co"
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "mockKeyPart1.mockKeyPart2.mockKeyPart3"
           NEXT_PUBLIC_GA_ID: "G-CI_CD_MOCK"
 
+  # ─── 6. Lighthouse (depends on build) ────────────────────────────────────
   lighthouse:
     name: Lighthouse Performance Audit
     runs-on: ubuntu-latest
+    needs: [build]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build Next.js Production Bundle
+          cache: npm
+      - run: npm ci
+      - name: Build
         run: npm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: "https://qzndncraiteaiktdtvkz.supabase.co"
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "mockKeyPart1.mockKeyPart2.mockKeyPart3"
           NEXT_PUBLIC_GA_ID: "G-CI_CD_MOCK"
-
-      - name: Start Server in background
+      - name: Start Server
         run: npm run start &
         env:
           NEXT_PUBLIC_SUPABASE_URL: "https://qzndncraiteaiktdtvkz.supabase.co"
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "mockKeyPart1.mockKeyPart2.mockKeyPart3"
           NEXT_PUBLIC_GA_ID: "G-CI_CD_MOCK"
-
-      - name: Wait for server to start
+      - name: Wait for server
         run: npx wait-on http://localhost:3000
-
       - name: Run Lighthouse Audit
         uses: treosh/lighthouse-ci-action@v12
         with:

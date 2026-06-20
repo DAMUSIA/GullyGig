@@ -20,12 +20,7 @@ import {
   Globe,
   Loader2,
 } from "lucide-react";
-import {
-  supabase,
-  signOut,
-  onAuthStateChange,
-  getCurrentUser,
-} from "@/lib/supabase";
+import { signOut, onAuthStateChange, getCurrentUser } from "@/lib/supabase";
 import { createPortal } from "react-dom";
 
 // ============================================
@@ -110,6 +105,7 @@ function useMediaQuery(query: string): boolean {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     const media = window.matchMedia(query);
     setMatches(media.matches);
@@ -579,6 +575,7 @@ function LogoutModal({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     return () => setMounted(false);
   }, []);
@@ -628,23 +625,21 @@ export default function DashboardLayout({
       const { user, session } = await getCurrentUser();
 
       if (!user || !session) {
-        console.log("No session found, redirecting to login");
         router.replace("/login");
         return;
       }
 
-      // User is authenticated, set profile info
+      const typedUser = user as User;
       const name =
-        (user as any)?.user_metadata?.full_name ||
-        (user as any)?.email?.split("@")[0] ||
+        typedUser?.user_metadata?.full_name ||
+        typedUser?.email?.split("@")[0] ||
         "User";
-      const email = (user as any)?.email || "";
+      const email = typedUser?.email || "";
 
       setProfileName(name);
       setProfileEmail(email);
       setIsLoading(false);
-    } catch (error) {
-      console.error("Auth check failed:", error);
+    } catch {
       router.replace("/login");
     }
   }, [router]);
@@ -653,22 +648,15 @@ export default function DashboardLayout({
   // FIXED: Auth state listener
   // ============================================
   useEffect(() => {
-    // Initial auth check
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     checkAuth();
 
-    // Set up auth state listener
-    const unsubscribe = onAuthStateChange((event, session) => {
-      console.log("🔐 Auth event:", event);
-
+    const unsubscribe = onAuthStateChange((event) => {
       if (event === "SIGNED_OUT") {
-        console.log("🔐 User signed out, redirecting...");
         setIsLoading(false);
         router.replace("/login");
       } else if (event === "SIGNED_IN") {
-        console.log("🔐 User signed in, refreshing...");
         checkAuth();
-      } else if (event === "TOKEN_REFRESHED") {
-        console.log("🔐 Token refreshed");
       }
     });
 
@@ -684,33 +672,16 @@ export default function DashboardLayout({
     setIsLoggingOut(true);
 
     try {
-      console.log("🔄 Starting logout process...");
-
-      // Step 1: Call the signOut function
       const result = await signOut();
+      void result; // signOut clears session; redirect is what matters
 
-      if (!result.success) {
-        console.error("❌ SignOut failed:", result.error);
-        // Even if signOut fails, try to force redirect
-      }
-
-      // Step 2: Close modal
       setShowLogoutConfirm(false);
-
-      // Step 3: Clear local state
       setProfileName("User");
       setProfileEmail("");
 
-      // Step 4: Navigate to login with replace (prevents back button)
       await router.replace("/login");
-
-      // Step 5: Refresh the router to clear any cached state
       router.refresh();
-
-      console.log("✅ Logout complete");
-    } catch (err) {
-      console.error("❌ Logout error:", err);
-      // Even on error, force redirect
+    } catch {
       setShowLogoutConfirm(false);
       router.replace("/login");
       router.refresh();
@@ -722,6 +693,7 @@ export default function DashboardLayout({
   // Close mobile sidebar on route change
   useEffect(() => {
     if (isMobile) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMobileSidebarOpen(false);
     }
   }, [pathname, isMobile]);

@@ -149,11 +149,6 @@ export default function CreateServicePage() {
     return value.replace(/\D/g, "");
   };
 
-  const isValidPhoneNumber = (value: string): boolean => {
-    const clean = cleanPhoneNumber(value);
-    return clean.length === 10;
-  };
-
   const handleContactChange = (index: number, value: string) => {
     const digitsOnly = value.replace(/\D/g, "");
     const limitedDigits = digitsOnly.slice(0, 10);

@@ -12,19 +12,10 @@ export async function middleware(req: NextRequest) {
       cookies: {
         get: (name) => req.cookies.get(name)?.value,
         set: (name, value, options) => {
-          res.cookies.set({
-            name,
-            value,
-            ...options,
-          });
+          res.cookies.set({ name, value, ...options });
         },
         remove: (name, options) => {
-          res.cookies.set({
-            name,
-            value: "",
-            ...options,
-            maxAge: 0,
-          });
+          res.cookies.set({ name, value: "", ...options, maxAge: 0 });
         },
       },
     },
@@ -36,31 +27,18 @@ export async function middleware(req: NextRequest) {
 
   const pathname = req.nextUrl.pathname;
 
-  // Define protected routes
-  const protectedRoutes = [
-    "/dashboard",
-    "/dashboard/profile",
-    "/dashboard/analytics",
-    "/dashboard/portfolio",
-    "/dashboard/create-service",
-    "/dashboard/nearby-service",
-    "/dashboard/setting",
-  ];
+  // All /dashboard/* routes require authentication
+  const isDashboardRoute = pathname.startsWith("/dashboard");
 
-  const isProtectedRoute = protectedRoutes.some(
-    (route) => pathname === route || pathname.startsWith(route + "/"),
-  );
-
+  // Auth pages — redirect authenticated users away
   const isAuthRoute = pathname === "/login" || pathname === "/register";
 
-  // If accessing protected route without session, redirect to login
-  if (isProtectedRoute && !session) {
+  if (isDashboardRoute && !session) {
     const redirectUrl = new URL("/login", req.url);
     redirectUrl.searchParams.set("redirectedFrom", pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
-  // If accessing auth routes with session, redirect to dashboard
   if (isAuthRoute && session) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }

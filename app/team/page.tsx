@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { 
-  motion, 
-  useMotionValue, 
-  useSpring, 
-  useTransform, 
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
   useMotionTemplate,
-  Variants
+  Variants,
 } from "framer-motion";
 import Icon from "@/components/Icon";
 
@@ -92,7 +92,15 @@ const TEAM_MEMBERS = [
   },
 ];
 
-function TeamMemberImage({ src, name, initials }: { src: string; name: string; initials: string }) {
+function TeamMemberImage({
+  src,
+  name,
+  initials,
+}: {
+  src: string;
+  name: string;
+  initials: string;
+}) {
   const [hasError, setHasError] = useState(false);
 
   if (!src || hasError) {
@@ -120,18 +128,24 @@ function TeamMemberImage({ src, name, initials }: { src: string; name: string; i
   );
 }
 
-function TeamMemberCard({ member, isDark }: { member: (typeof TEAM_MEMBERS)[0]; isDark: boolean }) {
+function TeamMemberCard({
+  member,
+  isDark,
+}: {
+  member: (typeof TEAM_MEMBERS)[0];
+  isDark: boolean;
+}) {
   const [isHovered, setIsHovered] = useState(false);
 
   // Smooth, premium spring physics
   const springConfig = { damping: 20, stiffness: 100, mass: 0.5 };
-  
+
   // Card Tilt Values
   const xPct = useMotionValue(0);
   const yPct = useMotionValue(0);
   const mouseXSpring = useSpring(xPct, springConfig);
   const mouseYSpring = useSpring(yPct, springConfig);
-  
+
   const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["12deg", "-12deg"]);
   const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-12deg", "12deg"]);
 
@@ -149,7 +163,7 @@ function TeamMemberCard({ member, isDark }: { member: (typeof TEAM_MEMBERS)[0]; 
     const height = rect.height;
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
-    
+
     xPct.set(mouseX / width - 0.5);
     yPct.set(mouseY / height - 0.5);
     spotX.set(mouseX);
@@ -165,7 +179,7 @@ function TeamMemberCard({ member, isDark }: { member: (typeof TEAM_MEMBERS)[0]; 
   };
 
   const cursorGlow = useMotionTemplate`radial-gradient(350px circle at ${spotXSpring}px ${spotYSpring}px, ${
-    isDark ? 'rgba(59, 130, 246, 0.25)' : 'rgba(37, 99, 235, 0.12)'
+    isDark ? "rgba(59, 130, 246, 0.25)" : "rgba(37, 99, 235, 0.12)"
   }, transparent 70%)`;
 
   return (
@@ -188,9 +202,7 @@ function TeamMemberCard({ member, isDark }: { member: (typeof TEAM_MEMBERS)[0]; 
     >
       {/* Main Background Layer */}
       <div className="absolute inset-0 bg-white dark:bg-slate-900 rounded-[34px] overflow-hidden z-10">
-        <div 
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] z-0 bg-gradient-to-br from-blue-50/80 via-blue-100/30 to-white dark:from-blue-950/90 dark:via-slate-900 dark:to-slate-900"
-        />
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] z-0 bg-gradient-to-br from-blue-50/80 via-blue-100/30 to-white dark:from-blue-950/90 dark:via-slate-900 dark:to-slate-900" />
         <motion.div
           className="absolute inset-0 pointer-events-none opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 z-0 mix-blend-overlay"
           style={{ background: cursorGlow }}
@@ -202,9 +214,8 @@ function TeamMemberCard({ member, isDark }: { member: (typeof TEAM_MEMBERS)[0]; 
 
       {/* 3D Content Layer */}
       <div className="absolute inset-[2px] flex flex-col justify-between z-20 pointer-events-none rounded-[32px] [transform-style:preserve-3d]">
-        
         {/* Profile Image with Thin White Border + Animation - FIXED */}
-        <div 
+        <div
           className="relative w-[180px] h-[180px] mt-8 mx-auto rounded-full shrink-0 shadow-xl group-hover:shadow-blue-500/30 pointer-events-auto"
           style={{ transform: "translateZ(50px)" }}
         >
@@ -230,7 +241,7 @@ function TeamMemberCard({ member, isDark }: { member: (typeof TEAM_MEMBERS)[0]; 
         </div>
 
         {/* Info Section */}
-        <div 
+        <div
           className="flex-grow flex flex-col pt-6 px-4 pb-4 justify-center relative pointer-events-auto transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]"
           style={{ transform: "translateZ(40px)" }}
         >
@@ -243,7 +254,7 @@ function TeamMemberCard({ member, isDark }: { member: (typeof TEAM_MEMBERS)[0]; 
         </div>
 
         {/* Social Connect Bar */}
-        <div 
+        <div
           className="bg-slate-50 dark:bg-slate-950/50 group-hover:bg-white/40 dark:group-hover:bg-blue-950/40 border-t border-slate-100 dark:border-slate-800 group-hover:border-transparent px-6 py-5 flex items-center justify-between gap-4 shrink-0 relative backdrop-blur-sm transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] pointer-events-auto rounded-b-[32px]"
           style={{ transform: "translateZ(30px)" }}
         >
@@ -284,7 +295,6 @@ function TeamMemberCard({ member, isDark }: { member: (typeof TEAM_MEMBERS)[0]; 
             </a>
           </div>
         </div>
-
       </div>
     </motion.div>
   );
@@ -292,8 +302,8 @@ function TeamMemberCard({ member, isDark }: { member: (typeof TEAM_MEMBERS)[0]; 
 
 // Container variants for staggered entrance - Fixed with proper typing
 const containerVariants: Variants = {
-  hidden: { 
-    opacity: 0 
+  hidden: {
+    opacity: 0,
   },
   visible: {
     opacity: 1,
@@ -304,14 +314,14 @@ const containerVariants: Variants = {
 };
 
 const itemVariants: Variants = {
-  hidden: { 
-    opacity: 0, 
-    y: 40, 
-    scale: 0.95 
+  hidden: {
+    opacity: 0,
+    y: 40,
+    scale: 0.95,
   },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
+  visible: {
+    opacity: 1,
+    y: 0,
     scale: 1,
     transition: {
       type: "spring",
@@ -328,6 +338,7 @@ export default function TeamPage() {
 
   useEffect(() => {
     const isDarkTheme = document.documentElement.classList.contains("dark");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsDark(isDarkTheme);
 
     const observer = new MutationObserver(() => {
@@ -356,18 +367,22 @@ export default function TeamPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B1120] font-['Plus_Jakarta_Sans',sans-serif] selection:bg-blue-500/30 selection:text-blue-900 dark:selection:text-blue-100 relative overflow-hidden transition-colors duration-500 pb-24">
-      
       {/* Background Floating Decor */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] -z-10" />
-      <motion.div 
-        animate={{ y: [0, -20, 0], opacity: [0.5, 0.8, 0.5] }} 
+      <motion.div
+        animate={{ y: [0, -20, 0], opacity: [0.5, 0.8, 0.5] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-400/15 dark:bg-blue-600/15 rounded-full filter blur-[140px] -z-10 pointer-events-none" 
+        className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-400/15 dark:bg-blue-600/15 rounded-full filter blur-[140px] -z-10 pointer-events-none"
       />
-      <motion.div 
-        animate={{ y: [0, 20, 0], opacity: [0.5, 0.8, 0.5] }} 
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-indigo-400/15 dark:bg-indigo-600/15 rounded-full filter blur-[140px] -z-10 pointer-events-none" 
+      <motion.div
+        animate={{ y: [0, 20, 0], opacity: [0.5, 0.8, 0.5] }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 2,
+        }}
+        className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-indigo-400/15 dark:bg-indigo-600/15 rounded-full filter blur-[140px] -z-10 pointer-events-none"
       />
 
       {/* Header */}
@@ -377,23 +392,32 @@ export default function TeamPage() {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20 group-hover:scale-105 transition-transform duration-300">
               <Icon name="check" fill className="text-sm text-white" />
             </div>
-            <span className="font-extrabold text-slate-900 dark:text-white text-xl tracking-tight">Kaamao</span>
+            <span className="font-extrabold text-slate-900 dark:text-white text-xl tracking-tight">
+              Kaamao
+            </span>
           </Link>
-          
+
           <div className="flex items-center gap-4 sm:gap-6">
             <button
               onClick={toggleDarkMode}
               className="w-12 h-12 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 shadow-sm hover:scale-105"
               aria-label="Toggle Dark Mode"
             >
-              <Icon name={isDark ? "light_mode" : "dark_mode"} className="text-2xl" fill />
+              <Icon
+                name={isDark ? "light_mode" : "dark_mode"}
+                className="text-2xl"
+                fill
+              />
             </button>
             <Link
               href="/"
               className="flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
             >
               <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 transition-colors duration-300">
-                 <Icon name="arrow_back" className="text-lg group-hover:-translate-x-1 transition-transform duration-300" />
+                <Icon
+                  name="arrow_back"
+                  className="text-lg group-hover:-translate-x-1 transition-transform duration-300"
+                />
               </div>
               <span className="hidden sm:inline">Back to Home</span>
             </Link>
@@ -403,7 +427,6 @@ export default function TeamPage() {
 
       {/* Main Content */}
       <main className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24">
-        
         {/* Title */}
         <div className="text-center max-w-3xl mx-auto mb-20 sm:mb-28">
           <motion.div
@@ -418,8 +441,17 @@ export default function TeamPage() {
               Meet the Team <br /> behind{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 relative">
                 Kaamao
-                <svg className="absolute w-full h-3 -bottom-1 left-0 text-blue-500/30 dark:text-blue-400/30" viewBox="0 0 100 10" preserveAspectRatio="none">
-                  <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="4" fill="transparent" />
+                <svg
+                  className="absolute w-full h-3 -bottom-1 left-0 text-blue-500/30 dark:text-blue-400/30"
+                  viewBox="0 0 100 10"
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    d="M0 5 Q 50 10 100 5"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="transparent"
+                  />
                 </svg>
               </span>
             </h1>
@@ -427,7 +459,7 @@ export default function TeamPage() {
         </div>
 
         {/* Coordinated Entry Stagger */}
-        <motion.div 
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -470,8 +502,12 @@ export default function TeamPage() {
           className="bg-gradient-to-br from-slate-900 via-slate-800 to-[#0B1120] text-white rounded-[32px] sm:rounded-[40px] p-10 sm:p-16 text-center max-w-5xl mx-auto mt-28 sm:mt-36 relative overflow-hidden shadow-2xl border border-slate-700/50"
         >
           <div className="absolute top-0 left-1/2 w-[500px] h-[500px] bg-blue-500/20 rounded-full filter blur-[100px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-          
-          <Icon name="groups" className="text-5xl sm:text-6xl text-blue-400 mb-8" fill />
+
+          <Icon
+            name="groups"
+            className="text-5xl sm:text-6xl text-blue-400 mb-8"
+            fill
+          />
           <h3 className="text-sm font-extrabold uppercase tracking-[0.3em] text-slate-400 mb-6">
             Our Mission
           </h3>

@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
 import PortfolioPageClient from "@/components/portfolio/PortfolioPageClient";
-import { getPortfolioUrl, getBaseUrl } from "@/lib/url";
+import { getBaseUrl } from "@/lib/url";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -158,10 +158,6 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
       </div>
     );
   }
-
-  // Use the centralized URL utility
-  const baseUrl = getBaseUrl();
-  const portfolioUrl = `${baseUrl}/p/${data.service.id}`;
 
   // IMPORTANT: Pass portfolioId, not portfolioUrl
   return (

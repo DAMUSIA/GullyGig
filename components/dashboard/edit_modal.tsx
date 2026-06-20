@@ -56,12 +56,6 @@ export function EditServiceModal({
     service.contact_numbers || [],
   );
 
-  // Validate phone number - exactly 10 digits, numbers only
-  const validatePhoneNumber = (value: string): boolean => {
-    const cleanValue = value.replace(/\D/g, "");
-    return cleanValue.length === 10;
-  };
-
   // Clean phone number to only digits
   const cleanPhoneNumber = (value: string): string => {
     return value.replace(/\D/g, "");

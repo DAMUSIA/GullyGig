@@ -1,60 +1,51 @@
-import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-
-const supabaseUrl =
-  process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseServiceKey =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  "mockKeyPart1.mockKeyPart2.mockKeyPart3";
-
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-});
+import { supabaseAdmin } from "../../../../lib/supabase-admin";
+import { rateLimit, getIdentifier } from "../../../../lib/rate-limit";
+import { SignupSchema, formatZodError } from "../../../../lib/validation";
 
 export async function POST(request: Request) {
+  // Rate limiting — strict for auth endpoints
+  const identifier = getIdentifier(request);
+  const limitResult = rateLimit("auth", identifier);
+
+  if (!limitResult.success) {
+    return NextResponse.json(
+      {
+        error: `Too many signup attempts. Please wait before trying again.`,
+      },
+      { status: 429, headers: limitResult.headers },
+    );
+  }
+
   try {
-    const body = await request.json();
-    const { email, password, fullName, phoneNo, dob, location } = body;
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
 
-    // Only Name, Phone Number, and Password are strictly required now
-    if (!fullName || !phoneNo || !password) {
+    // Zod validation
+    const parsed = SignupSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        {
-          error:
-            "Missing required fields. Name, Phone Number, and Password are required.",
-        },
+        { error: formatZodError(parsed.error) },
         { status: 400 },
       );
     }
 
+    const { fullName, phoneNo, password, email, dob, location } = parsed.data;
+
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: "Service unavailable. Please try again later." },
+        { status: 503 },
+      );
+    }
+
+    // Generate pseudo-email if none provided (Supabase requires email for auth)
     const phoneDigits = phoneNo.replace(/\D/g, "");
-    if (phoneDigits.length < 10) {
-      return NextResponse.json(
-        { error: "Please enter a valid phone number (at least 10 digits)" },
-        { status: 400 },
-      );
-    }
-
-    // Generate unique pseudo-email if email is not provided (allows normal email/pass login in Supabase)
     const finalEmail = email || `phone_${phoneDigits}@kaamao.com`;
-
-    const emailRegex = /^\S+@\S+\.\S+$/;
-    if (!emailRegex.test(finalEmail)) {
-      return NextResponse.json(
-        { error: "Please enter a valid email address" },
-        { status: 400 },
-      );
-    }
-
-    if (password.length < 6) {
-      return NextResponse.json(
-        { error: "Password must be at least 6 characters" },
-        { status: 400 },
-      );
-    }
 
     const { data: authData, error: authError } =
       await supabaseAdmin.auth.admin.createUser({
@@ -68,8 +59,6 @@ export async function POST(request: Request) {
       });
 
     if (authError) {
-      console.error("Auth error:", authError);
-
       if (
         authError.message.includes("User already registered") ||
         authError.message.includes("email already exists")
@@ -82,7 +71,6 @@ export async function POST(request: Request) {
           { status: 400 },
         );
       }
-
       return NextResponse.json({ error: authError.message }, { status: 400 });
     }
 
@@ -105,16 +93,11 @@ export async function POST(request: Request) {
     });
 
     if (insertError) {
-      console.error("Insert error:", insertError);
-
-      // Clean up the created auth user to avoid orphan accounts without database profiles
+      // Roll back the created auth user to avoid orphan accounts
       try {
         await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
-      } catch (cleanupError) {
-        console.error(
-          "Cleanup error after failed profile insert:",
-          cleanupError,
-        );
+      } catch {
+        // Rollback failure is logged server-side by the platform
       }
 
       let errorMessage = "Failed to setup user profile. Please try again.";
@@ -146,17 +129,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: errorMessage }, { status: 400 });
     }
 
-    console.log("User created successfully:", authData.user.id);
-
     return NextResponse.json(
-      {
-        success: true,
-        message: "Account created successfully! Please login.",
-      },
+      { success: true, message: "Account created successfully! Please login." },
       { status: 200 },
     );
-  } catch (error) {
-    console.error("API error:", error);
+  } catch {
     return NextResponse.json(
       { error: "Internal server error. Please try again." },
       { status: 500 },

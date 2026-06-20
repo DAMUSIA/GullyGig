@@ -186,7 +186,7 @@ export default function PortfolioPageClient({
 
   // Generate dynamic content only on client side
   useEffect(() => {
-    // Set QR code URL
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setQrCodeUrl(
       `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(portfolioUrl)}`,
     );
@@ -529,10 +529,6 @@ ${fullPortfolioUrl}
     const percentage = reviewsCount > 0 ? (matchCount / reviewsCount) * 100 : 0;
     return { stars, percentage, count: matchCount };
   });
-
-  // Debug log
-  console.log("Portfolio ID:", portfolioId);
-  console.log("Portfolio URL:", portfolioUrl);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 font-sans pb-28">

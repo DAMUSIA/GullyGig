@@ -10,6 +10,23 @@ export default defineConfig({
     setupFiles: "./__tests__/setup.ts",
     include: ["**/*.test.{ts,tsx}"],
     exclude: ["**/node_modules/**", "**/.next/**"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      include: ["lib/**/*.ts", "app/api/**/*.ts"],
+      exclude: [
+        "lib/supabase.ts", // client-side Supabase lib (mocked in tests)
+        "**/*.d.ts",
+        "**/node_modules/**",
+        "**/.next/**",
+      ],
+      thresholds: {
+        lines: 70,
+        functions: 70,
+        branches: 70,
+        statements: 70,
+      },
+    },
   },
   resolve: {
     alias: {

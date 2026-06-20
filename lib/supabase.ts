@@ -1,4 +1,4 @@
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient, Session } from "@supabase/supabase-js";
 
 const supabaseUrl =
   process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
@@ -15,9 +15,11 @@ if (
   !process.env.NEXT_PUBLIC_SUPABASE_URL ||
   !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 ) {
-  console.warn(
-    "Supabase env missing. Dynamic operations will run in degraded/direct-fail mode.",
-  );
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(
+      "[Kaamao] Supabase env missing. Dynamic operations will run in degraded/direct-fail mode.",
+    );
+  }
 }
 
 // Client initialization with proper typing
@@ -140,8 +142,6 @@ export async function signUp(
       });
 
     if (authError) {
-      console.error("Auth signup error:", authError);
-
       if (authError.message.includes("rate limit")) {
         return {
           success: false,
@@ -191,7 +191,6 @@ export async function signUp(
     });
 
     if (profileError) {
-      console.error("Profile insert error:", profileError);
       return {
         success: false,
         error:
@@ -199,15 +198,12 @@ export async function signUp(
       };
     }
 
-    console.log("User registered successfully:", userId);
-
     return {
       success: true,
       user: authData.user,
       session: authData.session,
     };
   } catch (err) {
-    console.error("Signup exception:", err);
     const message = err instanceof Error ? err.message : "Signup failed";
     return { success: false, error: message };
   }
@@ -231,8 +227,6 @@ export async function signIn(
     });
 
     if (error) {
-      console.error("Login error:", error);
-
       if (error.message.includes("Invalid login credentials")) {
         return {
           success: false,
@@ -259,7 +253,6 @@ export async function signIn(
       user: data.user,
     };
   } catch (err) {
-    console.error("Login exception:", err);
     const message = err instanceof Error ? err.message : "Login failed";
     return { success: false, error: message };
   }
@@ -272,30 +265,20 @@ export async function signOut(): Promise<{ success: boolean; error?: string }> {
   }
 
   try {
-    console.log("🔄 Attempting to sign out...");
-
-    // Step 1: Call Supabase signOut
     const { error } = await supabaseClient.auth.signOut();
 
     if (error) {
-      console.error("❌ SignOut error:", error);
       return { success: false, error: error.message };
     }
 
-    console.log("✅ Supabase signOut successful");
-
-    // Step 2: Clear all local storage (client-side cleanup)
+    // Clear local storage on client side
     if (typeof window !== "undefined") {
       try {
-        // Clear Supabase auth storage
         localStorage.removeItem("sb-auth-token");
         localStorage.removeItem("supabase.auth.token");
-
-        // Clear all application data
         localStorage.clear();
         sessionStorage.clear();
 
-        // Clear cookies
         document.cookie.split(";").forEach((c) => {
           document.cookie = c
             .replace(/^ +/, "")
@@ -304,31 +287,26 @@ export async function signOut(): Promise<{ success: boolean; error?: string }> {
               "=;expires=" + new Date().toUTCString() + ";path=/",
             );
         });
-
-        console.log("🗑️ Local storage and cookies cleared");
-      } catch (storageError) {
-        console.warn("⚠️ Storage cleanup warning:", storageError);
+      } catch {
+        // Storage cleanup failure is non-critical
       }
     }
 
     return { success: true };
-  } catch (err) {
-    console.error("❌ Signout error:", err);
+  } catch {
     return { success: false, error: "Failed to sign out" };
   }
 }
 
 // ==================== AUTH LISTENER ====================
 export function onAuthStateChange(
-  callback: (event: string, session: any) => void,
+  callback: (event: string, session: Session | null) => void,
 ) {
   if (!supabaseClient) {
-    console.error("Supabase client not available for auth listener");
     return () => {};
   }
 
   const { data } = supabaseClient.auth.onAuthStateChange((event, session) => {
-    console.log("🔐 Auth state changed:", event);
     callback(event, session);
   });
 
@@ -347,12 +325,10 @@ export async function getCurrentUser(): Promise<{
   try {
     const { data, error } = await supabaseClient.auth.getSession();
     if (error) {
-      console.error("Get session error:", error);
       return { user: null, session: null };
     }
     return { user: data.session?.user || null, session: data.session };
-  } catch (err) {
-    console.error("Get current user error:", err);
+  } catch {
     return { user: null, session: null };
   }
 }
@@ -365,12 +341,10 @@ export async function getSession() {
   try {
     const { data, error } = await supabaseClient.auth.getSession();
     if (error) {
-      console.error("Get session error:", error);
       return { session: null };
     }
     return { session: data.session };
-  } catch (err) {
-    console.error("Get session error:", err);
+  } catch {
     return { session: null };
   }
 }
@@ -396,13 +370,11 @@ export async function getUserProfile(userId: string): Promise<{
       .single();
 
     if (error) {
-      console.error("Get profile error:", error);
       return { success: false, error: error.message, profile: null };
     }
 
     return { success: true, profile: data as UserProfile, error: undefined };
-  } catch (err) {
-    console.error("Get profile exception:", err);
+  } catch {
     return {
       success: false,
       error: "Failed to fetch profile",
@@ -417,20 +389,14 @@ export async function logClick(
   clickedJoin: boolean = true,
 ): Promise<void> {
   if (!isSupabaseConfigured || !supabaseClient) {
-    console.warn(
-      `Click analytics log bypassed (unconfigured db) for: ${projectId}`,
-    );
     return;
   }
 
   try {
-    console.log("Analytics Event:", {
-      visitorId,
-      projectId,
-      clickedJoin,
-    });
-  } catch (err) {
-    console.error("Supabase analytics logging error:", err);
+    // Analytics event — extend with actual DB write when needed
+    void { visitorId, projectId, clickedJoin };
+  } catch {
+    // Non-critical: analytics failure should not affect user flow
   }
 }
 
@@ -469,7 +435,6 @@ export async function signupWithAPI(
       };
     }
   } catch (err) {
-    console.error("Signup API error:", err);
     const errorMessage =
       err instanceof Error ? err.message : "Network error. Please try again.";
     return {
@@ -511,13 +476,11 @@ export async function updateUserProfile(
       .eq("id", userId);
 
     if (error) {
-      console.error("Update profile error:", error);
       return { success: false, error: error.message };
     }
 
     return { success: true };
-  } catch (err) {
-    console.error("Update profile exception:", err);
+  } catch {
     return { success: false, error: "Failed to update profile" };
   }
 }

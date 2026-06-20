@@ -233,7 +233,9 @@ export default function NearbyServicePage() {
     setReviewsLoading(true);
     setHasReviewed(false);
     try {
-      const res = await fetch(`/api/reviews?serviceId=${encodeURIComponent(serviceId)}`);
+      const res = await fetch(
+        `/api/reviews?serviceId=${encodeURIComponent(serviceId)}`,
+      );
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to load reviews");
 
@@ -799,7 +801,9 @@ export default function NearbyServicePage() {
                             {isLikingThis ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
-                              <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500" : ""}`} />
+                              <Heart
+                                className={`h-4 w-4 ${isLiked ? "fill-red-500" : ""}`}
+                              />
                             )}
                           </button>
                         )}
@@ -1037,15 +1041,21 @@ export default function NearbyServicePage() {
 
                 {/* Add Review Panel */}
                 {/* Determine if the current user is the provider of this service */}
-                {currentUser && selectedService && currentUser.id === selectedService.user_id ? (
+                {currentUser &&
+                selectedService &&
+                currentUser.id === selectedService.user_id ? (
                   /* Provider cannot review their own service */
                   <div className="flex items-start gap-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
                     <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center shrink-0">
                       <AlertCircle className="h-4 w-4 text-slate-500" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-slate-700">This is your listing</p>
-                      <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">You cannot like or review your own service listing.</p>
+                      <p className="text-xs font-bold text-slate-700">
+                        This is your listing
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                        You cannot like or review your own service listing.
+                      </p>
                     </div>
                   </div>
                 ) : currentUser ? (
@@ -1056,22 +1066,34 @@ export default function NearbyServicePage() {
                         <Star className="h-4 w-4 fill-green-500 text-green-500" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-green-800">Review submitted!</p>
-                        <p className="text-[11px] text-green-700 mt-0.5 leading-relaxed">Thank you for your feedback. You can only submit one review per service. Your review is now visible below.</p>
+                        <p className="text-xs font-bold text-green-800">
+                          Review submitted!
+                        </p>
+                        <p className="text-[11px] text-green-700 mt-0.5 leading-relaxed">
+                          Thank you for your feedback. You can only submit one
+                          review per service. Your review is now visible below.
+                        </p>
                       </div>
                     </div>
                   ) : (
-                    <form onSubmit={handleSubmitReview} className="bg-slate-50/40 border border-slate-200/50 rounded-2xl p-4 space-y-4">
-                      <h4 className="text-xs font-extrabold text-slate-700">Write a Review</h4>
+                    <form
+                      onSubmit={handleSubmitReview}
+                      className="bg-slate-50/40 border border-slate-200/50 rounded-2xl p-4 space-y-4"
+                    >
+                      <h4 className="text-xs font-extrabold text-slate-700">
+                        Write a Review
+                      </h4>
 
                       {/* Inline error banner */}
                       {reviewError && (
                         <div className="flex items-start gap-2.5 p-3 bg-red-50 border border-red-200 rounded-xl">
                           <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
-                          <p className="text-[11px] font-semibold text-red-700 leading-relaxed">{reviewError}</p>
+                          <p className="text-[11px] font-semibold text-red-700 leading-relaxed">
+                            {reviewError}
+                          </p>
                         </div>
                       )}
-                      
+
                       {/* Star Selection */}
                       <div className="space-y-1.5">
                         <span className="block text-[10px] font-bold text-slate-400 uppercase">

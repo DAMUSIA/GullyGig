@@ -50,12 +50,16 @@ export default function Navbar({ darkMode, onToggleDarkMode }: NavbarProps) {
     window.addEventListener("scroll", handleScroll, { passive: true });
     // Run once on mount to set initial state
     handleScroll();
-    
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Smooth scroll handler for anchor links
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string, id: string) => {
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+    id: string,
+  ) => {
     if (href.startsWith("/#")) {
       const element = document.getElementById(id);
       if (element) {
@@ -78,26 +82,6 @@ export default function Navbar({ darkMode, onToggleDarkMode }: NavbarProps) {
     }
   };
 
-  // Framer Motion Variants for Mobile Menu
-  const mobileMenuVariants = {
-    hidden: { opacity: 0, height: 0 },
-    visible: {
-      opacity: 1,
-      height: "auto",
-      transition: {
-        duration: 0.3,
-        ease: "easeInOut",
-        when: "beforeChildren",
-        staggerChildren: 0.05,
-      },
-    },
-    exit: {
-      opacity: 0,
-      height: 0,
-      transition: { duration: 0.25, ease: "easeInOut" },
-    },
-  };
-
   const mobileItemVariants = {
     hidden: { opacity: 0, x: -15 },
     visible: { opacity: 1, x: 0, transition: { duration: 0.3 } },
@@ -112,7 +96,6 @@ export default function Navbar({ darkMode, onToggleDarkMode }: NavbarProps) {
       }`}
     >
       <nav className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-6 lg:px-8">
-        
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group z-50">
           <motion.div
@@ -152,7 +135,6 @@ export default function Navbar({ darkMode, onToggleDarkMode }: NavbarProps) {
 
         {/* Actions & Theme Toggle */}
         <div className="flex items-center gap-3 md:gap-4 z-50">
-          
           {/* Theme Toggle Button - Animated Icon Swap */}
           <motion.button
             onClick={onToggleDarkMode}

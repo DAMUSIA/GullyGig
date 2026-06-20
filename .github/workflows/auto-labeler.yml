@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Label PR based on file changes and keywords
         if: github.event_name == 'pull_request_target'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.BOT_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
@@ -63,7 +63,7 @@ jobs:
 
       - name: Label Issue based on keywords
         if: github.event_name == 'issues'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.BOT_TOKEN || secrets.GITHUB_TOKEN }}
           script: |

@@ -26,7 +26,7 @@ const securityHeaders = [
     value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
   },
   {
-    key: "Content-Security-Policy",
+    key: "Content-Security-Policy-Report-Only",
     // report-only mode while you audit existing inline scripts/styles.
     // Switch to Content-Security-Policy (without -Report-Only) once confirmed clean.
     value: [

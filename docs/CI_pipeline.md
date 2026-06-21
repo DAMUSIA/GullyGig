@@ -1,101 +1,39 @@
 # CI/CD Pipeline Commands Reference
 
-This document details the essential commands used in our GitHub Actions CI/CD pipeline. Running these commands locally before pushing or opening a pull request will ensure your branch passes all checks.
+This document details the essential commands used in our CI/CD pipeline. Run these locally to ensure your branch passes all validation checks.
 
 ---
 
-## 1. Code Quality & Verification
+## One-Line Verification Commands
 
-### Code Formatting (Prettier)
+Run all checks sequentially (stops if any step fails):
 
-Check if all files match formatting guidelines:
-
-```bash
-npm run format:check
+### Windows (Command Prompt / CMD) & Bash / macOS / Linux:
+```cmd
+npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build
 ```
 
-Automatically fix all formatting issues:
-
-```bash
-npm run format:write
+### Windows (PowerShell):
+```powershell
+npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build
 ```
-
-### Linting (ESLint)
-
-Verify there are no syntax, style, or React-specific best-practice violations:
-
-```bash
-npm run lint
-```
-
-### TypeScript Type Checking
-
-Run the TypeScript compiler to ensure code compiles and matches types:
-
-```bash
-npm run typecheck
-```
+*(If using older PowerShell versions where `&&` is unsupported, use `;` instead: `npm run format:check; npm run lint; npm run typecheck; npm run test; npm run build`)*
 
 ---
 
-## 2. Unit Testing & Coverage
+## Command Reference
 
-### Run Unit Tests
+| Command | Action | Description |
+| :--- | :--- | :--- |
+| `npm run format:check` | Format Check | Verifies if files adhere to Prettier code style guidelines. |
+| `npm run format:write` | Format Fix | Automatically fixes formatting issues across the codebase. |
+| `npm run lint` | Lint | Checks for JavaScript/TypeScript, React, and Next.js rule violations. |
+| `npm run typecheck` | Type Check | Compiles TypeScript without outputting files to catch type errors. |
+| `npm run test` | Unit Test | Runs all unit and integration tests using Vitest once. |
+| `npm run test:watch` | Test Watch | Runs Vitest in interactive watch mode for active development. |
+| `npx vitest run --coverage` | Test Coverage | Runs Vitest and asserts statement/branch coverage thresholds. |
+| `npm run test:e2e` | E2E Test | Runs Playwright end-to-end integration tests. |
+| `npm run build` | Build | Compiles Next.js for production and verifies static generation. |
+| `npm audit --audit-level=high` | Audit | Scans installed packages for high and critical security vulnerabilities. |
+| `npm audit fix` | Audit Fix | Installs safe updates for vulnerable packages. |
 
-Run the Vitest test suite once:
-
-```bash
-npm run test
-```
-
-### Run Tests in Watch Mode
-
-Run Vitest in interactive watch mode for active development:
-
-```bash
-npm run test:watch
-```
-
-### Run Tests with Coverage Check
-
-Generate coverage reports and verify against the configured thresholds (e.g., 15% lines/functions/statements, 10% branches):
-
-```bash
-npx vitest run --coverage
-```
-
-> [!NOTE]
-> The `@vitest/coverage-v8` package is required to run coverage checks. If missing locally, install it via:
-> `npm install --save-dev @vitest/coverage-v8`
-
----
-
-## 3. Dependency Security Audits
-
-### Scan for High & Critical Vulnerabilities
-
-Audit the project's dependencies for security vulnerabilities at or above `high` severity level (this is the check executed in the CI workflow):
-
-```bash
-npm audit --audit-level=high
-```
-
-### Fix Vulnerabilities
-
-Automatically resolve vulnerabilities by updating dependency versions within safe semver constraints:
-
-```bash
-npm audit fix
-```
-
----
-
-## 4. Production Build Verification
-
-### Local Build Simulation
-
-Run the production build worker to test compilation, asset optimization, and pages generation:
-
-```bash
-npm run build
-```

@@ -2,7 +2,7 @@
 
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider } from "posthog-js/react";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import PostHogPageView from "./PostHogPageView";
 
 export default function PostHogProvider({
@@ -21,7 +21,9 @@ export default function PostHogProvider({
 
   return (
     <PHProvider client={posthog}>
-      <PostHogPageView />
+      <Suspense fallback={null}>
+        <PostHogPageView />
+      </Suspense>
       {children}
     </PHProvider>
   );

@@ -75,7 +75,7 @@ export default function PosterTemplate({
         )}
 
         {/* Description */}
-        <p className="text-xs text-slate-300 font-medium leading-relaxed max-w-xs mx-auto line-clamp-3">
+        <p className="text-xs text-slate-300 font-medium leading-relaxed max-w mx-auto line-clamp-3">
           {description}
         </p>
 

@@ -94,7 +94,7 @@ export default function PosterTemplate({
             <h2 className="text-xl sm:text-2xl font-black leading-tight line-clamp-2">
               {title}
             </h2>
-            <p className="text-[11px] text-slate-300 line-clamp-3 font-medium max-w-xs mx-auto leading-relaxed">
+            <p className="text-[11px] text-slate-300 line-clamp-3 font-medium max-w mx-auto leading-relaxed">
               {description}
             </p>
 
@@ -431,7 +431,7 @@ export default function PosterTemplate({
               </div>
             )}
 
-            <p className="text-[11px] text-slate-300 line-clamp-3 leading-relaxed font-medium max-w-xs mx-auto">
+            <p className="text-[11px] text-slate-300 line-clamp-3 leading-relaxed font-medium max-w mx-auto">
               {description}
             </p>
           </div>
@@ -493,7 +493,7 @@ export default function PosterTemplate({
             <h2 className="text-xl sm:text-2xl font-black tracking-tight leading-tight">
               {title}
             </h2>
-            <p className="text-xs text-slate-300 leading-relaxed max-w-xs mx-auto line-clamp-4">
+            <p className="text-xs text-slate-300 leading-relaxed max-w mx-auto line-clamp-4">
               {description}
             </p>
 
@@ -571,7 +571,7 @@ export default function PosterTemplate({
             <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight leading-snug">
               {title}
             </h2>
-            <p className="text-xs text-slate-300 leading-relaxed font-medium line-clamp-4 max-w-xs mx-auto">
+            <p className="text-xs text-slate-300 leading-relaxed font-medium line-clamp-4 max-w mx-auto">
               {description}
             </p>
 

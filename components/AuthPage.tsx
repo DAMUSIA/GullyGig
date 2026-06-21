@@ -55,7 +55,9 @@ export default function AuthPage({
   // Load remembered login preference on mount/mode toggle
   useEffect(() => {
     if (mode === "login") {
-      const rememberedPreference = localStorage.getItem("rememberLoginPreference");
+      const rememberedPreference = localStorage.getItem(
+        "rememberLoginPreference",
+      );
       if (rememberedPreference === "true") {
         const timer = setTimeout(() => {
           setKeepLoggedIn(true);

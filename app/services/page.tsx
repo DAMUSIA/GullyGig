@@ -90,11 +90,6 @@ export default function ServicesPage() {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Expanded contacts states
-  const [revealedContacts, setRevealedContacts] = useState<
-    Record<string, boolean>
-  >({});
-
   // Geolocation auto detect loading
   const [detectingLoc, setDetectingLoc] = useState(false);
 
@@ -406,13 +401,7 @@ export default function ServicesPage() {
     }
   };
 
-  // Toggle Contact reveal
-  const handleToggleContact = (serviceId: string) => {
-    setRevealedContacts((prev) => ({
-      ...prev,
-      [serviceId]: !prev[serviceId],
-    }));
-  };
+
 
   // Pagination Logic
   const totalPages = Math.max(
@@ -637,7 +626,6 @@ export default function ServicesPage() {
               const phoneFallback = service.users?.phone_no;
               const directPhone = contacts[0] || phoneFallback;
               const hasContacts = contacts.length > 0 || !!phoneFallback;
-              const isRevealed = !!revealedContacts[service.id];
 
               const priceLabel = service.starting_price
                 ? `Starts at ₹${service.starting_price}/${(service.price_unit || "hour").toLowerCase().replace("per ", "")}`
@@ -771,65 +759,40 @@ export default function ServicesPage() {
 
                   {/* Actions Row: Green Direct Call Button alongside Share/Portfolio (UI Improved) */}
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
-                    {/* Left: Contact Info Toggle (reveals number in-place) */}
+                    {/* Left: Contact Info (always visible) */}
                     <div className="flex-1 flex flex-col items-start gap-2">
                       {hasContacts ? (
                         <div className="w-full space-y-1.5">
-                          <button
-                            onClick={() => handleToggleContact(service.id)}
-                            className={`w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
-                              isRevealed
-                                ? "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300"
-                                : "bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-850 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900"
-                            }`}
-                          >
-                            <Phone className="h-3 w-3" />
-                            <span>
-                              {isRevealed
-                                ? "Hide Contact Detail"
-                                : "Show Numbers"}
-                            </span>
-                          </button>
-
-                          <AnimatePresence>
-                            {isRevealed && (
-                              <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
-                                exit={{ opacity: 0, height: 0 }}
-                                className="overflow-hidden bg-slate-50 dark:bg-slate-955 border border-slate-150 dark:border-slate-850 rounded-xl p-2.5 flex flex-col gap-1.5 max-w-none"
+                          <div className="overflow-hidden bg-slate-50 dark:bg-slate-955 border border-slate-150 dark:border-slate-850 rounded-xl p-2.5 flex flex-col gap-1.5 max-w-none">
+                            {contacts.length > 0 ? (
+                              contacts.map((num, i) => (
+                                <a
+                                  key={i}
+                                  href={`tel:${num}`}
+                                  className="flex items-center gap-1.5 text-xs font-bold text-slate-750 dark:text-slate-300 hover:text-brand-primary hover:underline"
+                                >
+                                  <Icon
+                                    name="call"
+                                    className="text-xs text-emerald-500"
+                                    fill
+                                  />
+                                  <span>{num}</span>
+                                </a>
+                              ))
+                            ) : (
+                              <a
+                                href={`tel:${phoneFallback}`}
+                                className="flex items-center gap-1.5 text-xs font-bold text-slate-750 dark:text-slate-300 hover:text-brand-primary hover:underline"
                               >
-                                {contacts.length > 0 ? (
-                                  contacts.map((num, i) => (
-                                    <a
-                                      key={i}
-                                      href={`tel:${num}`}
-                                      className="flex items-center gap-1.5 text-xs font-bold text-slate-750 dark:text-slate-300 hover:text-brand-primary hover:underline"
-                                    >
-                                      <Icon
-                                        name="call"
-                                        className="text-xs text-emerald-500"
-                                        fill
-                                      />
-                                      <span>{num}</span>
-                                    </a>
-                                  ))
-                                ) : (
-                                  <a
-                                    href={`tel:${phoneFallback}`}
-                                    className="flex items-center gap-1.5 text-xs font-bold text-slate-750 dark:text-slate-300 hover:text-brand-primary hover:underline"
-                                  >
-                                    <Icon
-                                      name="call"
-                                      className="text-xs text-emerald-500"
-                                      fill
-                                    />
-                                    <span>{phoneFallback}</span>
-                                  </a>
-                                )}
-                              </motion.div>
+                                <Icon
+                                  name="call"
+                                  className="text-xs text-emerald-500"
+                                  fill
+                                />
+                                <span>{phoneFallback}</span>
+                              </a>
                             )}
-                          </AnimatePresence>
+                          </div>
                         </div>
                       ) : (
                         <span className="text-[10px] text-slate-400 font-bold italic">

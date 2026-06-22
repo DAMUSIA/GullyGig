@@ -11,6 +11,7 @@ import Footer from "@/components/layout/Footer";
 import Hero from "@/components/home/Hero";
 import Features from "@/components/home/Features";
 import PopularSkills from "@/components/home/PopularSkills";
+import ServicesSection from "@/components/home/ServicesSection";
 import HowItWorks from "@/components/home/HowItWorks";
 import TrustSection from "@/components/home/TrustSection";
 
@@ -54,6 +55,9 @@ export default function Home() {
 
         {/* POPULAR LOCAL SKILLS */}
         <PopularSkills onShowToast={showToast} />
+
+        {/* SERVICES SECTION */}
+        <ServicesSection />
 
         {/* HOW IT WORKS */}
         <HowItWorks />

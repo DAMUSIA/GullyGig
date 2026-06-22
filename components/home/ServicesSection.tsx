@@ -16,7 +16,11 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: "easeOut" as const },
+  },
 };
 
 export default function ServicesSection() {
@@ -28,7 +32,6 @@ export default function ServicesSection() {
       className="scroll-mt-20 py-24 bg-slate-50 dark:bg-slate-950 transition-colors duration-300 relative overflow-hidden"
     >
       <div className="mx-auto max-w-[1140px] px-6 relative z-10">
-        
         {/* Minimalist Section Header */}
         <div className="text-center mb-16 flex flex-col items-center">
           <motion.div
@@ -45,7 +48,9 @@ export default function ServicesSection() {
               Hyperlocal Services Directory
             </h2>
             <p className="text-base text-slate-500 dark:text-slate-400 leading-relaxed max-w-[540px] text-center">
-              Find, view, and contact verified local instructors, tutors, home chefs, and other skilled professionals directly in your neighborhood.
+              Find, view, and contact verified local instructors, tutors, home
+              chefs, and other skilled professionals directly in your
+              neighborhood.
             </p>
           </motion.div>
         </div>
@@ -65,7 +70,9 @@ export default function ServicesSection() {
                 Looking for something specific?
               </h3>
               <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base leading-relaxed">
-                Explore our comprehensive 1-column service search directory. Find local expertise, view full portfolios, and contact providers directly with zero middlemen fees.
+                Explore our comprehensive 1-column service search directory.
+                Find local expertise, view full portfolios, and contact
+                providers directly with zero middlemen fees.
               </p>
             </div>
 
@@ -83,9 +90,17 @@ export default function ServicesSection() {
                 "Verified Portfolios",
                 "Community Rated",
               ].map((feature, idx) => (
-                <motion.div key={idx} variants={itemVariants} className="flex items-center gap-3">
+                <motion.div
+                  key={idx}
+                  variants={itemVariants}
+                  className="flex items-center gap-3"
+                >
                   <div className="flex items-center justify-center shrink-0">
-                    <Icon name="check_circle" className="text-[18px] text-blue-500" fill />
+                    <Icon
+                      name="check_circle"
+                      className="text-[18px] text-blue-500"
+                      fill
+                    />
                   </div>
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                     {feature}
@@ -97,20 +112,31 @@ export default function ServicesSection() {
 
           {/* Card Right CTA Container */}
           <div className="flex flex-col items-center justify-center shrink-0 w-full md:w-auto">
-            
             {/* Elegant Floating Icons */}
             <div className="relative mb-10 hidden md:block w-32 h-32">
               <motion.div
                 animate={{ y: [0, -8, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center shadow-sm border border-slate-100 dark:border-slate-700"
               >
-                <Icon name="search" className="text-4xl text-blue-600 dark:text-blue-400" />
+                <Icon
+                  name="search"
+                  className="text-4xl text-blue-600 dark:text-blue-400"
+                />
               </motion.div>
-              
+
               <motion.div
                 animate={{ y: [0, 5, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 1,
+                }}
                 className="absolute top-0 right-0 w-10 h-10 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center shadow-md border border-slate-50 dark:border-slate-700"
               >
                 <Icon name="star" className="text-lg text-amber-400" fill />
@@ -118,7 +144,12 @@ export default function ServicesSection() {
 
               <motion.div
                 animate={{ y: [0, -5, 0] }}
-                transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                transition={{
+                  duration: 4.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.5,
+                }}
                 className="absolute bottom-2 left-0 w-10 h-10 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center shadow-md border border-slate-50 dark:border-slate-700"
               >
                 <Icon name="map" className="text-lg text-emerald-500" fill />
@@ -146,13 +177,12 @@ export default function ServicesSection() {
 
               {/* Button Content Wrapper */}
               <div className="relative z-10 flex items-center justify-center w-full h-full overflow-hidden">
-                
                 {/* Default State (Fades out and moves down) */}
                 <motion.div
                   initial={false}
-                  animate={{ 
-                    y: isHovered ? 30 : 0, 
-                    opacity: isHovered ? 0 : 1 
+                  animate={{
+                    y: isHovered ? 30 : 0,
+                    opacity: isHovered ? 0 : 1,
                   }}
                   transition={{ duration: 0.3 }}
                   className="absolute flex items-center gap-2 text-sm font-bold text-white tracking-wide"
@@ -163,16 +193,19 @@ export default function ServicesSection() {
                 {/* Hover State (Fades in and moves up from bottom) */}
                 <motion.div
                   initial={false}
-                  animate={{ 
-                    y: isHovered ? 0 : -30, 
-                    opacity: isHovered ? 1 : 0 
+                  animate={{
+                    y: isHovered ? 0 : -30,
+                    opacity: isHovered ? 1 : 0,
                   }}
                   transition={{ duration: 0.3 }}
                   className="absolute flex items-center gap-2 text-sm font-bold text-blue-600 dark:text-blue-450 tracking-wide"
                 >
                   <motion.span
                     initial={{ x: -10, opacity: 0 }}
-                    animate={{ x: isHovered ? 0 : -10, opacity: isHovered ? 1 : 0 }}
+                    animate={{
+                      x: isHovered ? 0 : -10,
+                      opacity: isHovered ? 1 : 0,
+                    }}
                     transition={{ duration: 0.3, delay: 0.1 }}
                     className="flex items-center"
                   >
@@ -180,10 +213,8 @@ export default function ServicesSection() {
                   </motion.span>
                   <span>View Services</span>
                 </motion.div>
-                
               </div>
             </Link>
-
           </div>
         </motion.div>
       </div>

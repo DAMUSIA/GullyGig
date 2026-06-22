@@ -96,7 +96,7 @@ export default function Navbar({ darkMode, onToggleDarkMode }: NavbarProps) {
           : "border-transparent bg-transparent py-2 lg:py-3"
       }`}
     >
-      <nav className="mx-auto flex h-[72px] max-w-350 items-center justify-between px-6 lg:px-8">
+      <nav className="mx-auto flex h-[72px] max-w-container-max items-center justify-between px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group z-50">
           <motion.div

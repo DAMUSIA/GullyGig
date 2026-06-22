@@ -11,14 +11,11 @@ import {
   Share2,
   Heart,
   Star,
-  User,
-  Globe,
   ArrowRight,
   ArrowLeft,
   Loader2,
   AlertCircle,
   Navigation,
-  Layers,
   Inbox,
   Sparkles,
 } from "lucide-react";
@@ -34,7 +31,7 @@ interface UserProfile {
   location: string | null;
   about: string | null;
   phone_no: string | null;
-  social_links: any;
+  social_links: Record<string, string> | null;
 }
 
 interface ServiceItem {
@@ -94,8 +91,10 @@ export default function ServicesPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Expanded contacts states
-  const [revealedContacts, setRevealedContacts] = useState<Record<string, boolean>>({});
-  
+  const [revealedContacts, setRevealedContacts] = useState<
+    Record<string, boolean>
+  >({});
+
   // Geolocation auto detect loading
   const [detectingLoc, setDetectingLoc] = useState(false);
 
@@ -120,6 +119,7 @@ export default function ServicesPage() {
   // Dark Mode detection & syncing
   useEffect(() => {
     const isDarkTheme = document.documentElement.classList.contains("dark");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsDark(isDarkTheme);
 
     const observer = new MutationObserver(() => {
@@ -161,7 +161,9 @@ export default function ServicesPage() {
 
         const { data, error: fetchError } = await supabase
           .from("services")
-          .select("*, users:user_id(id, full_name, location, about, phone_no, social_links)")
+          .select(
+            "*, users:user_id(id, full_name, location, about, phone_no, social_links)",
+          )
           .eq("is_active", true);
 
         if (fetchError) throw fetchError;
@@ -169,10 +171,14 @@ export default function ServicesPage() {
         if (isMounted) {
           setServices((data as ServiceItem[]) || []);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error fetching services:", err);
         if (isMounted) {
-          setError(err.message || "Failed to retrieve service listings. Please reload.");
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Failed to retrieve service listings. Please reload.",
+          );
         }
       } finally {
         if (isMounted) {
@@ -202,17 +208,39 @@ export default function ServicesPage() {
       } else {
         throw new Error();
       }
-    } catch (err) {
+    } catch {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            setLocationQuery("Mumbai");
-            showToast("Location set to Mumbai (default)");
-          },
-          () => {
-            showToast("Location access denied. Please type manually.");
-          }
-        );
+        await new Promise<void>((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            async (position) => {
+              const { latitude, longitude } = position.coords;
+              try {
+                const geoRes = await fetch(
+                  `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+                );
+                if (!geoRes.ok) throw new Error();
+                const geoData = await geoRes.json();
+                const city =
+                  geoData.address?.city ||
+                  geoData.address?.town ||
+                  geoData.address?.village ||
+                  geoData.address?.suburb ||
+                  "Mumbai";
+                setLocationQuery(city);
+                showToast(`Location set to ${city}`);
+              } catch {
+                setLocationQuery("Mumbai");
+                showToast("Location set to Mumbai (default)");
+              } finally {
+                resolve();
+              }
+            },
+            () => {
+              showToast("Location access denied. Please type manually.");
+              resolve();
+            }
+          );
+        });
       } else {
         showToast("Geolocation not supported by browser.");
       }
@@ -321,38 +349,43 @@ export default function ServicesPage() {
     })
     .sort((a, b) => {
       if (sortBy === "Newest") {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
       }
       if (sortBy === "Highest Rated") {
         return b.rating_average - a.rating_average;
       }
       if (sortBy === "Lowest Price") {
-        return (a.starting_price || 0) - (b.starting_price || 0);
+        const aVal = a.starting_price;
+        const bVal = b.starting_price;
+        const aNull = aVal === null || aVal === undefined;
+        const bNull = bVal === null || bVal === undefined;
+        if (aNull && bNull) return 0;
+        if (aNull) return 1;
+        if (bNull) return -1;
+        return aVal - bVal;
       }
       if (sortBy === "Highest Price") {
-        return (b.starting_price || 0) - (a.starting_price || 0);
+        const aVal = a.starting_price;
+        const bVal = b.starting_price;
+        const aNull = aVal === null || aVal === undefined;
+        const bNull = bVal === null || bVal === undefined;
+        if (aNull && bNull) return 0;
+        if (aNull) return 1;
+        if (bNull) return -1;
+        return bVal - aVal;
       }
       return 0;
     });
 
-  // Pagination Logic
-  const totalPages = Math.max(1, Math.ceil(filteredServices.length / ITEMS_PER_PAGE));
-  const currentServicesList = filteredServices.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
-  // Reset page number on filter changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, locationQuery, selectedCategory, sortBy]);
-
   // Handle Share Button click (Copy URL to Clipboard)
   const handleShare = async (e: React.MouseEvent, serviceId: string) => {
     e.stopPropagation();
-    const url = typeof window !== "undefined"
-      ? `${window.location.origin}/p/${serviceId}`
-      : `https://kaamao.com/p/${serviceId}`;
+    const url =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/p/${serviceId}`
+        : `https://kaamao.com/p/${serviceId}`;
 
     if (navigator.share) {
       try {
@@ -360,14 +393,14 @@ export default function ServicesPage() {
           title: "Verify this Service Portfolio on Kaamao",
           url: url,
         });
-      } catch (err) {
+      } catch {
         // Ignored or cancelled
       }
     } else {
       try {
         await navigator.clipboard.writeText(url);
         showToast("Portfolio link copied to clipboard!");
-      } catch (err) {
+      } catch {
         showToast("Failed to copy link. Please manually copy URL.");
       }
     }
@@ -381,16 +414,24 @@ export default function ServicesPage() {
     }));
   };
 
+  // Pagination Logic
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredServices.length / ITEMS_PER_PAGE),
+  );
+  const currentServicesList = filteredServices.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
+
   return (
     <div
       className={`min-h-screen font-[Manrope,sans-serif] text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 transition-colors duration-300 flex flex-col ${
         isDark ? "dark" : ""
       }`}
     >
-      {/* Custom Lightweight Header (Navbar Removed) */}
       <header className="fixed inset-x-0 top-0 z-50 bg-white/85 dark:bg-slate-950/85 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 transition-all duration-300 py-1">
         <div className="mx-auto flex h-[72px] max-w-[1140px] items-center justify-between px-6 lg:px-8">
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group z-50">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-primary text-white shadow-lg shadow-brand-primary/20 transition-colors">
               <Icon name="check" fill className="text-xl text-white" />
@@ -400,14 +441,16 @@ export default function ServicesPage() {
             </span>
           </Link>
 
-          {/* Actions: Theme Toggle & Back Button */}
           <div className="flex items-center gap-3 md:gap-4 z-50">
             <button
               onClick={toggleDarkMode}
               className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-350 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-brand-primary border border-slate-200/50 dark:border-slate-750/50 transition-colors flex items-center justify-center cursor-pointer shadow-2xs active:scale-95"
               aria-label="Toggle Theme"
             >
-              <Icon name={isDark ? "light_mode" : "dark_mode"} className="text-lg" />
+              <Icon
+                name={isDark ? "light_mode" : "dark_mode"}
+                className="text-lg"
+              />
             </button>
 
             <Link
@@ -421,48 +464,47 @@ export default function ServicesPage() {
         </div>
       </header>
 
-      {/* Main Container */}
       <main className="flex-1 max-w-[1140px] w-full mx-auto px-6 pt-28 pb-20">
-        
-        {/* Header Hero Section */}
         <div className="text-center md:text-left mb-8 space-y-2">
           <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Services & Expertise Directory
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Browse verified local services, view portfolios, check average ratings, and contact neighbors directly.
+            Browse verified local services, view portfolios, check average
+            ratings, and contact neighbors directly.
           </p>
         </div>
 
-        {/* Filter Panel */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-3xl p-5 md:p-6 shadow-md shadow-blue-500/5 mb-8 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-            
-            {/* Search Input */}
             <div className="relative md:col-span-5">
               <Search className="absolute left-3.5 top-3.5 h-4.5 w-4.5 text-slate-400" />
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
                 placeholder="Search keywords, title, or provider name..."
                 className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-500 text-slate-800 dark:text-slate-100 placeholder:text-slate-400"
               />
             </div>
 
-            {/* Location Input with Auto GPT Location Button */}
             <div className="relative md:col-span-4 flex items-center">
               <div className="relative w-full">
                 <MapPin className="absolute left-3.5 top-3.5 h-4.5 w-4.5 text-slate-400" />
                 <input
                   type="text"
                   value={locationQuery}
-                  onChange={(e) => setLocationQuery(e.target.value)}
+                  onChange={(e) => {
+                    setLocationQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
                   placeholder="Filter by city or locality..."
                   className="w-full pl-11 pr-12 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-500 text-slate-800 dark:text-slate-100 placeholder:text-slate-400"
                 />
-                
-                {/* Auto Geolocation Trigger */}
+
                 <button
                   type="button"
                   onClick={handleAutoDetectLocation}
@@ -479,7 +521,6 @@ export default function ServicesPage() {
               </div>
             </div>
 
-            {/* Sorting Dropdown */}
             <div className="flex items-center gap-2 md:col-span-3">
               <label
                 htmlFor="service-sort"
@@ -490,7 +531,10 @@ export default function ServicesPage() {
               <select
                 id="service-sort"
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+                onChange={(e) => {
+                  setSortBy(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer"
               >
                 <option value="Newest">Newest Listed</option>
@@ -512,7 +556,10 @@ export default function ServicesPage() {
                 return (
                   <button
                     key={chip}
-                    onClick={() => setSelectedCategory(chip)}
+                    onClick={() => {
+                      setSelectedCategory(chip);
+                      setCurrentPage(1);
+                    }}
                     className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs ${
                       isSelected
                         ? "bg-brand-primary text-white border border-transparent shadow-md shadow-blue-500/15"
@@ -560,7 +607,9 @@ export default function ServicesPage() {
         {error && !loading && (
           <div className="p-5 bg-red-50 dark:bg-red-950/20 border border-red-250 dark:border-red-900 rounded-3xl flex items-center justify-center gap-3 max-w-lg mx-auto shadow-md">
             <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
-            <p className="text-sm font-semibold text-red-700 dark:text-red-400">{error}</p>
+            <p className="text-sm font-semibold text-red-700 dark:text-red-400">
+              {error}
+            </p>
           </div>
         )}
 
@@ -574,7 +623,8 @@ export default function ServicesPage() {
               No Services Available
             </h3>
             <p className="text-xs text-slate-450 dark:text-slate-400 max-w-sm mx-auto mt-2 leading-relaxed">
-              We couldn&apos;t find any service listings matching your queries or categories. Try clearing filters or resetting the search text.
+              We couldn&apos;t find any service listings matching your queries
+              or categories. Try clearing filters or resetting the search text.
             </p>
           </div>
         )}
@@ -598,7 +648,6 @@ export default function ServicesPage() {
                   key={service.id}
                   className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl p-5 md:p-6 hover:shadow-lg dark:hover:shadow-blue-500/2 transition-all duration-300 flex flex-col justify-between gap-4 relative group"
                 >
-                  
                   {/* Top Header Row */}
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div className="flex items-center gap-3.5">
@@ -606,13 +655,16 @@ export default function ServicesPage() {
                       <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-primary to-indigo-650 dark:from-brand-primary-dark dark:to-indigo-500 text-white flex items-center justify-center font-extrabold text-sm shadow-sm shrink-0">
                         {getInitials(service.users?.full_name)}
                       </div>
-                      
+
                       <div className="space-y-0.5 text-left">
                         <span className="text-[9px] font-extrabold text-brand-primary dark:text-blue-400 bg-brand-bg-light dark:bg-slate-950 px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-blue-100/30 dark:border-blue-900/30">
                           {service.category}
                         </span>
                         <h4 className="text-[11px] font-bold text-slate-400 dark:text-slate-500 mt-1">
-                          Made by <span className="font-extrabold text-slate-700 dark:text-slate-350">{service.users?.full_name || "Verified Provider"}</span>
+                          Made by{" "}
+                          <span className="font-extrabold text-slate-700 dark:text-slate-350">
+                            {service.users?.full_name || "Verified Provider"}
+                          </span>
                         </h4>
                       </div>
                     </div>
@@ -622,7 +674,9 @@ export default function ServicesPage() {
                       <div className="flex items-center gap-1">
                         <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 shrink-0" />
                         <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                          {service.rating_average ? Number(service.rating_average).toFixed(1) : "0.0"}
+                          {service.rating_average
+                            ? Number(service.rating_average).toFixed(1)
+                            : "0.0"}
                         </span>
                         <span className="text-[9px] text-slate-400 font-semibold">
                           ({service.reviews_count || 0})
@@ -643,34 +697,57 @@ export default function ServicesPage() {
                     <h3 className="text-lg font-extrabold text-slate-900 dark:text-white leading-snug group-hover:text-brand-primary dark:group-hover:text-blue-400 transition-colors">
                       {service.title}
                     </h3>
-                    
+
                     <p className="text-xs md:text-sm text-slate-650 dark:text-slate-355 leading-relaxed whitespace-pre-line bg-blue-50/10 dark:bg-slate-950/30 p-3.5 rounded-xl border border-blue-100/10 dark:border-blue-900/10">
                       {service.description}
                     </p>
 
                     {/* Horizontal badges (More compact) */}
                     <div className="flex flex-wrap gap-2 pt-0.5">
-                      {service.service_modes && service.service_modes.length > 0 && (
-                        <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 px-2.5 py-1 rounded-lg">
-                          <Icon name="home" className="text-[10px] text-slate-400" />
-                          <span className="text-[9px] font-bold text-slate-450 dark:text-slate-400 uppercase">Modes:</span>
-                          <span className="text-[9px] font-extrabold text-slate-750 dark:text-slate-300">{service.service_modes.join(", ")}</span>
-                        </div>
-                      )}
+                      {service.service_modes &&
+                        service.service_modes.length > 0 && (
+                          <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 px-2.5 py-1 rounded-lg">
+                            <Icon
+                              name="home"
+                              className="text-[10px] text-slate-400"
+                            />
+                            <span className="text-[9px] font-bold text-slate-450 dark:text-slate-400 uppercase">
+                              Modes:
+                            </span>
+                            <span className="text-[9px] font-extrabold text-slate-750 dark:text-slate-300">
+                              {service.service_modes.join(", ")}
+                            </span>
+                          </div>
+                        )}
 
-                      {service.availability && service.availability.length > 0 && (
-                        <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 px-2.5 py-1 rounded-lg">
-                          <Icon name="calendar_today" className="text-[10px] text-slate-400" />
-                          <span className="text-[9px] font-bold text-slate-450 dark:text-slate-400 uppercase">Availability:</span>
-                          <span className="text-[9px] font-extrabold text-slate-750 dark:text-slate-300">{service.availability.join(", ")}</span>
-                        </div>
-                      )}
+                      {service.availability &&
+                        service.availability.length > 0 && (
+                          <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 px-2.5 py-1 rounded-lg">
+                            <Icon
+                              name="calendar_today"
+                              className="text-[10px] text-slate-400"
+                            />
+                            <span className="text-[9px] font-bold text-slate-450 dark:text-slate-400 uppercase">
+                              Availability:
+                            </span>
+                            <span className="text-[9px] font-extrabold text-slate-750 dark:text-slate-300">
+                              {service.availability.join(", ")}
+                            </span>
+                          </div>
+                        )}
 
                       {service.languages && service.languages.length > 0 && (
                         <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 px-2.5 py-1 rounded-lg">
-                          <Icon name="language" className="text-[10px] text-slate-400" />
-                          <span className="text-[9px] font-bold text-slate-450 dark:text-slate-400 uppercase">Languages:</span>
-                          <span className="text-[9px] font-extrabold text-slate-750 dark:text-slate-300">{service.languages.join(", ")}</span>
+                          <Icon
+                            name="language"
+                            className="text-[10px] text-slate-400"
+                          />
+                          <span className="text-[9px] font-bold text-slate-450 dark:text-slate-400 uppercase">
+                            Languages:
+                          </span>
+                          <span className="text-[9px] font-extrabold text-slate-750 dark:text-slate-300">
+                            {service.languages.join(", ")}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -681,10 +758,12 @@ export default function ServicesPage() {
                     <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400 font-semibold text-xs max-w-[60%]">
                       <MapPin className="h-3.5 w-3.5 text-slate-450 shrink-0" />
                       <span className="truncate">
-                        {[service.area, service.city].filter(Boolean).join(", ")}
+                        {[service.area, service.city]
+                          .filter(Boolean)
+                          .join(", ")}
                       </span>
                     </div>
-                    
+
                     <span className="text-xs font-black text-brand-primary dark:text-blue-450 shrink-0">
                       {priceLabel}
                     </span>
@@ -692,7 +771,6 @@ export default function ServicesPage() {
 
                   {/* Actions Row: Green Direct Call Button alongside Share/Portfolio (UI Improved) */}
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
-                    
                     {/* Left: Contact Info Toggle (reveals number in-place) */}
                     <div className="flex-1 flex flex-col items-start gap-2">
                       {hasContacts ? (
@@ -706,7 +784,11 @@ export default function ServicesPage() {
                             }`}
                           >
                             <Phone className="h-3 w-3" />
-                            <span>{isRevealed ? "Hide Contact Detail" : "Show Numbers"}</span>
+                            <span>
+                              {isRevealed
+                                ? "Hide Contact Detail"
+                                : "Show Numbers"}
+                            </span>
                           </button>
 
                           <AnimatePresence>
@@ -724,7 +806,11 @@ export default function ServicesPage() {
                                       href={`tel:${num}`}
                                       className="flex items-center gap-1.5 text-xs font-bold text-slate-750 dark:text-slate-300 hover:text-brand-primary hover:underline"
                                     >
-                                      <Icon name="call" className="text-xs text-emerald-500" fill />
+                                      <Icon
+                                        name="call"
+                                        className="text-xs text-emerald-500"
+                                        fill
+                                      />
                                       <span>{num}</span>
                                     </a>
                                   ))
@@ -733,7 +819,11 @@ export default function ServicesPage() {
                                     href={`tel:${phoneFallback}`}
                                     className="flex items-center gap-1.5 text-xs font-bold text-slate-750 dark:text-slate-300 hover:text-brand-primary hover:underline"
                                   >
-                                    <Icon name="call" className="text-xs text-emerald-500" fill />
+                                    <Icon
+                                      name="call"
+                                      className="text-xs text-emerald-500"
+                                      fill
+                                    />
                                     <span>{phoneFallback}</span>
                                   </a>
                                 )}
@@ -750,7 +840,6 @@ export default function ServicesPage() {
 
                     {/* Right: Actions (direct Call green button, Share, Portfolio) */}
                     <div className="flex items-center justify-end gap-2 shrink-0">
-
                       {/* Share Button */}
                       <button
                         onClick={(e) => handleShare(e, service.id)}
@@ -776,14 +865,16 @@ export default function ServicesPage() {
                           title={`Call direct at ${directPhone}`}
                           className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs rounded-xl shadow-sm shadow-emerald-500/20 hover:shadow-md transition active:scale-95 cursor-pointer"
                         >
-                          <Icon name="call" className="text-xs text-white" fill />
+                          <Icon
+                            name="call"
+                            className="text-xs text-white"
+                            fill
+                          />
                           <span>Call</span>
                         </a>
                       )}
                     </div>
-
                   </div>
-
                 </div>
               );
             })}
@@ -819,7 +910,6 @@ export default function ServicesPage() {
             </button>
           </div>
         )}
-
       </main>
 
       {/* Footer component */}

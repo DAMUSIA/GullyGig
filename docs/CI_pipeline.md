@@ -11,16 +11,8 @@ Run all checks sequentially (stops if any step fails):
 ### Windows (Command Prompt / CMD) & Bash / macOS / Linux:
 
 ```cmd
-npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build
+npm run format:check; npm run lint; npm run typecheck; npm run test; npm run build
 ```
-
-### Windows (PowerShell):
-
-```powershell
-npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build
-```
-
-_(If using older PowerShell versions where `&&` is unsupported, use `;` instead: `npm run format:check; npm run lint; npm run typecheck; npm run test; npm run build`)_
 
 ---
 

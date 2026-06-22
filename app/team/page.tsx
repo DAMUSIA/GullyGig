@@ -60,7 +60,7 @@ const TEAM_MEMBERS = [
   {
     name: "Sharma Monish Mukesh",
     role: "Operating Lead & Developer",
-    initials: "MS", 
+    initials: "MS",
     image: "/assets/teams/Monish.png",
     socials: {
       github: "https://github.com/MonishSharma01",

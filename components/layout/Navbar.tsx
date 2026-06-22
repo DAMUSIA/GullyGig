@@ -13,6 +13,7 @@ interface NavbarProps {
 const NAV_LINKS = [
   { name: "Features", href: "/#features", id: "features" },
   { name: "Find Skills", href: "/#skills", id: "skills" },
+  { name: "Find Services", href: "/#services-section", id: "services-section" },
   { name: "How it Works", href: "/#how-it-works", id: "how-it-works" },
   { name: "Our Team", href: "/team", id: "team" },
 ];
@@ -35,16 +36,16 @@ export default function Navbar({ darkMode, onToggleDarkMode }: NavbarProps) {
         const element = document.getElementById(section);
         if (element) {
           const rect = element.getBoundingClientRect();
-          // If the top of the section is within 150px of the viewport top, mark it active
-          if (rect.top <= 150 && rect.bottom >= 150) {
+          // Use a robust viewport-relative line of sight (e.g. 30% from the viewport top)
+          const lineOfSight = window.innerHeight * 0.3;
+          if (rect.top <= lineOfSight && rect.bottom >= lineOfSight) {
             currentSection = section;
+            break;
           }
         }
       }
 
-      if (currentSection) {
-        setActiveSection(currentSection);
-      }
+      setActiveSection(currentSection);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -95,7 +96,7 @@ export default function Navbar({ darkMode, onToggleDarkMode }: NavbarProps) {
           : "border-transparent bg-transparent py-2 lg:py-3"
       }`}
     >
-      <nav className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-6 lg:px-8">
+      <nav className="mx-auto flex h-[72px] max-w-350 items-center justify-between px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group z-50">
           <motion.div

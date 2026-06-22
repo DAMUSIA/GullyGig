@@ -59,7 +59,7 @@ const TEAM_MEMBERS = [
   },
   {
     name: "Sharma Monish Mukesh",
-    role: "Operating Officer & Developer",
+    role: "Operating Lead & Developer",
     initials: "MS",
     image: "/assets/teams/Monish.png",
     socials: {

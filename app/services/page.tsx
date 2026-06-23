@@ -602,14 +602,14 @@ export default function ServicesPage() {
 
         {/* Empty State */}
         {!loading && !error && filteredServices.length === 0 && (
-          <div className="text-center py-20 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-3xl p-8 max-w-xl mx-auto shadow-sm">
+          <div className="w-full text-center py-12 sm:py-16 md:py-20 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-3xl px-4 sm:px-6 md:px-8 max-w-4xl mx-auto shadow-sm">
             <div className="w-16 h-16 bg-blue-50/50 dark:bg-blue-950/20 text-blue-500 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-100/50 dark:border-blue-900/30">
               <Inbox className="h-6 w-6" />
             </div>
             <h3 className="text-lg font-extrabold text-slate-850 dark:text-slate-100">
               No Services Available
             </h3>
-            <p className="text-xs text-slate-450 dark:text-slate-400 max-w-sm mx-auto mt-2 leading-relaxed">
+            <p className="text-xs text-slate-450 dark:text-slate-400 max-w-[384px] mx-auto mt-2 leading-relaxed">
               We couldn&apos;t find any service listings matching your queries
               or categories. Try clearing filters or resetting the search text.
             </p>

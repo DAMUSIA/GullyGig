@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getCurrentUser, supabase } from "@/lib/supabase";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, CheckCircle, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Import all components
 import { WelcomeHeader } from "@/components/dashboard/welcome_header";
@@ -70,6 +71,14 @@ export default function DashboardPage() {
     null,
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  const showToast = (message: string, type: "success" | "error" = "success") => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast(null);
+    }, 4000);
+  };
 
   // Load data
   useEffect(() => {
@@ -129,11 +138,11 @@ export default function DashboardPage() {
     if (!supabase || !editingService) return;
 
     if (data.title.trim().length < 3) {
-      alert("Title must be at least 3 characters.");
+      showToast("Title must be at least 3 characters.", "error");
       return;
     }
     if (data.description.trim().length < 20) {
-      alert("Description must be at least 20 characters.");
+      showToast("Description must be at least 20 characters.", "error");
       return;
     }
 
@@ -172,10 +181,56 @@ export default function DashboardPage() {
       );
 
       setEditingService(null);
-      alert("Service updated successfully!");
+      showToast("Service listing updated successfully!", "success");
     } catch (err) {
       console.error("Failed to update service:", err);
-      alert(err instanceof Error ? err.message : "Failed to update service.");
+      showToast(err instanceof Error ? err.message : "Failed to update service.", "error");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Handle service delete
+  const handleDeleteService = async (serviceId: string) => {
+    if (!supabase) return;
+    setIsSaving(true);
+
+    try {
+      // 1. Delete associated service likes
+      const { error: likesErr } = await supabase
+        .from("service_likes")
+        .delete()
+        .eq("service_id", serviceId);
+      if (likesErr) throw likesErr;
+
+      // 2. Delete associated service ratings
+      const { error: ratingsErr } = await supabase
+        .from("service_ratings")
+        .delete()
+        .eq("service_id", serviceId);
+      if (ratingsErr) throw ratingsErr;
+
+      // 3. Delete associated service analytics
+      const { error: analyticsErr } = await supabase
+        .from("service_analytics")
+        .delete()
+        .eq("service_id", serviceId);
+      if (analyticsErr) throw analyticsErr;
+
+      // 4. Delete the service listing
+      const { error: serviceErr } = await supabase
+        .from("services")
+        .delete()
+        .eq("id", serviceId);
+      if (serviceErr) throw serviceErr;
+
+      // Update state locally
+      setServices((prev) => prev.filter((s) => s.id !== serviceId));
+      setEditingService(null);
+      showToast("Service listing deleted successfully!", "success");
+    } catch (err) {
+      console.error("Failed to delete service:", err);
+      showToast(err instanceof Error ? err.message : "Failed to delete service.", "error");
     } finally {
       setIsSaving(false);
     }
@@ -264,6 +319,7 @@ export default function DashboardPage() {
           service={editingService}
           onClose={() => setEditingService(null)}
           onSave={handleSaveEdit}
+          onDelete={handleDeleteService}
           isSaving={isSaving}
         />
       )}
@@ -274,6 +330,36 @@ export default function DashboardPage() {
           onClose={() => setViewingService(null)}
         />
       )}
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:right-6 md:translate-x-0 z-[9999] flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-white shadow-2xl text-xs font-bold whitespace-nowrap"
+          >
+            {toast.type === "success" ? (
+              <div className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
+                <CheckCircle className="w-4 h-4" />
+              </div>
+            ) : (
+              <div className="w-5 h-5 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center shrink-0">
+                <AlertCircle className="w-4 h-4" />
+              </div>
+            )}
+            <span>{toast.message}</span>
+            <button
+              type="button"
+              onClick={() => setToast(null)}
+              className="ml-2 hover:text-slate-350 text-slate-500 transition-colors cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

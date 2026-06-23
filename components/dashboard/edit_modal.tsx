@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Check, Loader2 } from "lucide-react";
+import { X, Check, Loader2, Trash2 } from "lucide-react";
 
 interface ServiceItem {
   id: string;
@@ -38,6 +38,7 @@ interface EditServiceModalProps {
     isActive: boolean;
     contactNumbers: string[];
   }) => void;
+  onDelete: (serviceId: string) => void;
   isSaving: boolean;
 }
 
@@ -45,6 +46,7 @@ export function EditServiceModal({
   service,
   onClose,
   onSave,
+  onDelete,
   isSaving,
 }: EditServiceModalProps) {
   const [title, setTitle] = useState(service.title);
@@ -55,6 +57,7 @@ export function EditServiceModal({
   const [contactNumbers, setContactNumbers] = useState<string[]>(
     service.contact_numbers || [],
   );
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
   // Clean phone number to only digits
   const cleanPhoneNumber = (value: string): string => {
@@ -265,7 +268,6 @@ export function EditServiceModal({
                 </p>
               </div>
             </div>
-
             <div className="flex items-center justify-between bg-slate-50 rounded-xl p-3 border border-slate-100">
               <div>
                 <span className="text-sm font-bold text-slate-700 block">
@@ -282,13 +284,31 @@ export function EditServiceModal({
                 className="w-5 h-5 rounded-lg border-slate-200 text-blue-600 focus:ring-blue-500 cursor-pointer"
               />
             </div>
+
+            {/* Danger Zone */}
+            <div className="mt-6 pt-5 border-t border-red-100 bg-red-50/20 rounded-2xl p-4 border border-dashed border-red-200">
+              <span className="text-xs font-bold text-red-700 uppercase block mb-1">
+                Danger Zone
+              </span>
+              <p className="text-[11px] text-slate-500 mb-3 leading-relaxed font-medium">
+                Deleting this service is permanent and cannot be undone. All reviews, likes, and performance analytics will be permanently removed.
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowConfirmDelete(true)}
+                className="w-full py-2.5 bg-red-50 hover:bg-red-100 text-red-650 text-xs font-bold rounded-xl transition cursor-pointer active:scale-95 flex items-center justify-center gap-1.5 border border-red-200/50"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                <span>Delete This Service</span>
+              </button>
+            </div>
           </div>
 
           <div className="flex gap-3 mt-6">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 border border-slate-200 text-slate-600 font-bold text-sm rounded-xl hover:bg-slate-50 transition cursor-pointer active:scale-95"
+              className="flex-1 py-2.5 border border-slate-200 text-slate-650 font-bold text-sm rounded-xl hover:bg-slate-50 transition cursor-pointer active:scale-95"
             >
               Cancel
             </button>
@@ -312,6 +332,46 @@ export function EditServiceModal({
           </div>
         </form>
       </div>
+
+      {/* Confirmation Modal */}
+      {showConfirmDelete && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="relative w-full max-w-[400px] bg-white rounded-2xl p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+            <div className="text-center space-y-4">
+              <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                <Trash2 className="h-6 w-6" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-base font-extrabold text-slate-850">
+                  Delete Service Listing?
+                </h4>
+                <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                  Are you sure you want to permanently delete <strong>{service.title}</strong>? This will delete all student reviews, user likes, page views, and performance analytics. This action cannot be undone.
+                </p>
+              </div>
+              <div className="flex gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmDelete(false)}
+                  className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer active:scale-95"
+                >
+                  Keep Service
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowConfirmDelete(false);
+                    onDelete(service.id);
+                  }}
+                  className="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
+                >
+                  Yes, Delete Service
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

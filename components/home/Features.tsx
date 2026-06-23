@@ -6,24 +6,44 @@ import Icon from "../Icon";
 
 const FEATURES_DATA = [
   {
-    icon: "location_on",
-    title: "Location-Based Discovery",
-    desc: "Find skilled professionals right in your neighborhood with our hyper-local map radius matching.",
+    icon: "explore",
+    title: "Hyperlocal Search & Map",
+    desc: "Pinpoint verified tutors, dance coaches, and yoga guides right in your city with seamless Google Maps routing.",
   },
   {
-    icon: "contact_mail",
-    title: "Direct Contact Options",
-    desc: "Reach out via phone, email, or direct messaging instantly. No bookings or commission fees.",
+    icon: "contact_phone",
+    title: "Direct One-Tap Connection",
+    desc: "Reach out instantly via phone call or WhatsApp. Skip the middlemen and the booking fees entirely!",
   },
   {
-    icon: "manage_accounts",
-    title: "Verified Skill Profiles",
-    desc: "Browse detailed experience, work portfolios, and credential verification checks with ease.",
+    icon: "public",
+    title: "Public Service Portfolios",
+    desc: "Share your personal profile link on social media or WhatsApp status to display pricing, languages, and reviews.",
+  },
+  {
+    icon: "qr_code_2",
+    title: "Ad Poster Generator",
+    desc: "Create beautifully themed marketing posters containing QR codes, pricing tags, and contact details to print or share.",
   },
   {
     icon: "reviews",
-    title: "Community Reviews",
-    desc: "Read reviews and ratings left by actual neighbors to ensure high credibility and trust.",
+    title: "Community Ratings & Reviews",
+    desc: "Read genuine reviews from neighbors or share your own experience to help build a trustworthy network.",
+  },
+  {
+    icon: "tune",
+    title: "Custom Service Filters",
+    desc: "Filter listings by teaching modes (online/offline), language choices, flexible availability, and budget.",
+  },
+  {
+    icon: "bar_chart",
+    title: "Interactive Analytics",
+    desc: "Monitor views, likes, and direct inquiries with automated, real-time charts to grow your client base.",
+  },
+  {
+    icon: "favorite",
+    title: "One-Tap Favorites Saver",
+    desc: "Save your preferred tutors and helpers with a single tap so you can reach them whenever you need.",
   },
 ];
 

@@ -411,14 +411,7 @@ export default function AuthPage({
                   <label className="block text-sm font-medium text-gray-700">
                     Password
                   </label>
-                  {mode === "login" && (
-                    <a
-                      href="#"
-                      className="text-xs text-blue-600 hover:text-blue-700 hover:underline"
-                    >
-                      Forgot Password?
-                    </a>
-                  )}
+                  {/* Forgot Password link removed */}
                 </div>
                 <div className="relative">
                   <input

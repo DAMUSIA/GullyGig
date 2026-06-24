@@ -1,7 +1,15 @@
 "use client";
 
 import React from "react";
-import { Briefcase, Eye, Heart, Star, MessageSquare, Phone, Globe } from "lucide-react";
+import {
+  Briefcase,
+  Eye,
+  Heart,
+  Star,
+  MessageSquare,
+  Phone,
+  Globe,
+} from "lucide-react";
 import { StatusCard } from "./status_card";
 
 interface AnalyticsCardProps {
@@ -23,7 +31,6 @@ export function AnalyticsCard({
   totalPortfolioViews = 0,
   totalContacts = 0,
 }: AnalyticsCardProps) {
-  // 6-card layout matching your image design
   const stats = [
     {
       icon: Eye,

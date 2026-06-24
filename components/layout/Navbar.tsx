@@ -16,6 +16,7 @@ const NAV_LINKS = [
   { name: "Find Services", href: "/#services-section", id: "services-section" },
   { name: "How it Works", href: "/#how-it-works", id: "how-it-works" },
   { name: "Our Team", href: "/team", id: "team" },
+  { name: "Terms and Service ", href: "/terms", id: "terms" },
 ];
 
 export default function Navbar({ darkMode, onToggleDarkMode }: NavbarProps) {
@@ -78,7 +79,7 @@ export default function Navbar({ darkMode, onToggleDarkMode }: NavbarProps) {
         });
       }
     } else {
-      // Normal page transition (e.g., /team)
+      // Normal page transition (e.g., /team, /terms)
       setMobileMenuOpen(false);
     }
   };

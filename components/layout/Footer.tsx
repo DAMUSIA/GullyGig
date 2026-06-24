@@ -111,11 +111,29 @@ export default function Footer({ onShowToast }: FooterProps) {
               Quick Links
             </h4>
             <ul className="space-y-2.5 text-center md:text-right">
-              <li className="text-sm text-slate-600 dark:text-slate-400">
-                Privacy Policy
+              <li>
+                <Link
+                  href="/terms/privacy_policy"
+                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                >
+                  Privacy Policy
+                </Link>
               </li>
-              <li className="text-sm text-slate-600 dark:text-slate-400">
-                Terms of Service
+              <li>
+                <Link
+                  href="/terms/terms_service"
+                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                >
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/terms"
+                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                >
+                  Legal
+                </Link>
               </li>
               <li>
                 <Link
@@ -134,6 +152,21 @@ export default function Footer({ onShowToast }: FooterProps) {
           <p className="text-sm text-slate-500 dark:text-slate-400 text-center md:text-left">
             &copy; {currentYear} Kaamao • Mumbai, India
           </p>
+          <div className="flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500">
+            <Link
+              href="/terms/privacy_policy"
+              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              Privacy
+            </Link>
+            <span>•</span>
+            <Link
+              href="/terms/terms_service"
+              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              Terms
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

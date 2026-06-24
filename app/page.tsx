@@ -35,6 +35,14 @@ export default function Home() {
     }
   }, [toast]);
 
+  // Smooth scroll to section
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
     <div
       className={`min-h-screen font-[Manrope,sans-serif] text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 selection:bg-brand-primary-light selection:text-brand-primary-dark transition-colors duration-300 ${darkMode ? "dark" : ""}`}
@@ -51,19 +59,29 @@ export default function Home() {
         <Hero onShowToast={showToast} />
 
         {/* FEATURES */}
-        <Features />
+        <section id="features">
+          <Features />
+        </section>
 
         {/* POPULAR LOCAL SKILLS */}
-        <PopularSkills onShowToast={showToast} />
+        <section id="skills">
+          <PopularSkills onShowToast={showToast} />
+        </section>
 
         {/* SERVICES SECTION */}
-        <ServicesSection />
+        <section id="services">
+          <ServicesSection />
+        </section>
 
         {/* HOW IT WORKS */}
-        <HowItWorks />
+        <section id="how-it-works">
+          <HowItWorks />
+        </section>
 
         {/* TRUST SECTION */}
-        <TrustSection onShowToast={showToast} />
+        <section id="trust">
+          <TrustSection onShowToast={showToast} />
+        </section>
 
         {/* CTA BANNER */}
         <section className="py-20 bg-white dark:bg-slate-950 transition-colors duration-300">
@@ -90,7 +108,7 @@ export default function Home() {
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">
                 <Link
-                  href="/register"
+                  href="/services"
                   className="w-full sm:w-auto text-center text-sm font-bold text-brand-primary dark:text-blue-400 bg-white dark:bg-slate-900 px-8 py-4 rounded-full shadow-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-95"
                 >
                   Find Nearby Services

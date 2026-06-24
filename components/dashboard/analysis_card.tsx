@@ -2,7 +2,6 @@
 
 import React from "react";
 import {
-  Briefcase,
   Eye,
   Heart,
   Star,
@@ -23,7 +22,7 @@ interface AnalyticsCardProps {
 }
 
 export function AnalyticsCard({
-  totalServices,
+  totalServices: _totalServices,
   totalViews,
   totalLikes,
   averageRating,

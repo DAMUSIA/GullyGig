@@ -16,12 +16,10 @@ import {
   Users,
   Zap,
   Award,
-  ArrowRight,
   Sparkles,
   Rocket,
   Target,
   Activity,
-  CircleDollarSign,
   ChevronRight,
   Flame,
   Crown,
@@ -80,6 +78,29 @@ interface ServiceReview {
   created_at: string;
   services?: { title: string };
   users?: { full_name: string };
+}
+
+// Define the monthly growth data point type
+interface MonthlyGrowthDataPoint {
+  month: string;
+  views: number;
+  likes: number;
+  rate: number;
+  [key: string]: string | number; // For dynamic service properties
+}
+
+// Define the funnel data type
+interface FunnelDataItem {
+  name: string;
+  value: number;
+  percentage: string;
+  gradient: string;
+  hoverGradient: string;
+  icon: React.ElementType;
+  description: string;
+  bgGlow: string;
+  color: string;
+  lightColor: string;
 }
 
 export default function AnalyticsPage() {
@@ -145,7 +166,7 @@ export default function AnalyticsPage() {
           .limit(5);
 
         if (!reviewsError && reviewsData) {
-          setReviews(reviewsData as ServiceReview[]);
+          setReviews((reviewsData as ServiceReview[]) || []);
         }
       } catch (err: unknown) {
         console.error("Error loading analytics:", err);
@@ -161,22 +182,19 @@ export default function AnalyticsPage() {
   // ── Loading state ──────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30">
-        <div className="text-center space-y-6">
-          <div className="relative">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 animate-pulse flex items-center justify-center shadow-2xl shadow-blue-500/30">
-              <Loader2 className="h-10 w-10 animate-spin text-white" />
-            </div>
-            <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping" />
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="text-center">
+          <div className="relative w-20 h-20 mx-auto">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 animate-pulse" />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 blur-xl opacity-30 animate-pulse" />
+            <Loader2 className="relative h-10 w-10 animate-spin text-white mx-auto mt-5" />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-slate-600">
-              Loading your analytics...
-            </p>
-            <p className="text-xs text-slate-400 mt-1">
-              Aggregating service performance data
-            </p>
-          </div>
+          <p className="text-sm font-semibold text-slate-600 mt-4">
+            Loading your analytics...
+          </p>
+          <p className="text-xs text-slate-400 mt-1">
+            Aggregating service performance data
+          </p>
         </div>
       </div>
     );
@@ -185,7 +203,7 @@ export default function AnalyticsPage() {
   // ── Error state ────────────────────────────────────────────────────────────
   if (error) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 p-4">
+      <div className="min-h-[60vh] flex items-center justify-center p-4">
         <div className="bg-white p-8 border border-slate-200 rounded-3xl shadow-2xl max-w-md w-full text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-red-500/30">
             <AlertCircle className="h-8 w-8 text-white" />
@@ -208,31 +226,24 @@ export default function AnalyticsPage() {
   // ── Empty state ────────────────────────────────────────────────────────────
   if (services.length === 0) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center py-10 px-4 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30">
-        <div
-          className="text-center bg-white border border-slate-200 rounded-3xl shadow-2xl flex flex-col items-center gap-6 p-10"
-          style={{ width: "clamp(340px, 50vw, 480px)" }}
-        >
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-full flex items-center justify-center shadow-2xl shadow-blue-500/30 shrink-0">
-            <BarChart3 className="h-10 w-10" />
+      <div className="min-h-[70vh] flex flex-col items-center justify-center py-10 px-4">
+        <div className="text-center max-w-md">
+          <div className="w-24 h-24 mx-auto bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/30 rotate-6 hover:rotate-0 transition-transform duration-500">
+            <BarChart3 className="h-12 w-12 text-white" />
           </div>
-
-          <div className="space-y-2 w-full">
-            <h2 className="text-2xl font-extrabold text-slate-800">
-              No Services Found
-            </h2>
-            <p className="text-sm text-slate-500 leading-6 font-medium">
-              Create your first service to start receiving views, likes, and
-              ratings. Performance charts will generate automatically.
-            </p>
-          </div>
-
+          <h2 className="text-2xl font-extrabold text-slate-800 mt-6">
+            No Services Found
+          </h2>
+          <p className="text-sm text-slate-500 leading-6 font-medium mt-2">
+            Create your first service to start receiving views, likes, and
+            ratings. Performance charts will generate automatically.
+          </p>
           <button
             onClick={() => router.push("/dashboard/create-service")}
-            className="inline-flex items-center justify-center gap-2 py-3.5 px-8 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-extrabold rounded-2xl shadow-xl shadow-blue-500/30 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer w-full"
+            className="mt-6 inline-flex items-center justify-center gap-2 py-3.5 px-8 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-extrabold rounded-2xl shadow-xl shadow-blue-500/30 transition-all duration-300 hover:scale-105 active:scale-95"
           >
             <Plus className="h-5 w-5" />
-            <span>Create Service</span>
+            <span>Create Your First Service</span>
           </button>
         </div>
       </div>
@@ -271,17 +282,19 @@ export default function AnalyticsPage() {
         )
       : 0.0;
 
-  // ── REAL DATA: Conversion Funnel ──────────────────────────────────────────
-  const funnelData = [
+  // ── REAL DATA: Conversion Funnel with improved design ────────────────────
+  const funnelData: FunnelDataItem[] = [
     {
       name: "Profile Views",
       value: totalViews || 0,
       percentage: "100%",
-      gradient: "from-blue-600 to-blue-800",
-      hoverGradient: "from-blue-500 to-blue-700",
+      gradient: "from-blue-700 to-blue-600",
+      hoverGradient: "from-blue-600 to-blue-500",
       icon: Eye,
       description: "Total profile visits",
       bgGlow: "shadow-blue-500/40",
+      color: "#1d4ed8",
+      lightColor: "#dbeafe",
     },
     {
       name: "Likes",
@@ -290,11 +303,13 @@ export default function AnalyticsPage() {
         totalViews > 0
           ? `${((totalLikes / totalViews) * 100).toFixed(1)}%`
           : "0%",
-      gradient: "from-blue-500 to-blue-700",
-      hoverGradient: "from-blue-400 to-blue-600",
+      gradient: "from-blue-600 to-blue-500",
+      hoverGradient: "from-blue-500 to-blue-400",
       icon: Heart,
       description: "Total likes received",
       bgGlow: "shadow-blue-400/40",
+      color: "#2563eb",
+      lightColor: "#bfdbfe",
     },
     {
       name: "Inquiries",
@@ -303,11 +318,13 @@ export default function AnalyticsPage() {
         totalViews > 0
           ? `${((totalContacts / totalViews) * 100).toFixed(1)}%`
           : "0%",
-      gradient: "from-blue-400 to-blue-600",
-      hoverGradient: "from-blue-300 to-blue-500",
+      gradient: "from-blue-500 to-blue-400",
+      hoverGradient: "from-blue-400 to-blue-300",
       icon: MessageSquare,
       description: "Total inquiries made",
       bgGlow: "shadow-blue-300/40",
+      color: "#3b82f6",
+      lightColor: "#93c5fd",
     },
     {
       name: "Students Joined",
@@ -316,11 +333,13 @@ export default function AnalyticsPage() {
         totalViews > 0
           ? `${((Math.round(totalViews * 0.018) / totalViews) * 100).toFixed(1)}%`
           : "0%",
-      gradient: "from-blue-300 to-blue-500",
-      hoverGradient: "from-blue-200 to-blue-400",
+      gradient: "from-blue-400 to-blue-300",
+      hoverGradient: "from-blue-300 to-blue-200",
       icon: Users,
       description: "Total students enrolled",
       bgGlow: "shadow-blue-200/40",
+      color: "#60a5fa",
+      lightColor: "#bfdbfe",
     },
   ];
 
@@ -336,8 +355,8 @@ export default function AnalyticsPage() {
     },
   ];
 
-  // ── REAL DATA: Monthly Growth with All Services ──────────────────────────
-  const getMonthlyGrowthData = () => {
+  // ── REAL DATA: Monthly Growth ─────────────────────────────────────────────
+  const getMonthlyGrowthData = (): MonthlyGrowthDataPoint[] => {
     const monthNames = [
       "Jan",
       "Feb",
@@ -353,17 +372,32 @@ export default function AnalyticsPage() {
       "Dec",
     ];
 
-    const serviceTitles = services.map((s) => s.title);
-
     const monthMap: Record<
       string,
-      Record<string, { views: number; likes: number; rate: number }>
+      {
+        views: number;
+        likes: number;
+        rate: number;
+        services: Record<
+          string,
+          { views: number; likes: number; rate: number }
+        >;
+      }
     > = {};
 
     monthNames.forEach((month) => {
-      monthMap[month] = {};
-      serviceTitles.forEach((title) => {
-        monthMap[month][title] = { views: 0, likes: 0, rate: 0 };
+      monthMap[month] = {
+        views: 0,
+        likes: 0,
+        rate: 0,
+        services: {},
+      };
+      services.forEach((service) => {
+        monthMap[month].services[service.title] = {
+          views: 0,
+          likes: 0,
+          rate: 0,
+        };
       });
     });
 
@@ -371,37 +405,69 @@ export default function AnalyticsPage() {
       const date = new Date(service.created_at);
       const month = monthNames[date.getMonth()];
 
-      if (monthMap[month] && monthMap[month][service.title]) {
-        monthMap[month][service.title].views += service.views_count || 0;
-        monthMap[month][service.title].likes += service.likes_count || 0;
-        if (service.views_count > 0) {
-          monthMap[month][service.title].rate =
-            (service.likes_count / service.views_count) * 100;
+      if (monthMap[month]) {
+        monthMap[month].views += service.views_count || 0;
+        monthMap[month].likes += service.likes_count || 0;
+        if (monthMap[month].services[service.title]) {
+          monthMap[month].services[service.title].views +=
+            service.views_count || 0;
+          monthMap[month].services[service.title].likes +=
+            service.likes_count || 0;
+          if (service.views_count > 0) {
+            monthMap[month].services[service.title].rate =
+              (service.likes_count / service.views_count) * 100;
+          }
         }
       }
     });
 
+    let cumulativeViews = 0;
+    let cumulativeLikes = 0;
+    const serviceCumulative: Record<
+      string,
+      { views: number; likes: number; rate: number }
+    > = {};
+    services.forEach((service) => {
+      serviceCumulative[service.title] = { views: 0, likes: 0, rate: 0 };
+    });
+
     return monthNames.map((month) => {
-      const dataPoint: any = { month };
-      serviceTitles.forEach((title) => {
-        if (monthMap[month] && monthMap[month][title]) {
-          dataPoint[`${title}_views`] = monthMap[month][title].views;
-          dataPoint[`${title}_likes`] = monthMap[month][title].likes;
-          dataPoint[`${title}_rate`] = parseFloat(
-            monthMap[month][title].rate.toFixed(1),
-          );
-        } else {
-          dataPoint[`${title}_views`] = 0;
-          dataPoint[`${title}_likes`] = 0;
-          dataPoint[`${title}_rate`] = 0;
+      cumulativeViews += monthMap[month].views;
+      cumulativeLikes += monthMap[month].likes;
+
+      const rate =
+        cumulativeViews > 0 ? (cumulativeLikes / cumulativeViews) * 100 : 0;
+
+      const dataPoint: MonthlyGrowthDataPoint = {
+        month,
+        views: cumulativeViews,
+        likes: cumulativeLikes,
+        rate: parseFloat(rate.toFixed(1)),
+      };
+
+      services.forEach((service) => {
+        const title = service.title;
+        serviceCumulative[title].views +=
+          monthMap[month].services[title]?.views || 0;
+        serviceCumulative[title].likes +=
+          monthMap[month].services[title]?.likes || 0;
+        if (serviceCumulative[title].views > 0) {
+          serviceCumulative[title].rate =
+            (serviceCumulative[title].likes / serviceCumulative[title].views) *
+            100;
         }
+        dataPoint[`${title}_views`] = serviceCumulative[title].views;
+        dataPoint[`${title}_likes`] = serviceCumulative[title].likes;
+        dataPoint[`${title}_rate`] = parseFloat(
+          serviceCumulative[title].rate.toFixed(1),
+        );
       });
+
       return dataPoint;
     });
   };
 
   const monthlyGrowthData = getMonthlyGrowthData();
-
   const serviceTitles = services.map((s) => s.title);
 
   const getServiceColor = (index: number) => {
@@ -428,9 +494,10 @@ export default function AnalyticsPage() {
   const getMaxGrowthValue = () => {
     let max = 0;
     monthlyGrowthData.forEach((item) => {
+      max = Math.max(max, item.views, item.likes);
       serviceTitles.forEach((title) => {
-        max = Math.max(max, item[`${title}_views`] || 0);
-        max = Math.max(max, item[`${title}_likes`] || 0);
+        max = Math.max(max, (item[`${title}_views`] as number) || 0);
+        max = Math.max(max, (item[`${title}_likes`] as number) || 0);
       });
     });
     return Math.max(10, max + 5);
@@ -464,7 +531,7 @@ export default function AnalyticsPage() {
     const activities: {
       text: string;
       time: string;
-      icon: any;
+      icon: React.ElementType;
       gradient: string;
       bgGradient: string;
       color: string;
@@ -607,24 +674,39 @@ export default function AnalyticsPage() {
         {/* Header */}
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-indigo-600/10 rounded-3xl blur-3xl -z-10 animate-pulse" />
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/60 backdrop-blur-xl rounded-3xl p-6 border border-white/40 shadow-xl shadow-blue-500/5">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 bg-clip-text text-transparent tracking-tight">
-                Performance Analytics
-              </h1>
-              <p className="text-sm text-slate-500 mt-1.5 font-medium flex items-center gap-2">
-                <Activity className="h-4 w-4 text-blue-500" />
-                Track metrics and audience growth across your {
-                  totalServices
-                }{" "}
-                tutoring services
-              </p>
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg shadow-blue-500/30">
+                  <Activity className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-600 bg-clip-text text-transparent">
+                    Performance Analytics
+                  </h1>
+                  <p className="text-sm text-slate-500 font-medium flex items-center gap-2">
+                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    {totalServices} services • {totalViews.toLocaleString()}{" "}
+                    total views
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-blue-200/60 px-5 py-2.5 rounded-2xl shadow-lg shadow-blue-500/10">
-              <Sparkles className="h-4 w-4 text-blue-500 animate-pulse" />
-              <span className="text-xs font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                {totalServices} Services • {totalViews} Views
-              </span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-blue-200/60 px-4 py-2 rounded-2xl shadow-sm">
+                <Sparkles className="h-4 w-4 text-blue-500 animate-pulse" />
+                <span className="text-xs font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  {totalServices} Services • {totalViews.toLocaleString()} Views
+                </span>
+              </div>
+              {topServicesList.length > 0 && (
+                <div className="hidden md:flex items-center gap-2 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 px-4 py-2 rounded-2xl shadow-sm">
+                  <Crown className="h-4 w-4 text-amber-500" />
+                  <span className="text-xs font-bold text-amber-700">
+                    Top: {topServicesList[0].name}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -640,30 +722,37 @@ export default function AnalyticsPage() {
           totalContacts={totalContacts}
         />
 
-        {/* ─── CONVERSION FUNNEL ─── */}
-        <div className="bg-white/80 backdrop-blur-sm border border-blue-200/60 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-500/10 hover:shadow-blue-500/20 transition-all duration-500">
+        {/* ─── IMPROVED CONVERSION FUNNEL ─── */}
+        <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-500/5 hover:shadow-blue-500/10 transition-all duration-500">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">
             <div>
-              <h3 className="text-lg font-extrabold text-slate-800 flex items-center gap-2">
-                <Target className="h-5 w-5 text-blue-600" />
-                Conversion Funnel
-              </h3>
-              <p className="text-xs text-slate-400 font-medium">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/30">
+                  <Target className="h-4 w-4 text-white" />
+                </div>
+                <h3 className="text-lg font-extrabold text-slate-800">
+                  Conversion Funnel
+                </h3>
+              </div>
+              <p className="text-xs text-slate-400 font-medium ml-11">
                 Customer journey from views to students joined
               </p>
             </div>
-            <div className="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/60 px-5 py-2.5 rounded-2xl shadow-md shadow-blue-500/10">
-              <Rocket className="h-4 w-4 text-blue-600 animate-bounce" />
+            <div className="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/60 px-5 py-2.5 rounded-2xl shadow-md shadow-blue-500/5">
+              <div className="p-1.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full">
+                <Rocket className="h-3.5 w-3.5 text-white" />
+              </div>
               <span className="text-sm font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 Overall: {overallConversionRate}%
               </span>
             </div>
           </div>
 
-          <div className="flex flex-col items-center py-4 space-y-3">
+          {/* Improved Funnel Stages */}
+          <div className="flex flex-col items-center py-4 space-y-4">
             {funnelData.map((item, idx) => {
-              const maxWidth = 85;
-              const minWidth = 25;
+              const maxWidth = 90;
+              const minWidth = 30;
               const step = (maxWidth - minWidth) / (funnelData.length - 1);
               const widthPercent = maxWidth - idx * step;
               const isHovered = hoveredFunnel === idx;
@@ -672,131 +761,229 @@ export default function AnalyticsPage() {
               return (
                 <div
                   key={idx}
-                  className="relative w-full flex justify-center"
+                  className="relative w-full flex justify-center group"
                   onMouseEnter={() => setHoveredFunnel(idx)}
                   onMouseLeave={() => setHoveredFunnel(null)}
                 >
+                  {/* Stage container */}
                   <div
-                    className={`relative bg-gradient-to-r ${isHovered ? item.hoverGradient : item.gradient} rounded-2xl transition-all duration-500 cursor-pointer group
-                      ${isHovered ? "scale-105 shadow-2xl " + item.bgGlow : "shadow-lg " + item.bgGlow}
-                    `}
+                    className={`relative transition-all duration-500 cursor-pointer`}
                     style={{
                       width: `${widthPercent}%`,
-                      minWidth: "160px",
-                      height: isHovered ? "60px" : "52px",
+                      minWidth: "180px",
                     }}
                   >
-                    {isHovered && (
-                      <div className="absolute inset-0 rounded-2xl bg-white/20 animate-pulse" />
-                    )}
+                    {/* Main stage bar */}
+                    <div
+                      className={`relative bg-gradient-to-r ${item.gradient} rounded-2xl transition-all duration-500
+                        ${isHovered ? "scale-105 shadow-2xl " + item.bgGlow : "shadow-lg " + item.bgGlow}
+                      `}
+                      style={{
+                        height: isHovered ? "64px" : "56px",
+                      }}
+                    >
+                      {/* Animated glow effect */}
+                      {isHovered && (
+                        <div className="absolute inset-0 rounded-2xl bg-white/20 animate-pulse" />
+                      )}
 
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                      <Icon
-                        className={`h-4 w-4 text-white/90 transition-all duration-300 ${isHovered ? "scale-110 rotate-12" : ""}`}
+                      {/* Progress bar fill animation */}
+                      <div
+                        className="absolute inset-0 rounded-2xl bg-white/10 transition-all duration-1000"
+                        style={{
+                          width: isHovered ? "100%" : "0%",
+                          transition: "width 0.8s ease-in-out",
+                        }}
+                      />
+
+                      {/* Icon */}
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                        <div
+                          className={`p-1.5 rounded-xl bg-white/20 backdrop-blur-sm transition-all duration-300 ${isHovered ? "scale-110" : ""}`}
+                        >
+                          <Icon
+                            className={`h-4 w-4 text-white/90 transition-all duration-300 ${isHovered ? "rotate-12" : ""}`}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Label */}
+                      <div className="absolute left-14 top-1/2 -translate-y-1/2">
+                        <span
+                          className={`text-white text-xs sm:text-sm font-extrabold transition-all duration-300 ${isHovered ? "tracking-wider" : ""}`}
+                        >
+                          {item.name}
+                        </span>
+                      </div>
+
+                      {/* Value and Percentage */}
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-3">
+                        <span
+                          className={`text-white text-sm sm:text-base font-black transition-all duration-300 ${isHovered ? "scale-110" : ""}`}
+                        >
+                          {item.value.toLocaleString()}
+                        </span>
+                        <span
+                          className={`text-white/90 text-[10px] sm:text-xs font-bold bg-white/20 px-2.5 py-0.5 rounded-full backdrop-blur-sm ${isHovered ? "bg-white/30" : ""}`}
+                        >
+                          {item.percentage}
+                        </span>
+                      </div>
+
+                      {/* Bottom accent bar */}
+                      <div
+                        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-0.5 bg-white/30 rounded-full transition-all duration-500"
+                        style={{
+                          width: isHovered ? "80%" : "0%",
+                          transition: "width 0.8s ease-in-out",
+                        }}
                       />
                     </div>
 
-                    <div className="absolute left-10 top-1/2 -translate-y-1/2">
-                      <span
-                        className={`text-white text-xs sm:text-sm font-extrabold transition-all duration-300 ${isHovered ? "tracking-wider" : ""}`}
-                      >
-                        {item.name}
-                      </span>
+                    {/* Percentage bar indicator */}
+                    <div className="mt-2 h-1 w-full bg-slate-100/60 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-1000"
+                        style={{
+                          width: `${parseFloat(item.percentage)}%`,
+                          background: `linear-gradient(90deg, ${item.color}, ${item.color}CC)`,
+                          opacity: isHovered ? 1 : 0.6,
+                        }}
+                      />
                     </div>
 
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-3">
-                      <span
-                        className={`text-white text-sm sm:text-base font-black transition-all duration-300 ${isHovered ? "scale-110" : ""}`}
-                      >
-                        {item.value.toLocaleString()}
-                      </span>
-                      <span
-                        className={`text-white/90 text-[10px] sm:text-xs font-bold bg-white/20 px-2.5 py-0.5 rounded-full backdrop-blur-sm ${isHovered ? "bg-white/30" : ""}`}
-                      >
-                        {item.percentage}
-                      </span>
-                    </div>
-
-                    <div
-                      className="absolute bottom-0 left-0 h-1 bg-white/30 rounded-b-2xl transition-all duration-1000"
-                      style={{
-                        width: isHovered ? "100%" : "0%",
-                        transition: "width 0.8s ease-in-out",
-                      }}
-                    />
+                    {/* Hover tooltip */}
+                    {isHovered && (
+                      <div className="absolute -right-56 top-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-sm border border-blue-200/60 rounded-xl px-4 py-2.5 shadow-xl shadow-blue-500/20 z-20 animate-in fade-in slide-in-from-right-5">
+                        <p className="text-xs font-bold text-slate-700">
+                          {item.description}
+                        </p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">
+                          {item.value.toLocaleString()} total •{" "}
+                          {item.percentage} of total
+                        </p>
+                        <div className="mt-1.5 flex items-center gap-2">
+                          <div
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: item.color }}
+                          />
+                          <span className="text-[9px] font-bold text-slate-500">
+                            Conversion rate
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  {isHovered && (
-                    <div className="absolute -right-48 top-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-sm border border-blue-200/60 rounded-xl px-4 py-2 shadow-xl shadow-blue-500/20 z-10">
-                      <p className="text-xs font-bold text-slate-700">
-                        {item.description}
-                      </p>
-                      <p className="text-[10px] text-slate-400">
-                        {item.value.toLocaleString()} total
-                      </p>
+                  {/* Stage number badge */}
+                  <div className="absolute -left-6 top-1/2 -translate-y-1/2">
+                    <div
+                      className={`w-6 h-6 rounded-full bg-gradient-to-br ${item.gradient} text-white text-[9px] font-black flex items-center justify-center shadow-md transition-all duration-300 ${isHovered ? "scale-110 shadow-lg" : ""}`}
+                    >
+                      {idx + 1}
                     </div>
+                  </div>
+
+                  {/* Connecting line between stages */}
+                  {idx < funnelData.length - 1 && (
+                    <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-0.5 h-4 bg-gradient-to-b from-blue-400/60 to-blue-300/20 animate-pulse" />
                   )}
                 </div>
               );
             })}
           </div>
 
-          <div className="mt-6 bg-gradient-to-r from-blue-50/80 via-indigo-50/80 to-blue-50/80 border border-blue-200/40 rounded-2xl px-6 py-3.5 text-center">
-            <span className="text-sm font-extrabold text-slate-700">
-              🎉 Great! Your overall conversion rate is {overallConversionRate}%
-            </span>
-            <span className="text-xs text-slate-500 ml-2 font-medium">
-              {totalViews > 0
-                ? `${totalViews.toLocaleString()} views • ${totalLikes.toLocaleString()} likes`
-                : "Start getting views today!"}
-            </span>
+          {/* Success message */}
+          <div className="mt-8 bg-gradient-to-r from-blue-50/80 via-indigo-50/80 to-blue-50/80 border border-blue-200/40 rounded-2xl px-6 py-4 text-center">
+            <div className="flex items-center justify-center gap-2 flex-wrap">
+              <span className="text-lg">🎉</span>
+              <span className="text-sm font-extrabold text-slate-700">
+                Great! Your overall conversion rate is{" "}
+                <span className="text-blue-600">{overallConversionRate}%</span>
+              </span>
+              <span className="text-xs text-slate-500 font-medium">
+                •{" "}
+                {totalViews > 0
+                  ? `${totalViews.toLocaleString()} views • ${totalLikes.toLocaleString()} likes`
+                  : "Start getting views today!"}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* ─── MONTHLY GROWTH - SINGLE GRAPH WITH VIEWS & LIKES ─── */}
-        <div className="bg-white/80 backdrop-blur-sm border border-blue-200/60 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-500/10 hover:shadow-blue-500/20 transition-all duration-500">
+        {/* ─── MONTHLY GROWTH ─── */}
+        <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-500/5 hover:shadow-blue-500/10 transition-all duration-500">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
             <div>
-              <h3 className="text-lg font-extrabold text-slate-800 flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-blue-600" />
-                Monthly Growth
-              </h3>
-              <p className="text-xs text-slate-400 font-medium">
-                {serviceTitles.length} services • Views & Likes trend by month
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg shadow-emerald-500/30">
+                  <LineChartIcon className="h-4 w-4 text-white" />
+                </div>
+                <h3 className="text-lg font-extrabold text-slate-800">
+                  Monthly Growth
+                </h3>
+              </div>
+              <p className="text-xs text-slate-400 font-medium ml-11">
+                {serviceTitles.length} services • Views, Likes & Rate trends
               </p>
             </div>
-            <div className="flex flex-wrap gap-3 text-xs font-bold">
-              {serviceTitles.slice(0, 6).map((title, idx) => (
-                <span key={idx} className="flex items-center gap-1.5">
-                  <span
-                    className="w-3 h-3 rounded-full shadow-sm"
-                    style={{ backgroundColor: getServiceColor(idx) }}
-                  />
-                  {title.length > 12 ? title.substring(0, 12) + "…" : title}
-                </span>
-              ))}
-              {serviceTitles.length > 6 && (
-                <span className="text-slate-400 text-[10px]">
-                  +{serviceTitles.length - 6} more
-                </span>
-              )}
+            <div className="flex gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
+              <button
+                onClick={() => setActiveTab("views")}
+                className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all duration-200 ${
+                  activeTab === "views"
+                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/30"
+                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
+                }`}
+              >
+                Views
+              </button>
+              <button
+                onClick={() => setActiveTab("likes")}
+                className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all duration-200 ${
+                  activeTab === "likes"
+                    ? "bg-purple-600 text-white shadow-md shadow-purple-500/30"
+                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
+                }`}
+              >
+                Likes
+              </button>
+              <button
+                onClick={() => setActiveTab("rate")}
+                className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all duration-200 ${
+                  activeTab === "rate"
+                    ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/30"
+                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
+                }`}
+              >
+                Rate (%)
+              </button>
             </div>
           </div>
 
-          {/* Legend for View vs Like */}
-          <div className="flex items-center gap-4 mb-3 text-xs font-bold">
-            <span className="flex items-center gap-1.5">
-              <span className="w-4 h-0.5 bg-blue-600" />
-              Views
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-4 h-0.5 bg-red-400 border-t-2 border-dashed border-red-400" />
-              Likes
-            </span>
+          {/* Legend */}
+          <div className="flex flex-wrap gap-2 mb-4 text-[10px] font-bold">
+            {serviceTitles.slice(0, 8).map((title, idx) => (
+              <span
+                key={idx}
+                className="flex items-center gap-1.5 bg-white/80 px-2.5 py-1 rounded-lg border border-slate-200/60 shadow-sm"
+              >
+                <span
+                  className="w-2.5 h-2.5 rounded-full"
+                  style={{ backgroundColor: getServiceColor(idx) }}
+                />
+                {title.length > 10 ? title.substring(0, 10) + "…" : title}
+              </span>
+            ))}
+            {serviceTitles.length > 8 && (
+              <span className="text-slate-400 flex items-center bg-white/80 px-2.5 py-1 rounded-lg border border-slate-200/60">
+                +{serviceTitles.length - 8} more
+              </span>
+            )}
           </div>
 
-          {/* Single Combined Chart */}
-          <div className="h-72 w-full">
+          {/* Chart */}
+          <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={monthlyGrowthData}
@@ -830,48 +1017,38 @@ export default function AnalyticsPage() {
                   wrapperStyle={{ fontSize: "10px", fontWeight: "bold" }}
                 />
 
-                {/* Views Lines - Solid */}
-                {serviceTitles.map((title, idx) => (
-                  <Line
-                    key={`${title}_views`}
-                    type="monotone"
-                    dataKey={`${title}_views`}
-                    stroke={getServiceColor(idx)}
-                    strokeWidth={2.5}
-                    dot={{ r: 4, fill: getServiceColor(idx) }}
-                    activeDot={{
-                      r: 6,
-                      stroke: getServiceColor(idx),
-                      strokeWidth: 2,
-                    }}
-                    name={`${title} (Views)`}
-                  />
-                ))}
-
-                {/* Likes Lines - Dashed */}
-                {serviceTitles.map((title, idx) => (
-                  <Line
-                    key={`${title}_likes`}
-                    type="monotone"
-                    dataKey={`${title}_likes`}
-                    stroke={getServiceColor(idx)}
-                    strokeWidth={2}
-                    strokeDasharray="6 4"
-                    dot={{
-                      r: 3,
-                      fill: getServiceColor(idx),
-                      stroke: getServiceColor(idx),
-                      strokeWidth: 1,
-                    }}
-                    activeDot={{
-                      r: 5,
-                      stroke: getServiceColor(idx),
-                      strokeWidth: 2,
-                    }}
-                    name={`${title} (Likes)`}
-                    opacity={0.7}
-                  />
-                ))}
+                {serviceTitles.map((title, idx) => {
+                  const dataKey =
+                    activeTab === "views"
+                      ? `${title}_views`
+                      : activeTab === "likes"
+                        ? `${title}_likes`
+                        : `${title}_rate`;
+                  const color = getServiceColor(idx);
+                  const isRate = activeTab === "rate";
+                  return (
+                    <Line
+                      key={`${title}_${activeTab}`}
+                      type="monotone"
+                      dataKey={dataKey}
+                      stroke={color}
+                      strokeWidth={isRate ? 2.5 : 2.5}
+                      strokeDasharray={isRate ? "6 4" : "0"}
+                      dot={{
+                        r: isRate ? 4 : 3,
+                        fill: color,
+                        stroke: "white",
+                        strokeWidth: 1,
+                      }}
+                      activeDot={{
+                        r: isRate ? 6 : 5,
+                        stroke: color,
+                        strokeWidth: 2,
+                      }}
+                      name={`${title} (${activeTab === "views" ? "Views" : activeTab === "likes" ? "Likes" : "Rate %"})`}
+                    />
+                  );
+                })}
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -886,22 +1063,12 @@ export default function AnalyticsPage() {
                 {totalViews.toLocaleString()}
               </p>
             </div>
-            <div className="bg-red-50/70 rounded-xl px-3 py-2 text-center border border-red-200/40">
+            <div className="bg-purple-50/70 rounded-xl px-3 py-2 text-center border border-purple-200/40">
               <p className="text-[10px] font-bold text-slate-400 uppercase">
                 Total Likes
               </p>
-              <p className="text-sm font-black text-red-500">
-                {totalLikes.toLocaleString()}
-              </p>
-            </div>
-            <div className="bg-purple-50/70 rounded-xl px-3 py-2 text-center border border-purple-200/40">
-              <p className="text-[10px] font-bold text-slate-400 uppercase">
-                Avg Views/Service
-              </p>
               <p className="text-sm font-black text-purple-600">
-                {totalServices > 0
-                  ? Math.round(totalViews / totalServices).toLocaleString()
-                  : "0"}
+                {totalLikes.toLocaleString()}
               </p>
             </div>
             <div className="bg-emerald-50/70 rounded-xl px-3 py-2 text-center border border-emerald-200/40">
@@ -912,24 +1079,36 @@ export default function AnalyticsPage() {
                 {overallConversionRate}%
               </p>
             </div>
+            <div className="bg-amber-50/70 rounded-xl px-3 py-2 text-center border border-amber-200/40">
+              <p className="text-[10px] font-bold text-slate-400 uppercase">
+                Total Services
+              </p>
+              <p className="text-sm font-black text-amber-600">
+                {totalServices}
+              </p>
+            </div>
           </div>
         </div>
 
         {/* ─── TOP PERFORMING SERVICES ─── */}
-        <div className="bg-white/80 backdrop-blur-sm border border-blue-200/60 rounded-3xl shadow-2xl shadow-blue-500/10 hover:shadow-blue-500/20 transition-all duration-500 overflow-hidden">
-          <div className="px-6 py-5 border-b border-blue-100/60 bg-gradient-to-r from-blue-50/50 via-white to-indigo-50/50">
+        <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl shadow-2xl shadow-blue-500/5 hover:shadow-blue-500/10 transition-all duration-500 overflow-hidden">
+          <div className="px-6 py-5 border-b border-blue-100/60 bg-gradient-to-r from-blue-50/30 via-white to-indigo-50/30">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-extrabold text-slate-800 flex items-center gap-2">
-                  <Award className="h-5 w-5 text-amber-500" />
-                  Top Performing Services
-                </h3>
-                <p className="text-xs text-slate-400 font-medium">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg shadow-amber-500/30">
+                    <Award className="h-4 w-4 text-white" />
+                  </div>
+                  <h3 className="text-lg font-extrabold text-slate-800">
+                    Top Performing Services
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-400 font-medium ml-11">
                   {topServicesList.length} services • Total views:{" "}
                   {totalViews.toLocaleString()}
                 </p>
               </div>
-              <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200/60 shadow-sm">
+              <span className="text-[10px] font-bold text-blue-600 bg-blue-50/80 px-3 py-1.5 rounded-full border border-blue-200/60 shadow-sm">
                 {topServicesList.length} services
               </span>
             </div>
@@ -937,57 +1116,95 @@ export default function AnalyticsPage() {
           {topServicesList.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-left">
-                <thead className="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 border-b border-blue-200/60">
-                  <tr>
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-blue-600 uppercase tracking-wider">
+                <thead>
+                  <tr className="bg-gradient-to-r from-slate-50/80 to-slate-100/30">
+                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                       #
                     </th>
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-blue-600 uppercase tracking-wider">
+                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                       Service
                     </th>
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-blue-600 uppercase tracking-wider text-center">
+                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
                       Views
                     </th>
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-blue-600 uppercase tracking-wider text-center">
+                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
                       Likes
                     </th>
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-blue-600 uppercase tracking-wider text-center">
+                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
                       Inquiries
                     </th>
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-blue-600 uppercase tracking-wider text-center">
+                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
                       Joined
                     </th>
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-blue-600 uppercase tracking-wider text-center">
+                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
                       Rating
                     </th>
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-blue-600 uppercase tracking-wider text-center">
+                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
                       Conversion
                     </th>
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-blue-600 uppercase tracking-wider text-center">
+                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
                       Growth
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-blue-100/40">
+                <tbody className="divide-y divide-slate-100/60">
                   {topServicesList.map((s, idx) => {
-                    const colors = [
-                      "from-blue-400 to-blue-600",
-                      "from-blue-500 to-blue-700",
-                      "from-blue-300 to-blue-500",
-                      "from-blue-400 to-blue-600",
-                      "from-blue-200 to-blue-400",
+                    const colorMap = [
+                      {
+                        bg: "from-blue-400 to-blue-600",
+                        shadow: "shadow-blue-500/30",
+                      },
+                      {
+                        bg: "from-purple-400 to-purple-600",
+                        shadow: "shadow-purple-500/30",
+                      },
+                      {
+                        bg: "from-emerald-400 to-emerald-600",
+                        shadow: "shadow-emerald-500/30",
+                      },
+                      {
+                        bg: "from-amber-400 to-amber-600",
+                        shadow: "shadow-amber-500/30",
+                      },
+                      {
+                        bg: "from-rose-400 to-rose-600",
+                        shadow: "shadow-rose-500/30",
+                      },
                     ];
+                    const medalIcons = [
+                      <Crown
+                        key="crown"
+                        className="h-3.5 w-3.5 text-yellow-400"
+                      />,
+                      <Medal
+                        key="medal2"
+                        className="h-3.5 w-3.5 text-slate-400"
+                      />,
+                      <Medal
+                        key="medal3"
+                        className="h-3.5 w-3.5 text-amber-600"
+                      />,
+                      <Flame
+                        key="flame"
+                        className="h-3.5 w-3.5 text-orange-400"
+                      />,
+                      <Zap key="zap" className="h-3.5 w-3.5 text-blue-400" />,
+                    ];
+                    const colors = colorMap[idx % colorMap.length];
                     return (
                       <tr
                         key={s.id}
-                        className="hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-transparent transition-all duration-300 group"
+                        className="hover:bg-gradient-to-r hover:from-blue-50/30 hover:to-transparent transition-all duration-300 group"
                       >
                         <td className="px-6 py-4 text-center">
-                          <span
-                            className={`w-7 h-7 rounded-full bg-gradient-to-br ${colors[idx]} text-white text-[10px] font-black flex items-center justify-center group-hover:scale-110 transition-transform shadow-md shadow-blue-500/30`}
-                          >
-                            {idx + 1}
-                          </span>
+                          <div className="flex items-center justify-center gap-1">
+                            {idx < 3 && medalIcons[idx]}
+                            <span
+                              className={`w-7 h-7 rounded-full bg-gradient-to-br ${colors.bg} text-white text-[10px] font-black flex items-center justify-center group-hover:scale-110 transition-transform shadow-md ${colors.shadow}`}
+                            >
+                              {idx + 1}
+                            </span>
+                          </div>
                         </td>
                         <td className="px-6 py-4 font-extrabold text-slate-800">
                           {s.name}
@@ -1042,29 +1259,34 @@ export default function AnalyticsPage() {
         {/* ─── TWO COLUMN: RECENT ACTIVITY + CONVERSION OVERVIEW ─── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Activity */}
-          <div className="bg-white/80 backdrop-blur-sm border border-blue-200/60 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-500/10 hover:shadow-blue-500/20 transition-all duration-500">
+          <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-500/5 hover:shadow-blue-500/10 transition-all duration-500">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h3 className="text-lg font-extrabold text-slate-800 flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-blue-600" />
-                  Recent Activity
-                </h3>
-                <p className="text-xs text-slate-400 font-medium">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/30">
+                    <Clock className="h-4 w-4 text-white" />
+                  </div>
+                  <h3 className="text-lg font-extrabold text-slate-800">
+                    Recent Activity
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-400 font-medium ml-11">
                   {recentActivity.length} recent updates from your services
                 </p>
               </div>
-              <span className="text-[10px] font-bold text-blue-600 bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-1.5 rounded-full border border-blue-200/60 shadow-sm animate-pulse">
-                ● Live
+              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50/80 px-3 py-1.5 rounded-full border border-emerald-200/60 shadow-sm animate-pulse flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Live
               </span>
             </div>
             {recentActivity.length > 0 ? (
-              <div className="space-y-3.5">
+              <div className="space-y-3">
                 {recentActivity.map((activity, idx) => {
                   const Icon = activity.icon;
                   return (
                     <div
                       key={idx}
-                      className={`flex items-start gap-4 bg-gradient-to-r ${activity.bgGradient} rounded-2xl p-4 hover:from-blue-50/50 hover:to-indigo-50/50 transition-all duration-300 border border-transparent hover:border-blue-200/60 group shadow-sm hover:shadow-md`}
+                      className={`flex items-start gap-4 bg-gradient-to-r ${activity.bgGradient} rounded-2xl p-4 hover:from-blue-50/30 hover:to-indigo-50/30 transition-all duration-300 border border-transparent hover:border-blue-200/40 group shadow-sm hover:shadow-md`}
                     >
                       <div
                         className={`w-10 h-10 rounded-xl bg-gradient-to-r ${activity.gradient} text-white flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform shadow-md`}
@@ -1079,7 +1301,7 @@ export default function AnalyticsPage() {
                           {activity.time}
                         </span>
                       </div>
-                      <ArrowRight className="h-4 w-4 text-blue-400 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1 shrink-0" />
+                      <ChevronRight className="h-4 w-4 text-slate-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                     </div>
                   );
                 })}
@@ -1094,14 +1316,18 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Conversion Overview */}
-          <div className="bg-white/80 backdrop-blur-sm border border-blue-200/60 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-500/10 hover:shadow-blue-500/20 transition-all duration-500">
+          <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-500/5 hover:shadow-blue-500/10 transition-all duration-500">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h3 className="text-lg font-extrabold text-slate-800 flex items-center gap-2">
-                  <CircleDollarSign className="h-5 w-5 text-blue-600" />
-                  Conversion Overview
-                </h3>
-                <p className="text-xs text-slate-400 font-medium">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl shadow-lg shadow-rose-500/30">
+                    <PieChartIcon className="h-4 w-4 text-white" />
+                  </div>
+                  <h3 className="text-lg font-extrabold text-slate-800">
+                    Conversion Overview
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-400 font-medium ml-11">
                   Total: {totalViews.toLocaleString()} views •{" "}
                   {totalLikes.toLocaleString()} likes
                 </p>
@@ -1109,16 +1335,16 @@ export default function AnalyticsPage() {
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="relative w-56 h-56">
+              <div className="relative w-52 h-52">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={pieData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={65}
-                      outerRadius={90}
-                      paddingAngle={2}
+                      innerRadius={60}
+                      outerRadius={85}
+                      paddingAngle={3}
                       dataKey="value"
                     >
                       {pieData.map((entry, index) => (
@@ -1143,7 +1369,7 @@ export default function AnalyticsPage() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
+              <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
                 {conversionOverview.map((item, idx) => {
                   const Icon = item.icon;
                   return (
@@ -1167,7 +1393,7 @@ export default function AnalyticsPage() {
               </div>
             </div>
 
-            <div className="mt-5 space-y-2.5 border-t border-blue-100/60 pt-4">
+            <div className="mt-5 space-y-2 border-t border-slate-100/60 pt-4">
               {conversionOverview.map((item, idx) => {
                 const Icon = item.icon;
                 return (

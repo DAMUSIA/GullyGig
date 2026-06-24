@@ -609,7 +609,7 @@ export default function CreateServicePage() {
                 </h3>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-3">
                 <div className="space-y-1.5">
                   <label
                     htmlFor="starting-price"
@@ -645,33 +645,48 @@ export default function CreateServicePage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label
-                    htmlFor="price-unit"
-                    className="block text-sm font-semibold text-slate-700"
-                  >
+                  <label className="block text-sm font-semibold text-slate-700">
                     Price Unit{" "}
                     <span className="text-slate-400 font-normal">
                       (Optional)
                     </span>
                   </label>
-                  <select
-                    id="price-unit"
-                    value={formData.price_unit}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        price_unit: e.target.value,
-                      }))
-                    }
-                    disabled={formData.starting_price === null}
-                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-150 font-medium cursor-pointer"
-                  >
-                    {PRICE_UNITS.map((unit) => (
-                      <option key={unit} value={unit}>
-                        {unit}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex flex-wrap gap-2.5">
+                    {PRICE_UNITS.map((unit) => {
+                      const isSelected = formData.price_unit === unit;
+                      const isDisabled = formData.starting_price === null;
+                      return (
+                        <button
+                          type="button"
+                          key={unit}
+                          onClick={() => {
+                            if (!isDisabled) {
+                              setFormData((prev) => ({
+                                ...prev,
+                                price_unit: unit,
+                              }));
+                            }
+                          }}
+                          disabled={isDisabled}
+                          className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-sm font-semibold border transition-all active:scale-95 cursor-pointer shadow-xs ${
+                            isSelected
+                              ? "bg-blue-600 border-blue-600 text-white"
+                              : "bg-white border-slate-200 text-slate-600 hover:border-slate-350 hover:bg-slate-55/40"
+                          } ${isDisabled ? "opacity-50 cursor-not-allowed hover:bg-white hover:border-slate-200" : ""}`}
+                        >
+                          {isSelected && (
+                            <Check className="h-3.5 w-3.5 text-white" />
+                          )}
+                          <span>{unit}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {formData.starting_price === null && (
+                    <p className="text-[10px] text-amber-500 mt-1">
+                      Set a starting price first to select a price unit
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

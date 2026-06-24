@@ -145,3 +145,4 @@ export default function Footer({ onShowToast }: FooterProps) {
     </footer>
   );
 }
+//added logo

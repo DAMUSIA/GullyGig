@@ -19,6 +19,48 @@ export default function Home() {
   const [toast, setToast] = useState<string | null>(null);
   const [darkMode, setDarkMode] = useState(false);
 
+  // Sync dark mode state with document.documentElement on load and observe modifications
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    const hasDarkClass = document.documentElement.classList.contains("dark");
+    
+    let activeDark = false;
+    if (savedTheme === "dark") {
+      activeDark = true;
+      document.documentElement.classList.add("dark");
+    } else if (savedTheme === "light") {
+      activeDark = false;
+      document.documentElement.classList.remove("dark");
+    } else {
+      activeDark = hasDarkClass;
+    }
+    
+    setDarkMode(activeDark);
+
+    const observer = new MutationObserver(() => {
+      setDarkMode(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const toggleDarkMode = () => {
+    const root = document.documentElement;
+    if (root.classList.contains("dark")) {
+      root.classList.remove("dark");
+      setDarkMode(false);
+      localStorage.setItem("theme", "light");
+    } else {
+      root.classList.add("dark");
+      setDarkMode(true);
+      localStorage.setItem("theme", "dark");
+    }
+  };
+
   const showToast = (message: string) => {
     setToast(null);
     setTimeout(() => {
@@ -50,7 +92,7 @@ export default function Home() {
       {/* HEADER */}
       <Navbar
         darkMode={darkMode}
-        onToggleDarkMode={() => setDarkMode(!darkMode)}
+        onToggleDarkMode={toggleDarkMode}
       />
 
       {/* MAIN CONTENT */}

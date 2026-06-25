@@ -91,6 +91,28 @@ export default function ServicesPage() {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Auto-scroll to first service when page changes
+  const isFirstRender = React.useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const element = document.getElementById("services-list");
+    if (element) {
+      const offset = 100; // Account for fixed header height (72px) plus spacing
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
+  }, [currentPage]);
+
   // Geolocation auto detect loading
   const [detectingLoc, setDetectingLoc] = useState(false);
 
@@ -114,9 +136,21 @@ export default function ServicesPage() {
 
   // Dark Mode detection & syncing
   useEffect(() => {
-    const isDarkTheme = document.documentElement.classList.contains("dark");
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsDark(isDarkTheme);
+    const savedTheme = localStorage.getItem("theme");
+    const hasDarkClass = document.documentElement.classList.contains("dark");
+    
+    let activeDark = false;
+    if (savedTheme === "dark") {
+      activeDark = true;
+      document.documentElement.classList.add("dark");
+    } else if (savedTheme === "light") {
+      activeDark = false;
+      document.documentElement.classList.remove("dark");
+    } else {
+      activeDark = hasDarkClass;
+    }
+    
+    setIsDark(activeDark);
 
     const observer = new MutationObserver(() => {
       setIsDark(document.documentElement.classList.contains("dark"));
@@ -626,7 +660,7 @@ export default function ServicesPage() {
 
         {/* 1-Column Service Listing (UI Improved & Height Slightly Decreased) */}
         {!loading && !error && currentServicesList.length > 0 && (
-          <div className="flex flex-col gap-5 max-w-4xl mx-auto">
+          <div id="services-list" className="flex flex-col gap-5 max-w-4xl mx-auto">
             {currentServicesList.map((service) => {
               const contacts = service.contact_numbers || [];
               const phoneFallback = service.users?.phone_no;
@@ -769,13 +803,13 @@ export default function ServicesPage() {
                     <div className="flex-1 flex flex-col items-start gap-2">
                       {hasContacts ? (
                         <div className="w-full space-y-1.5">
-                          <div className="overflow-hidden bg-slate-50 dark:bg-slate-955 border border-slate-150 dark:border-slate-850 rounded-xl p-2.5 flex flex-col gap-1.5 max-w-none">
+                          <div className="overflow-hidden bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl p-2.5 flex flex-col gap-1.5 max-w-none">
                             {contacts.length > 0 ? (
                               contacts.map((num, i) => (
                                 <a
                                   key={i}
                                   href={`tel:${num}`}
-                                  className="flex items-center gap-1.5 text-xs font-bold text-slate-750 dark:text-slate-300 hover:text-brand-primary hover:underline"
+                                  className="flex items-center gap-1.5 text-xs font-bold text-slate-850 dark:text-slate-200 hover:text-brand-primary dark:hover:text-blue-400 hover:underline"
                                 >
                                   <Icon
                                     name="call"
@@ -788,7 +822,7 @@ export default function ServicesPage() {
                             ) : (
                               <a
                                 href={`tel:${phoneFallback}`}
-                                className="flex items-center gap-1.5 text-xs font-bold text-slate-750 dark:text-slate-300 hover:text-brand-primary hover:underline"
+                                className="flex items-center gap-1.5 text-xs font-bold text-slate-850 dark:text-slate-200 hover:text-brand-primary dark:hover:text-blue-400 hover:underline"
                               >
                                 <Icon
                                   name="call"

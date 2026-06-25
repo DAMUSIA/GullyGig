@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Send, Loader2 } from "lucide-react";
+import Image from "next/image";
 
 interface PublishStickyBarProps {
   isValid: boolean;
@@ -16,15 +17,25 @@ export default function PublishStickyBar({
 }: PublishStickyBarProps) {
   return (
     <div className="mt-10 bg-white/90 border-t border-slate-200/70 shadow-sm px-4 py-4 md:py-5 animate-in fade-in duration-300 rounded-3xl">
-      <div className="max-w-4xl mx-auto flex items-center justify-between gap-4 ">
-        {/* Help Tip */}
-        <div className="hidden md:block text-left ">
-          <h4 className="text-xs font-bold text-slate-700">Ready to go?</h4>
-          <p className="text-[10px] text-slate-400">
-            {isValid
-              ? "All required fields are ready. Hit publish to go live!"
-              : "Complete the required fields to publish your teaching service."}
-          </p>
+      <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+        {/* Help Tip with Logo */}
+        <div className="hidden md:flex items-center gap-3 text-left">
+          <div className="relative w-8 h-8 flex-shrink-0">
+            <Image
+              src="/logo.png"
+              alt="Kaamao Logo"
+              fill
+              className="object-contain"
+            />
+          </div>
+          <div>
+            <h4 className="text-xs font-bold text-slate-700">Ready to go?</h4>
+            <p className="text-[10px] text-slate-400">
+              {isValid
+                ? "All required fields are ready. Hit publish to go live!"
+                : "Complete the required fields to publish your teaching service."}
+            </p>
+          </div>
         </div>
 
         {/* Publish Button */}

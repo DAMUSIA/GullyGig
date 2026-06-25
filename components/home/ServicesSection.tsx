@@ -31,6 +31,19 @@ export default function ServicesSection() {
       id="services-section"
       className="scroll-mt-20 py-24 bg-slate-50 dark:bg-slate-950 transition-colors duration-300 relative overflow-hidden"
     >
+      {/* Force all phone numbers to be visible in dark mode */}
+      <style jsx global>{`
+        .dark .font-mono {
+          color: #ffffff !important;
+        }
+        .dark .font-bold.font-mono {
+          color: #ffffff !important;
+        }
+        .dark [class*="font-mono"] {
+          color: #ffffff !important;
+        }
+      `}</style>
+
       <div className="mx-auto max-w-[1140px] px-6 relative z-10">
         {/* Minimalist Section Header */}
         <div className="text-center mb-16 flex flex-col items-center">

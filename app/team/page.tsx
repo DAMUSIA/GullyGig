@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   motion,
   useMotionValue,
@@ -389,8 +390,15 @@ export default function TeamPage() {
       <header className="sticky top-0 z-50 bg-white/70 dark:bg-[#0B1120]/70 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80 transition-colors duration-500">
         <div className="mx-auto flex h-20 max-w-[1400px] items-center justify-between px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20 group-hover:scale-105 transition-transform duration-300">
-              <Icon name="check" fill className="text-sm text-white" />
+            {/* Logo Image */}
+            <div className="relative w-10 h-10 flex-shrink-0">
+              <Image
+                src="/logo.png"
+                alt="Kaamao Logo"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
             <span className="font-extrabold text-slate-900 dark:text-white text-xl tracking-tight">
               GullyGig

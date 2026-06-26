@@ -304,13 +304,7 @@ export default function AuthPage({
           </div>
 
           <div className="relative z-10">
-            {/* 
-               LOGO SIZE CONFIGURATION (Mobile Responsive):
-               - Mobile: h-12 w-40 (48px height, 160px width)
-               - Tablet/Desktop (sm and up): h-14 w-48 (56px height, 192px width)
-               You can adjust these classes (e.g. h-12, w-40, sm:h-14, sm:w-48) to fit your logo's dimensions.
-            */}
-            <div className="relative h-12 w-40 sm:h-14 sm:w-48 overflow-hidden mb-8">
+            <div className="relative h-12 w-26 sm:h-28 sm:w-28 overflow-hidden mb-8">
               <Image
                 src="/logo_light.png"
                 alt="Logo"

@@ -273,15 +273,15 @@ export default function CreateServicePage() {
       user_id: user.id,
       title: formData.title.trim(),
       category: finalCategory,
-      description: formData.description.trim() || null, // Optional
+      description: formData.description.trim() || "", // DB constraint requires NOT NULL
       service_modes:
-        formData.service_modes.length > 0 ? formData.service_modes : null, // Optional
-      city: formData.city.trim() || null, // Optional
+        formData.service_modes.length > 0 ? formData.service_modes : [], // DB constraint requires NOT NULL
+      city: formData.city.trim() || "", // DB constraint requires NOT NULL
       area: formData.area.trim() || null, // Optional
       latitude: formData.latitude, // Optional
       longitude: formData.longitude, // Optional
       availability:
-        formData.availability.length > 0 ? formData.availability : null, // Optional
+        formData.availability.length > 0 ? formData.availability : [], // DB constraint requires NOT NULL
       languages:
         formData.languages.length > 0 ? formData.languages : ["English"], // Optional
       starting_price: finalPrice, // Optional
@@ -336,12 +336,7 @@ export default function CreateServicePage() {
     } catch (err: unknown) {
       console.error("Failed to publish service:", err);
       const errMsg = err instanceof Error ? err.message : String(err);
-      if (errMsg.includes("relation") || errMsg.includes("configured")) {
-        console.warn("Falling back to demo flow success (mock connection)");
-        setShowSuccessModal(true);
-      } else {
-        setDbError(errMsg || "Failed to publish service. Please try again.");
-      }
+      setDbError(errMsg || "Failed to publish service. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -349,7 +344,9 @@ export default function CreateServicePage() {
 
   const handleModalClose = () => {
     setShowSuccessModal(false);
-    router.push("/dashboard");
+    // Use full page navigation so the dashboard remounts and refetches
+    // all services from Supabase (router.push alone reuses the cached page)
+    window.location.href = "/dashboard";
   };
 
   if (authLoading) {

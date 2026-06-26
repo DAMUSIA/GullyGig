@@ -208,7 +208,16 @@ export default function AuthPage({
       setIsLoading(true);
       try {
         const loginEmail = `phone_${cleanPhone}@gullygig.in`;
-        const result = await signIn({ email: loginEmail, password });
+        let result = await signIn({ email: loginEmail, password });
+
+        // Fallback to legacy domain if initial login fails
+        if (!result.success) {
+          const legacyEmail = `phone_${cleanPhone}@kaamao.com`;
+          const legacyResult = await signIn({ email: legacyEmail, password });
+          if (legacyResult.success) {
+            result = legacyResult;
+          }
+        }
 
         if (result.success) {
           if (keepLoggedIn) {

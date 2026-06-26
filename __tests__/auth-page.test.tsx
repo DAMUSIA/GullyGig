@@ -52,9 +52,13 @@ vi.mock("next/link", () => ({
 
 vi.mock("framer-motion", () => ({
   motion: {
-    div: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => (
-      <div {...props}>{children}</div>
-    ),
+    div: ({
+      children,
+      ...props
+    }: {
+      children?: React.ReactNode;
+      [key: string]: unknown;
+    }) => <div {...props}>{children}</div>,
   },
   AnimatePresence: ({ children }: { children: React.ReactNode }) => (
     <>{children}</>

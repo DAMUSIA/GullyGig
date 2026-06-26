@@ -48,10 +48,7 @@ vi.mock("@supabase/supabase-js", () => ({
 
 import { POST } from "../app/api/auth/sync-profile/route";
 
-const makeRequest = (
-  body: unknown,
-  token: string | null = "valid-token",
-) => {
+const makeRequest = (body: unknown, token: string | null = "valid-token") => {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };

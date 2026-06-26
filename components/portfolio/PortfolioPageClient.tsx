@@ -150,7 +150,7 @@ export default function PortfolioPageClient({
     const systemPrefersDark = window.matchMedia(
       "(prefers-color-scheme: dark)",
     ).matches;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setDarkMode(savedTheme === "dark" || (!savedTheme && systemPrefersDark));
   }, []);
 

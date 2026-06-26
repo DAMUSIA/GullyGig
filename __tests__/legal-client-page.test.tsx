@@ -239,7 +239,10 @@ describe("LegalClientPage – parseMarkdownToReact (rendered output)", () => {
     );
 
     // "Terms of Service" from "# Terms of Service" should appear as h1
-    const h1 = screen.getByRole("heading", { level: 1, name: /terms of service/i });
+    const h1 = screen.getByRole("heading", {
+      level: 1,
+      name: /terms of service/i,
+    });
     expect(h1).toBeTruthy();
   });
 
@@ -253,7 +256,10 @@ describe("LegalClientPage – parseMarkdownToReact (rendered output)", () => {
       />,
     );
 
-    const h2 = screen.getByRole("heading", { level: 2, name: /1. about gullygig/i });
+    const h2 = screen.getByRole("heading", {
+      level: 2,
+      name: /1. about gullygig/i,
+    });
     expect(h2).toBeTruthy();
   });
 
@@ -400,7 +406,9 @@ describe("LegalClientPage – getSectionIcon (via rendered aria/visual output)",
       />,
     );
 
-    const whoWeAreSection = screen.getByText("1. Who We Are").closest("section");
+    const whoWeAreSection = screen
+      .getByText("1. Who We Are")
+      .closest("section");
     expect(whoWeAreSection).toBeTruthy();
     const iconDiv = whoWeAreSection?.querySelector(".bg-blue-50");
     expect(iconDiv).toBeTruthy();

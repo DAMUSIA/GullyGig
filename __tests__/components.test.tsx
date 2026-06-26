@@ -5,7 +5,16 @@ import GoogleAnalytics from "../components/GoogleAnalytics";
 
 // Mock Next.js Script
 vi.mock("next/script", () => ({
-  default: ({ src, children, id }: any) => (
+  default: ({
+    src,
+    children,
+    id,
+  }: {
+    src?: string;
+    children?: React.ReactNode;
+    id?: string;
+    [key: string]: unknown;
+  }) => (
     <script data-testid="next-script" data-src={src} id={id}>
       {children}
     </script>

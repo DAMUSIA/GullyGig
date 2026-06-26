@@ -15,7 +15,6 @@ interface AnalyticsCardProps {
 }
 
 export function AnalyticsCard({
-  totalServices: _totalServices,
   totalViews,
   totalLikes,
   averageRating,

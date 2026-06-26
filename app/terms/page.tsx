@@ -14,7 +14,6 @@ import {
   DollarSign,
   Clock,
   Mail,
-  Phone,
   MapPin,
   AlertCircle,
   CheckCircle,
@@ -31,6 +30,7 @@ export default function TermsPage() {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsDark(document.documentElement.classList.contains("dark"));
     const observer = new MutationObserver(() => {
       setIsDark(document.documentElement.classList.contains("dark"));

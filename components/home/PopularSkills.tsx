@@ -83,6 +83,7 @@ export default function PopularSkills({
             >
               {/* Image */}
               <div className="relative h-[220px] overflow-hidden bg-slate-100 dark:bg-slate-700">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={s.image}
                   alt={s.title}

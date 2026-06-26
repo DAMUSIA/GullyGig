@@ -28,6 +28,7 @@ export default function TrustSection({
           className="relative"
         >
           <div className="rounded-[32px] overflow-hidden h-[440px] w-full shadow-2xl relative border-4 border-slate-50 dark:border-slate-800">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/assets/home_page_images/trust-neighbors.png"
               alt="Community trust"

@@ -1163,6 +1163,7 @@ ${fullPortfolioUrl}
 
               <div className="relative z-10 inline-flex bg-white p-3.5 rounded-2xl shadow-lg border border-slate-100">
                 {qrCodeUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={qrCodeUrl}
                     alt="QR Code"

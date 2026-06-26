@@ -260,6 +260,7 @@ export default function Hero(props: HeroProps = {}) {
                 transition={{ duration: 0.8, ease: "easeInOut" }}
                 className="absolute inset-0"
               >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={SLIDES[carouselIndex].src}
                   alt={SLIDES[carouselIndex].label}

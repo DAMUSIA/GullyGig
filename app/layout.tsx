@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-page-custom-font */
+/* eslint-disable @next/next/google-font-display */
 import type { Metadata } from "next";
 import "./globals.css";
 import GoogleAnalytics from "../components/GoogleAnalytics";

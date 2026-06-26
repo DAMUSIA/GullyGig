@@ -12,6 +12,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "coverage/**",
     // Pre-existing binary/BOM encoding corruption — safe to ignore for linting:
     "tailwind.config.js",
   ]),

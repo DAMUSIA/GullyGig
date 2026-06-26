@@ -12,7 +12,6 @@ import {
   Shield,
   Clock,
   Mail,
-  Phone,
   MapPin,
   AlertCircle,
   CheckCircle,

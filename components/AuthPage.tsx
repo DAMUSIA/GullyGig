@@ -641,7 +641,7 @@ export default function AuthPage({
             transform: rotate(0deg);
           }
           50% {
-            border-radius: 40% 60% 30% 70% / 60% 40% 60% %;
+            border-radius: 40% 60% 30% 70% / 60% 40% 60% 40%;
             transform: rotate(15deg);
           }
         }
@@ -681,3 +681,4 @@ export default function AuthPage({
     </div>
   );
 }
+//.

@@ -19,13 +19,13 @@ export default function PublishStickyBar({
     <div className="mt-10 bg-white/90 border-t border-slate-200/70 shadow-sm px-4 py-4 md:py-5 animate-in fade-in duration-300 rounded-3xl">
       <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
         {/* Help Tip with Logo */}
-        <div className="hidden md:flex items-center gap-3 text-left">
+        <div className="hidden md:flex items-center gap-1 text-left">
           {/* 
              LOGO SIZE CONFIGURATION:
              - Size: h-8 w-28 (32px height, 112px width)
              You can adjust these classes (e.g. h-8, w-28) to fit your logo's dimensions.
           */}
-          <div className="relative h-8 w-28 flex-shrink-0">
+          <div className="relative h-27 w-33 flex-shrink-0">
             {/* Light theme logo: Shown by default, hidden when dark class is on parent */}
             <Image
               src="/logo_dark.png"

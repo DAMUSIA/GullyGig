@@ -654,7 +654,7 @@ export default function NearbyServicePage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
-              Nearby Providers & Tutors
+              Nearby Providers
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
               Discover verified local instructors, academic tutors, and yoga

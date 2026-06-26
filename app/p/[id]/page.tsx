@@ -139,7 +139,7 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
   if (!data || !data.service) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4 font-sans transition-colors duration-300">
-        <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl max-w-md w-full text-center space-y-4">
+        <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl max-w-none w-full text-center space-y-4">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto" />
           <h2 className="text-lg font-extrabold text-slate-850 dark:text-slate-105">
             Portfolio Not Found

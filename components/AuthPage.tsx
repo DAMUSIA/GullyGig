@@ -303,8 +303,8 @@ export default function AuthPage({
             ))}
           </div>
 
-          <div className="relative z-10">
-            <div className="relative h-12 w-26 sm:h-28 sm:w-28 overflow-hidden mb-8">
+          <div className="relative z-10 flex flex-col items-start">
+            <div className="relative h-46 w-56 overflow-hidden">
               <Image
                 src="/logo_light.png"
                 alt="Logo"
@@ -313,8 +313,8 @@ export default function AuthPage({
               />
             </div>
 
-            <p className="text-white/70 text-sm mt-3 leading-relaxed">
-              Bridge the gap between local talent and community needs
+            <p className="text-white/70 text-md mt-1 leading-none">
+              Opportunity Starts Here
             </p>
           </div>
         </div>

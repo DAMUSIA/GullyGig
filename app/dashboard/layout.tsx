@@ -161,7 +161,7 @@ function DesktopSidebar({
                 transition={{ duration: 0.2 }}
                 className="flex items-center flex-shrink-0"
               >
-                <div className="relative h-12 w-26 sm:h-28 sm:w-28 overflow-hidden flex-shrink-0">
+                <div className="relative h-28 w-28 sm:h-28 sm:w-28 overflow-hidden flex-shrink-0">
                   <Image
                     src="/logo_light.png"
                     alt="Logo"
@@ -180,7 +180,7 @@ function DesktopSidebar({
                 transition={{ duration: 0.2 }}
                 className="flex-shrink-0 mx-auto"
               >
-                <div className="relative h-12 w-12 overflow-hidden">
+                <div className="relative h-10 w-100 overflow-hidden">
                   <Image
                     src="/logo_light.png"
                     alt="Logo"
@@ -373,7 +373,7 @@ function MobileSidebar({
           {/* Logo Area */}
           <div className="flex items-center h-20 px-4 border-b border-white/5 flex-shrink-0">
             <div className="flex items-center flex-1">
-              <div className="relative h-12 w-26 sm:h-28 sm:w-28 overflow-hidden flex-shrink-0">
+              <div className="relative h-28 w-36 sm:h-28 sm:w-28 overflow-hidden flex-shrink-0">
                 <Image
                   src="/logo_light.png"
                   alt="Logo"
@@ -671,15 +671,6 @@ export default function DashboardLayout({
 
             {/* Right Side */}
             <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="relative p-2 rounded-xl hover:bg-white/50 transition focus:ring-2 focus:ring-blue-400 focus:outline-none cursor-pointer"
-                aria-label="Notifications"
-              >
-                <Bell className="h-5 w-5 text-slate-600" />
-                <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 bg-gradient-to-r from-red-500 to-red-400 rounded-full animate-pulse"></span>
-              </motion.button>
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg shadow-blue-500/25 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 cursor-pointer"

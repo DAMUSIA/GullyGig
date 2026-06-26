@@ -27,7 +27,7 @@ const TEAM_MEMBERS = [
   },
   {
     name: "Pathinenchil Indresh Suresh",
-    role: "CTO & Co-Founder",
+    role: "Co-Founder & CTO",
     initials: "IS",
     image: "/assets/teams/indresh.jpeg",
     socials: {
@@ -38,7 +38,7 @@ const TEAM_MEMBERS = [
   },
   {
     name: "Sharma Divya Gurudev",
-    role: "CMO & Co-Founder",
+    role: "Co-Founder & CMO",
     initials: "DS",
     image: "/assets/teams/divya.png",
     socials: {

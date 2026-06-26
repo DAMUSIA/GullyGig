@@ -161,12 +161,7 @@ function DesktopSidebar({
                 transition={{ duration: 0.2 }}
                 className="flex items-center flex-shrink-0"
               >
-                {/* 
-                   LOGO SIZE CONFIGURATION (Desktop Sidebar Expanded):
-                   - Size: h-9 w-32 (36px height, 128px width)
-                   You can adjust these classes (e.g. h-9, w-32) to fit your logo's dimensions.
-                */}
-                <div className="relative h-9 w-32 overflow-hidden flex-shrink-0">
+                <div className="relative h-12 w-26 sm:h-28 sm:w-28 overflow-hidden flex-shrink-0">
                   <Image
                     src="/logo_light.png"
                     alt="Logo"
@@ -185,12 +180,7 @@ function DesktopSidebar({
                 transition={{ duration: 0.2 }}
                 className="flex-shrink-0 mx-auto"
               >
-                {/* 
-                   LOGO SIZE CONFIGURATION (Desktop Sidebar Collapsed):
-                   - Size: h-9 w-9 (36px height, 36px width)
-                   You can adjust these classes (e.g. h-9, w-9) to fit your collapsed logo icon.
-                */}
-                <div className="relative w-9 h-9 overflow-hidden">
+                <div className="relative h-12 w-12 overflow-hidden">
                   <Image
                     src="/logo_light.png"
                     alt="Logo"
@@ -383,12 +373,7 @@ function MobileSidebar({
           {/* Logo Area */}
           <div className="flex items-center h-20 px-4 border-b border-white/5 flex-shrink-0">
             <div className="flex items-center flex-1">
-              {/* 
-                 LOGO SIZE CONFIGURATION (Mobile Sidebar):
-                 - Size: h-9 w-32 (36px height, 128px width)
-                 You can adjust these classes (e.g. h-9, w-32) to fit your logo's dimensions.
-              */}
-              <div className="relative h-9 w-32 overflow-hidden flex-shrink-0">
+              <div className="relative h-12 w-26 sm:h-28 sm:w-28 overflow-hidden flex-shrink-0">
                 <Image
                   src="/logo_light.png"
                   alt="Logo"

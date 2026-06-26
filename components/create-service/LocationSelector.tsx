@@ -38,50 +38,85 @@ export default function LocationSelector({
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude: lat, longitude: lon } = position.coords;
+        let data;
+        let isNominatim = false;
         try {
-          // Fetch reverse geocoding from OpenStreetMap Nominatim
+          try {
+            // Attempt Nominatim reverse geocoding with a 3-second timeout
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3000);
+          
           const response = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
+            { signal: controller.signal }
           );
+          clearTimeout(timeoutId);
 
-          if (!response.ok) throw new Error("Failed to fetch address details");
+          if (response.ok) {
+            data = await response.json();
+            isNominatim = true;
+          } else {
+            throw new Error("Nominatim status not OK");
+          }
+        } catch (nominatimErr) {
+          console.warn("Nominatim reverse geocode failed, attempting BigDataCloud fallback...", nominatimErr);
+          try {
+            const response = await fetch(
+              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+            );
+            if (response.ok) {
+              data = await response.json();
+            } else {
+              throw new Error("BigDataCloud status not OK");
+            }
+          } catch (bdcErr) {
+            console.error("All reverse geocoding services failed:", bdcErr);
+          }
+        }
 
-          const data = await response.json();
-          if (data && data.address) {
+        if (data) {
+          let cityName = "";
+          let areaName = "";
+
+          if (isNominatim && data.address) {
             const addr = data.address;
-
-            // Extract area name (neighbourhood, suburb, village, residential, etc.)
-            const areaName =
+            areaName =
               addr.neighbourhood ||
               addr.suburb ||
               addr.village ||
               addr.residential ||
               addr.subdistrict ||
               "";
-
-            // Extract city/town name
-            const cityName =
+            cityName =
               addr.city ||
               addr.town ||
               addr.city_district ||
               addr.state_district ||
               addr.county ||
               "";
+          } else if (data.locality !== undefined) {
+            cityName = data.city || data.locality || "";
+            const informative = data.localityInfo?.informative || [];
+            const areaItem = informative.find((i: any) =>
+              ["suburb", "neighbourhood", "subdistrict", "locality"].includes(i.description?.toLowerCase())
+            );
+            areaName = areaItem?.name || data.locality || "";
+          }
 
-            onChange({
-              city: cityName || city,
-              area: areaName,
-              latitude: lat,
-              longitude: lon,
-            });
-          } else {
-            // Fallback if address object is missing
-            onChange({
-              city: city || "Unknown City",
-              area: "Detected Location",
-              latitude: lat,
-              longitude: lon,
-            });
+          onChange({
+            city: cityName || city,
+            area: areaName,
+            latitude: lat,
+            longitude: lon,
+          });
+        } else {
+          // Fallback if address object is missing
+          onChange({
+            city: city || "Unknown City",
+            area: "Detected Location",
+            latitude: lat,
+            longitude: lon,
+          });
           }
         } catch (err) {
           console.error("GPS Reverse Geocoding Error:", err);

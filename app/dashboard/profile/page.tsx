@@ -113,32 +113,80 @@ export default function ProfilePage() {
     setIsLocating(true);
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        const { latitude, longitude } = position.coords;
+        const { latitude: lat, longitude: lon } = position.coords;
+        let data;
+        let isNominatim = false;
         try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
-          );
-          const data = await response.json();
-          if (data && data.address) {
-            const addr = data.address;
-            const neighborhood =
-              addr.neighbourhood ||
-              addr.suburb ||
-              addr.village ||
-              addr.residential ||
-              "";
-            const city = addr.city || addr.town || addr.state_district || "";
-            const postcode = addr.postcode || "";
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
+              { signal: controller.signal }
+            );
+            clearTimeout(timeoutId);
+
+            if (response.ok) {
+              data = await response.json();
+              isNominatim = true;
+            } else {
+              throw new Error("Nominatim response not OK");
+            }
+          } catch (nominatimErr) {
+            console.warn("Nominatim reverse geocode failed, attempting BigDataCloud fallback...", nominatimErr);
+            try {
+              const response = await fetch(
+                `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+              );
+              if (response.ok) {
+                data = await response.json();
+              } else {
+                throw new Error("BigDataCloud response not OK");
+              }
+            } catch (bdcErr) {
+              console.error("All reverse geocoding services failed:", bdcErr);
+            }
+          }
+
+          if (data) {
+            let neighborhood = "";
+            let city = "";
+            let postcode = "";
+            let displayName = "";
+
+            if (isNominatim && data.address) {
+              const addr = data.address;
+              neighborhood =
+                addr.neighbourhood ||
+                addr.suburb ||
+                addr.village ||
+                addr.residential ||
+                "";
+              city = addr.city || addr.town || addr.state_district || "";
+              postcode = addr.postcode || "";
+              displayName = data.display_name || "";
+            } else if (data.locality !== undefined) {
+              city = data.city || data.locality || "";
+              const informative = data.localityInfo?.informative || [];
+              const areaItem = informative.find((i: any) =>
+                ["suburb", "neighbourhood", "subdistrict", "locality"].includes(i.description?.toLowerCase())
+              );
+              neighborhood = areaItem?.name || data.locality || "";
+              postcode = data.postcode || "";
+              displayName = `${neighborhood}, ${city}, ${data.countryName || ""}`;
+            }
+
             const parts = [neighborhood, city, postcode].filter(Boolean);
             const locationStr =
-              parts.length > 0 ? parts.join(", ") : data.display_name;
+              parts.length > 0 ? parts.join(", ") : displayName;
             handleInputChange("location", locationStr);
+          } else {
+            alert("Could not retrieve clean location details. Please fill it manually.");
           }
         } catch (err) {
           console.error("GPS Reverse Geocoding Error:", err);
-          alert(
-            "Could not retrieve clean location details. Please fill it manually.",
-          );
+          alert("Could not retrieve clean location details. Please fill it manually.");
         } finally {
           setIsLocating(false);
         }

@@ -23,7 +23,7 @@ const securityHeaders = [
   },
   {
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+    value: "camera=(), microphone=(), geolocation=(self), interest-cohort=()",
   },
   {
     key: "Content-Security-Policy-Report-Only",
@@ -35,7 +35,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
-      "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://us.i.posthog.com https://us.posthog.com",
+      "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://us.i.posthog.com https://us.posthog.com https://nominatim.openstreetmap.org https://api.bigdatacloud.net",
       "frame-ancestors 'none'",
     ].join("; "),
   },

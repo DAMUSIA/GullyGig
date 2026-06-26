@@ -57,6 +57,9 @@ interface ServiceReview {
   users?: { full_name: string };
 }
 
+/**
+ * Renders the tutor dashboard page.
+ */
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<ServiceUser | null>(null);

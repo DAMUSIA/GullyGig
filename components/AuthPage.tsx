@@ -7,6 +7,11 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
+/**
+ * Renders the authentication page with login, registration, and Google sign-in flows.
+ *
+ * @param defaultMode - The initial mode to display.
+ */
 export default function AuthPage({
   defaultMode,
 }: {

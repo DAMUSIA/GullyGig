@@ -84,6 +84,9 @@ interface ServiceUser {
   };
 }
 
+/**
+ * Renders the service creation page with authentication, a multi-step setup flow, and publishing to Supabase.
+ */
 export default function CreateServicePage() {
   const router = useRouter();
 

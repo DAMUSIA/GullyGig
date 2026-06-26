@@ -87,7 +87,11 @@ interface HeroProps {
   onShowToast?: (message: string) => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+/**
+ * Renders the home page hero section with an animated carousel, featured stats, and primary calls to action.
+ *
+ * @param props - Reserved for hero configuration.
+ */
 export default function Hero(props: HeroProps = {}) {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [stats, setStats] = useState({

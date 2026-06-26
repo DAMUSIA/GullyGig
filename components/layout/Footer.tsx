@@ -26,6 +26,12 @@ const SOCIAL_LINKS = {
   whatsapp: "https://chat.whatsapp.com/HG3U2hP7IEu0EHAiftscCq",
 };
 
+/**
+ * Renders the site footer.
+ *
+ * @param onShowToast - Displays a toast message when sharing falls back to copy-to-clipboard or fails.
+ * @returns The footer content.
+ */
 export default function Footer({ onShowToast }: FooterProps) {
   const currentYear = new Date().getFullYear();
 

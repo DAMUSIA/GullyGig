@@ -335,6 +335,11 @@ const itemVariants: Variants = {
   },
 };
 
+/**
+ * Renders the Meet the Team page.
+ *
+ * @returns The Meet the Team page layout with team cards, theme toggle, and mission banner.
+ */
 export default function TeamPage() {
   const topThree = TEAM_MEMBERS.slice(0, 3);
   const bottomFour = TEAM_MEMBERS.slice(3, 7);

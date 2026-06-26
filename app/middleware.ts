@@ -2,6 +2,14 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+/**
+ * Handles authentication-based route redirects for the app.
+ *
+ * Redirects legacy `/login` and `/register` requests to `/Auth`, protects `/dashboard/*` routes for signed-out users, and sends signed-in users away from `/Auth`.
+ *
+ * @param req - The incoming request.
+ * @returns The response to send for the request.
+ */
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
 

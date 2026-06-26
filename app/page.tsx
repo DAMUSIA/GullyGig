@@ -15,6 +15,11 @@ import ServicesSection from "@/components/home/ServicesSection";
 import HowItWorks from "@/components/home/HowItWorks";
 import TrustSection from "@/components/home/TrustSection";
 
+/**
+ * Renders the home page with theme switching, section navigation, and toast notifications.
+ *
+ * @returns The home page layout.
+ */
 export default function Home() {
   const [toast, setToast] = useState<string | null>(null);
   const [darkMode, setDarkMode] = useState(false);

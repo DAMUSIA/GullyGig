@@ -73,6 +73,9 @@ const CATEGORY_CHIPS = [
 
 const ITEMS_PER_PAGE = 5;
 
+/**
+ * Displays the services directory with search, filters, sorting, pagination, and live viewer presence.
+ */
 export default function ServicesPage() {
   const [isDark, setIsDark] = useState(false);
   const [toast, setToast] = useState<string | null>(null);

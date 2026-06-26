@@ -77,6 +77,9 @@ interface ServiceUser {
   };
 }
 
+/**
+ * Renders the nearby services marketplace page with search, filtering, sorting, likes, details, and reviews.
+ */
 export default function NearbyServicePage() {
   const [currentUser, setCurrentUser] = useState<ServiceUser | null>(null);
 

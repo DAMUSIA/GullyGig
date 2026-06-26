@@ -15,6 +15,11 @@ import ProfileSidebar from "@/components/profile/ProfileSidebar";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle, AlertCircle, X } from "lucide-react";
 
+/**
+ * Renders the profile page.
+ *
+ * Displays the current user's profile, supports editing and saving profile details, and shows toast notifications for profile and location actions.
+ */
 export default function ProfilePage() {
   const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);

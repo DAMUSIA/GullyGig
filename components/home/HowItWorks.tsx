@@ -55,6 +55,11 @@ const itemVariants = {
   show: { opacity: 1, x: 0, transition: { duration: 0.5 } },
 };
 
+/**
+ * Renders the "How GullyGig Works" section with provider and customer steps.
+ *
+ * @returns The section content for the platform's provider and customer onboarding overview.
+ */
 export default function HowItWorks() {
   return (
     <section

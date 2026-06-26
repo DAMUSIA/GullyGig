@@ -3,6 +3,11 @@ import path from "path";
 import { Suspense } from "react";
 import LegalClientPage from "./LegalClientPage";
 
+/**
+ * Renders the legal pages with content loaded from local Markdown files.
+ *
+ * @returns The legal pages view, wrapped in a loading fallback while the content is prepared.
+ */
 export default function LegalPage() {
   const privacyPath = path.join(
     process.cwd(),

@@ -67,8 +67,13 @@ export async function getReviews(serviceId: string): Promise<ReviewsResult> {
 }
 
 /**
- * Submit a new review for a service.
- * Validates: user not owner, no duplicate review.
+ * Submits a review for a service and updates its rating stats.
+ *
+ * @param userId - The reviewer
+ * @param serviceId - The service being reviewed
+ * @param rating - The rating to store
+ * @param comment - The optional review text
+ * @returns A result indicating whether the review was posted successfully, along with the updated average rating and total review count on success
  */
 export async function postReview(
   userId: string,

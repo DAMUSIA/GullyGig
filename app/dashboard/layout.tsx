@@ -125,7 +125,16 @@ function useMediaQuery(query: string): boolean {
 
 // ============================================
 // Desktop Sidebar Component
-// ============================================
+/**
+ * Renders the desktop dashboard sidebar.
+ *
+ * @param collapsed - Whether the sidebar is in its compact state
+ * @param setCollapsed - Updates the collapsed state
+ * @param currentPath - Current route used to highlight the active navigation item
+ * @param onLogout - Handles logout from the sidebar
+ * @param profileName - Display name shown in the profile section
+ * @param profileEmail - Email address shown in the profile section
+ */
 function DesktopSidebar({
   collapsed,
   setCollapsed,
@@ -331,7 +340,16 @@ function DesktopSidebar({
 
 // ============================================
 // Mobile Sidebar Component
-// ============================================
+/**
+ * Renders the mobile dashboard sidebar drawer.
+ *
+ * @param isOpen - Whether the drawer is visible
+ * @param onClose - Called when the backdrop, close button, or a navigation item is selected
+ * @param currentPath - The current route used to highlight the active navigation item
+ * @param onLogout - Called when the user selects logout
+ * @param profileName - The displayed user name
+ * @param profileEmail - The displayed user email
+ */
 function MobileSidebar({
   isOpen,
   onClose,
@@ -464,7 +482,11 @@ function MobileSidebar({
 
 // ============================================
 // Main Layout
-// ============================================
+/**
+ * Renders the dashboard layout with responsive navigation and authentication gating.
+ *
+ * @param children - The page content to display inside the dashboard layout
+ */
 export default function DashboardLayout({
   children,
 }: {

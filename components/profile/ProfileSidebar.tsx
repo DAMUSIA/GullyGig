@@ -22,6 +22,15 @@ interface ProfileSidebarProps {
   onShowToast: (message: string, type?: "success" | "error") => void;
 }
 
+/**
+ * Renders profile details and verification options in a sidebar.
+ *
+ * @param profile - The profile data to display when not editing.
+ * @param isEditing - Controls whether the personal information fields are editable.
+ * @param formData - The current gender and date of birth form values.
+ * @param onInputChange - Handles updates to the editable personal information fields.
+ * @param onShowToast - Shows status messages for verification actions.
+ */
 export default function ProfileSidebar({
   profile,
   isEditing,

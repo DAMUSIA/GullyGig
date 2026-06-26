@@ -46,6 +46,13 @@ const SOCIAL_LINKS = {
   whatsapp: "https://chat.whatsapp.com/HG3U2hP7IEu0EHAiftscCq",
 };
 
+/**
+ * Renders the legal page with Terms of Service or Privacy Policy content.
+ *
+ * @param privacyContent - Markdown-like privacy policy content to display when the Privacy tab is active.
+ * @param termsContent - Markdown-like terms of service content to display when the Terms tab is active.
+ * @returns The legal page UI for the active tab.
+ */
 export default function LegalClientPage({
   privacyContent,
   termsContent,

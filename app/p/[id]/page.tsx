@@ -23,7 +23,12 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   },
 });
 
-// Fetch function to load portfolio data
+/**
+ * Loads portfolio data for a service identifier or slug.
+ *
+ * @param idOrSlug - The service UUID or slug suffix to resolve
+ * @returns The portfolio service data and associated reviews, or `null` if the portfolio cannot be resolved or loaded
+ */
 async function getPortfolioData(idOrSlug: string) {
   try {
     let resolvedId = idOrSlug;
@@ -171,6 +176,11 @@ export async function generateMetadata({
   };
 }
 
+/**
+ * Renders the public portfolio page for the requested portfolio identifier.
+ *
+ * @returns The portfolio page for a matching service, or a not found message when no service is available.
+ */
 export default async function PublicPortfolioPage({ params }: PageProps) {
   const { id } = await params;
   const data = await getPortfolioData(id);

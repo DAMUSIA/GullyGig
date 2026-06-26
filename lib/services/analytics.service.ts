@@ -16,9 +16,9 @@ export interface AnalyticsUpdate {
 }
 
 /**
- * Upsert a row in service_analytics for the given service.
- * Merges only the fields provided — other fields are left untouched
- * if the row already exists.
+ * Updates or creates analytics totals for a service.
+ *
+ * @param update - The analytics values to store for the service.
  */
 export async function upsertServiceAnalytics(
   update: AnalyticsUpdate,

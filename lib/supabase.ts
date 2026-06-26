@@ -103,7 +103,12 @@ function checkRateLimit(email: string): { allowed: boolean; waitTime: number } {
   return { allowed: true, waitTime: 0 };
 }
 
-// ==================== USER AUTHENTICATION ====================
+/**
+ * Creates a new user account and stores the user's profile.
+ *
+ * @param userData - Registration details for the new user
+ * @returns A response indicating whether signup succeeded, including the created user and session on success
+ */
 
 export async function signUp(
   userData: UserRegistrationData,

@@ -18,6 +18,11 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
+/**
+ * Renders the settings page for the signed-in user.
+ *
+ * Shows profile details, support contact links, and a logout flow with confirmation.
+ */
 export default function SettingsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);

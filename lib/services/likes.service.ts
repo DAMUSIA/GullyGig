@@ -52,8 +52,14 @@ async function getLikesCount(serviceId: string): Promise<number> {
 }
 
 /**
- * Toggle like/unlike on a service.
- * Validates that the user is not the service owner.
+ * Toggles a user's like on a service listing.
+ *
+ * Prevents the service owner from liking their own listing and keeps the stored like count in sync after a change.
+ *
+ * @param userId - The user performing the action
+ * @param serviceId - The service listing being updated
+ * @param action - The like action to apply
+ * @returns A result indicating whether the operation succeeded, the current liked state, and the updated likes count
  */
 export async function toggleLike(
   userId: string,

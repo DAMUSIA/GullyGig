@@ -10,6 +10,9 @@ interface PublishStickyBarProps {
   onPublish: () => void;
 }
 
+/**
+ * Renders a sticky publish bar with a desktop-only help tip and publish action.
+ */
 export default function PublishStickyBar({
   isValid,
   isLoading,

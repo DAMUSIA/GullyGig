@@ -16,6 +16,15 @@ interface LocationSelectorProps {
   }) => void;
 }
 
+/**
+ * Renders location fields and lets the user attach the current GPS position.
+ *
+ * @param city - The selected city
+ * @param area - The selected area or locality
+ * @param latitude - The selected latitude
+ * @param longitude - The selected longitude
+ * @param onChange - Called when any location field changes
+ */
 export default function LocationSelector({
   city,
   area,

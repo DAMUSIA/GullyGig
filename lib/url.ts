@@ -28,7 +28,11 @@ export function getBaseUrl(): string {
 }
 
 /**
- * Get the full portfolio URL for a service
+ * Builds the portfolio URL for a service.
+ *
+ * @param serviceId - The service identifier used in the URL
+ * @param title - The title used to generate a slugged portfolio path
+ * @returns The portfolio URL
  */
 export function getPortfolioUrl(serviceId: string, title?: string): string {
   if (title) {

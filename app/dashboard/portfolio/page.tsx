@@ -40,6 +40,9 @@ interface ServiceItem {
   } | null;
 }
 
+/**
+ * Displays the user's portfolio dashboard with service selection, poster generation, performance metrics, and status messages.
+ */
 export default function DashboardPortfolioPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);

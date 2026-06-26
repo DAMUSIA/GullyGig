@@ -126,6 +126,14 @@ const formatMonthYear = (dateStr?: string) => {
   return `${months[d.getMonth()]} ${d.getFullYear()}`;
 };
 
+/**
+ * Renders the client-side service portfolio page.
+ *
+ * @param initialService - The service listing and provider data to display.
+ * @param initialReviews - The initial set of reviews for the listing.
+ * @param portfolioId - The portfolio identifier used to build share and QR links.
+ * @returns The portfolio page content.
+ */
 export default function PortfolioPageClient({
   initialService,
   initialReviews,

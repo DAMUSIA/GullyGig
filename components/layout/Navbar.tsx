@@ -19,6 +19,13 @@ const NAV_LINKS = [
   { name: "Our Team", href: "/team", id: "team" },
 ];
 
+/**
+ * Renders the site navbar with section highlighting, theme switching, and responsive navigation.
+ *
+ * @param darkMode - Controls the theme-dependent logo and theme toggle icon.
+ * @param onToggleDarkMode - Handles theme toggle button clicks.
+ * @returns The navbar header element.
+ */
 export default function Navbar({ darkMode, onToggleDarkMode }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

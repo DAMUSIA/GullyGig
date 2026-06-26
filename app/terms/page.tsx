@@ -1532,7 +1532,7 @@ export default function TermsPage() {
               <ul className="space-y-2.5 text-center md:text-right">
                 <li>
                   <Link
-                    href="/terms"
+                    href="/terms/privacy"
                     className="text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
                     Privacy Policy
@@ -1540,7 +1540,7 @@ export default function TermsPage() {
                 </li>
                 <li>
                   <Link
-                    href="/terms"
+                    href="/terms/service"
                     className="text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
                     Terms of Service
@@ -1565,14 +1565,14 @@ export default function TermsPage() {
             </p>
             <div className="flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500">
               <Link
-                href="/terms"
+                href="/terms/privacy"
                 className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               >
                 Privacy
               </Link>
               <span>•</span>
               <Link
-                href="/terms"
+                href="/terms/service"
                 className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               >
                 Terms

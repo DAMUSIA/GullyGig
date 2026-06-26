@@ -87,7 +87,12 @@ export async function postReview(
     .eq("id", serviceId)
     .maybeSingle();
 
-  if (serviceError || !service) {
+  if (serviceError) {
+    console.error("Database error checking service existence:", serviceError);
+    return { success: false, error: "Failed to submit review. Please try again later." };
+  }
+
+  if (!service) {
     return { success: false, error: "Service listing not found." };
   }
 

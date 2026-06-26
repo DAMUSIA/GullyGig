@@ -93,6 +93,7 @@ export async function POST(request: Request) {
     });
 
     if (insertError) {
+      console.error("Signup profile insert error:", insertError);
       // Roll back the created auth user to avoid orphan accounts
       try {
         await supabaseAdmin.auth.admin.deleteUser(authData.user.id);

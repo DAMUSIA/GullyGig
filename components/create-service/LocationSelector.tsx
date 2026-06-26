@@ -100,11 +100,13 @@ export default function LocationSelector({
         }
       },
       (error) => {
-        console.error("GPS Coordinates Error:", error);
+        console.error("GPS Coordinates Error:", error?.message || error?.code || String(error));
         let errorMsg = "Failed to fetch coordinates. Please fill manually.";
         if (error.code === error.PERMISSION_DENIED) {
           errorMsg =
-            "Location permission denied. Please search or fill manually.";
+            "Location permission denied or disabled by permissions policy. Please fill manually.";
+        } else if (error.message) {
+          errorMsg = `${error.message} Please fill manually.`;
         }
         setLocateError(errorMsg);
         setIsLocating(false);

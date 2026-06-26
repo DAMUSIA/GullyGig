@@ -530,6 +530,8 @@ export default function NearbyServicePage() {
         errorObj?.message || (err instanceof Error ? err.message : String(err));
       if (errMsg && errMsg.includes("service_ratings_user_service_unique")) {
         errMsg = "You have already submitted a review for this tutor/service.";
+      } else if (errMsg && errMsg.includes("Service listing not found.")) {
+        errMsg = "Something went wrong. Please try again later.";
       }
       setReviewError(errMsg || "Failed to submit review. Try again.");
     } finally {

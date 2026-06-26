@@ -126,7 +126,8 @@ export async function toggleLike(
           message: "You already liked this service",
         };
       }
-      return { success: false, error: insertError.message };
+      console.error("Database error adding like to service_likes:", insertError);
+      return { success: false, error: "Failed to like this service. Please try again." };
     }
   } else {
     const { error: deleteError } = await supabaseAdmin
@@ -136,7 +137,8 @@ export async function toggleLike(
       .eq("user_id", userId);
 
     if (deleteError) {
-      return { success: false, error: deleteError.message };
+      console.error("Database error removing like from service_likes:", deleteError);
+      return { success: false, error: "Failed to unlike this service. Please try again." };
     }
   }
 

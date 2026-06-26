@@ -160,3 +160,10 @@ CREATE POLICY "Allow public insert of service_analytics"
 
 CREATE POLICY "Allow public update of service_analytics"
   ON public.service_analytics FOR UPDATE USING (true) WITH CHECK (true);
+
+-- --- TABLE GRANTS ---
+GRANT ALL ON TABLE public.users TO postgres, service_role, authenticated, anon;
+GRANT ALL ON TABLE public.services TO postgres, service_role, authenticated, anon;
+GRANT ALL ON TABLE public.service_likes TO postgres, service_role, authenticated, anon;
+GRANT ALL ON TABLE public.service_ratings TO postgres, service_role, authenticated, anon;
+GRANT ALL ON TABLE public.service_analytics TO postgres, service_role, authenticated, anon;

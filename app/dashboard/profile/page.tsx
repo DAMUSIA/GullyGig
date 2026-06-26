@@ -144,8 +144,15 @@ export default function ProfilePage() {
         }
       },
       (error) => {
-        console.error("GPS Coordinates Error:", error);
-        alert(`Failed to fetch coordinates: ${error.message}`);
+        console.error("GPS Coordinates Error:", error?.message || error?.code || String(error));
+        let errorMsg = "Failed to fetch coordinates. Please fill manually.";
+        if (error.code === error.PERMISSION_DENIED) {
+          errorMsg =
+            "Location permission denied or disabled by permissions policy. Please fill manually.";
+        } else if (error.message) {
+          errorMsg = `Failed to fetch coordinates: ${error.message}`;
+        }
+        alert(errorMsg);
         setIsLocating(false);
       },
     );

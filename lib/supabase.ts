@@ -191,6 +191,7 @@ export async function signUp(
     });
 
     if (profileError) {
+      console.error("Client-side signup profile error:", profileError);
       return {
         success: false,
         error:

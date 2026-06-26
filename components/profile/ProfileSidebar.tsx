@@ -24,6 +24,7 @@ interface ProfileSidebarProps {
     dob: string;
   };
   onInputChange: (name: string, value: string) => void;
+  onShowToast: (message: string, type?: "success" | "error") => void;
 }
 
 export default function ProfileSidebar({
@@ -31,6 +32,7 @@ export default function ProfileSidebar({
   isEditing,
   formData,
   onInputChange,
+  onShowToast,
 }: ProfileSidebarProps) {
   const [showVerificationDetails, setShowVerificationDetails] = useState(false);
 
@@ -71,7 +73,7 @@ export default function ProfileSidebar({
   ];
 
   const startVerification = (item: VerificationItem) => {
-    alert("Coming Soon");
+    onShowToast(`${item.label} is coming soon!`, "error");
   };
 
   return (

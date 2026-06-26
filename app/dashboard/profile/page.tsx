@@ -12,6 +12,8 @@ import ProfileSkeleton from "@/components/profile/ProfileSkeleton";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileDetails from "@/components/profile/ProfileDetails";
 import ProfileSidebar from "@/components/profile/ProfileSidebar";
+import { AnimatePresence, motion } from "framer-motion";
+import { CheckCircle, AlertCircle, X } from "lucide-react";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -20,6 +22,27 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
+
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+
+  const showToast = (
+    message: string,
+    type: "success" | "error" = "success"
+  ) => {
+    setToast({ message, type });
+  };
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => {
+        setToast(null);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -107,7 +130,7 @@ export default function ProfilePage() {
 
   const handleGPSLocation = () => {
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser");
+      showToast("Geolocation is not supported by your browser", "error");
       return;
     }
     setIsLocating(true);
@@ -182,11 +205,11 @@ export default function ProfilePage() {
               parts.length > 0 ? parts.join(", ") : displayName;
             handleInputChange("location", locationStr);
           } else {
-            alert("Could not retrieve clean location details. Please fill it manually.");
+            showToast("Could not retrieve clean location details. Please fill it manually.", "error");
           }
         } catch (err) {
           console.error("GPS Reverse Geocoding Error:", err);
-          alert("Could not retrieve clean location details. Please fill it manually.");
+          showToast("Could not retrieve clean location details. Please fill it manually.", "error");
         } finally {
           setIsLocating(false);
         }
@@ -200,7 +223,7 @@ export default function ProfilePage() {
         } else if (error.message) {
           errorMsg = `Failed to fetch coordinates: ${error.message}`;
         }
-        alert(errorMsg);
+        showToast(errorMsg, "error");
         setIsLocating(false);
       },
     );
@@ -209,7 +232,7 @@ export default function ProfilePage() {
   const handleSaveProfile = async () => {
     if (!profile) return;
     if (!formData.full_name.trim()) {
-      alert("Full Name is required");
+      showToast("Full Name is required", "error");
       return;
     }
 
@@ -230,13 +253,13 @@ export default function ProfilePage() {
       if (success) {
         setProfile((prev) => (prev ? { ...prev, ...payload } : null));
         setIsEditing(false);
-        alert("Profile updated successfully!");
+        showToast("Profile updated successfully!", "success");
       } else {
-        alert(error || "Failed to update profile. Please try again.");
+        showToast(error || "Failed to update profile. Please try again.", "error");
       }
     } catch (err) {
       console.error("Failed to save profile details:", err);
-      alert("Failed to update profile. Please try again.");
+      showToast("Failed to update profile. Please try again.", "error");
     } finally {
       setIsSaving(false);
     }
@@ -312,10 +335,41 @@ export default function ProfilePage() {
               isEditing={isEditing}
               formData={formData}
               onInputChange={handleInputChange}
+              onShowToast={showToast}
             />
           </div>
         </div>
       </div>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:right-6 md:translate-x-0 z-[9999] flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-white shadow-2xl text-xs font-bold whitespace-nowrap"
+          >
+            {toast.type === "success" ? (
+              <div className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
+                <CheckCircle className="w-4 h-4" />
+              </div>
+            ) : (
+              <div className="w-5 h-5 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center shrink-0">
+                <AlertCircle className="w-4 h-4" />
+              </div>
+            )}
+            <span>{toast.message}</span>
+            <button
+              type="button"
+              onClick={() => setToast(null)}
+              className="p-1 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer text-slate-400 hover:text-white"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

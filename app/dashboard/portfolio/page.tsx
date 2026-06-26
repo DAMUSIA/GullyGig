@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Globe,
-  Copy,
   ExternalLink,
   Sparkles,
   BarChart3,
@@ -19,7 +18,6 @@ import {
   X,
 } from "lucide-react";
 import { getCurrentUser, supabase } from "@/lib/supabase";
-import { getPortfolioUrl } from "@/lib/url";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ServiceItem {
@@ -48,7 +46,6 @@ export default function DashboardPortfolioPage() {
   const [error, setError] = useState<string | null>(null);
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
-  const [copied, setCopied] = useState(false);
   const [posterLoading, setPosterLoading] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
@@ -120,19 +117,9 @@ export default function DashboardPortfolioPage() {
 
   const activeService = services.find((s) => s.id === selectedServiceId);
 
-  // Use the centralized URL utility
-  const portfolioUrl = activeService ? getPortfolioUrl(activeService.id, activeService.title) : "";
 
-  const handleCopyLink = async () => {
-    if (!portfolioUrl) return;
-    try {
-      await navigator.clipboard.writeText(portfolioUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy URL:", err);
-    }
-  };
+
+
 
   if (loading) {
     return (
@@ -262,7 +249,28 @@ export default function DashboardPortfolioPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column: Link sharing and poster generation */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Portfolio Link Card */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-4">
+              <h3 className="text-sm font-extrabold text-slate-800 flex items-center gap-1.5">
+                <Globe className="h-4.5 w-4.5 text-blue-600" />
+                Portfolio Link
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                This public, shareable URL displays your service details,
+                languages, pricing, contact buttons, reviews, and a scan-to-call
+                QR code. Perfect for sharing on WhatsApp status or social media.
+              </p>
 
+              <div className="pt-2">
+                <button
+                  onClick={() => showToast("View Portfolio feature is currently under maintenance.", "error")}
+                  className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-2xl transition cursor-pointer active:scale-95 shadow-md shadow-blue-500/10"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  <span>View Portfolio</span>
+                </button>
+              </div>
+            </div>
 
             {/* Poster Launch Box */}
             <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row items-center gap-5 justify-between">

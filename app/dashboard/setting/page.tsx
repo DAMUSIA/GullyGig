@@ -12,16 +12,10 @@ import {
   User,
   Mail,
   Phone,
-  Lock,
   LogOut,
   Settings as SettingsIcon,
   Loader2,
-  Shield,
-  Key,
   AlertTriangle,
-  Eye,
-  EyeOff,
-  CheckCircle,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -30,23 +24,9 @@ export default function SettingsPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
 
   // States
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  // Form states
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-
-  // Password visibility states
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
   // Loading states
-  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
@@ -95,56 +75,7 @@ export default function SettingsPage() {
     loadProfile();
   }, [router]);
 
-  const handlePasswordChange = async () => {
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert("New passwords do not match");
-      return;
-    }
-    if (passwordData.newPassword.length < 6) {
-      alert("Password must be at least 6 characters long");
-      return;
-    }
 
-    setIsUpdatingPassword(true);
-    try {
-      if (!supabase) {
-        throw new Error("Supabase client is not initialized");
-      }
-
-      const { error } = await supabase.auth.updateUser({
-        password: passwordData.newPassword,
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      alert("Password changed successfully!");
-      setIsChangingPassword(false);
-      setPasswordData({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
-    } catch (err: unknown) {
-      console.error("Failed to change password:", err);
-      const errorObj = err as { message?: string } | null;
-      alert(
-        errorObj?.message || "Failed to change password. Please try again.",
-      );
-    } finally {
-      setIsUpdatingPassword(false);
-    }
-  };
-
-  const handleCancelPassword = () => {
-    setIsChangingPassword(false);
-    setPasswordData({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
-  };
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -286,176 +217,49 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Security Section */}
+          {/* Contact Us Section */}
           <div className="p-4 sm:p-6 border-b border-gray-100">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-amber-50 rounded-lg">
-                  <Shield className="w-5 h-5 text-amber-600" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    Security
-                  </h2>
-                  <p className="text-sm text-gray-500">Manage your password</p>
-                </div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <Mail className="w-5 h-5 text-blue-600" />
               </div>
-              {!isChangingPassword && (
-                <button
-                  onClick={() => setIsChangingPassword(true)}
-                  className="flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-medium transition-colors shadow-sm hover:shadow-md text-sm w-full sm:w-auto"
-                >
-                  <Key className="w-4 h-4" />
-                  Change Password
-                </button>
-              )}
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Contact Us
+                </h2>
+                <p className="text-sm text-gray-500">Need support? Get in touch with our team</p>
+              </div>
             </div>
 
-            {isChangingPassword ? (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Current Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showCurrentPassword ? "text" : "password"}
-                      value={passwordData.currentPassword}
-                      onChange={(e) =>
-                        setPasswordData({
-                          ...passwordData,
-                          currentPassword: e.target.value,
-                        })
-                      }
-                      className="w-full px-4 py-2.5 pr-12 border-2 border-gray-200 rounded-xl focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none transition-all text-sm"
-                      placeholder="Enter current password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowCurrentPassword(!showCurrentPassword)
-                      }
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      {showCurrentPassword ? (
-                        <EyeOff className="w-5 h-5" />
-                      ) : (
-                        <Eye className="w-5 h-5" />
-                      )}
-                    </button>
-                  </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-gray-50/50 border border-gray-100">
+                <div className="p-2 bg-white rounded-lg shadow-xs border border-gray-100">
+                  <Mail className="w-4 h-4 text-slate-650" />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    New Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showNewPassword ? "text" : "password"}
-                      value={passwordData.newPassword}
-                      onChange={(e) =>
-                        setPasswordData({
-                          ...passwordData,
-                          newPassword: e.target.value,
-                        })
-                      }
-                      className="w-full px-4 py-2.5 pr-12 border-2 border-gray-200 rounded-xl focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none transition-all text-sm"
-                      placeholder="Enter new password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      {showNewPassword ? (
-                        <EyeOff className="w-5 h-5" />
-                      ) : (
-                        <Eye className="w-5 h-5" />
-                      )}
-                    </button>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1.5 flex items-center gap-1">
-                    <span className="inline-block w-1 h-1 bg-gray-400 rounded-full"></span>
-                    Minimum 6 characters
+                  <p className="text-xs font-semibold text-gray-505 uppercase tracking-wider">
+                    Email Support
                   </p>
+                  <a href="mailto:support@gullygig.in" className="text-blue-600 text-sm font-semibold hover:underline">
+                    support@gullygig.in
+                  </a>
                 </div>
+              </div>
 
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-gray-50/50 border border-gray-100">
+                <div className="p-2 bg-white rounded-lg shadow-xs border border-gray-100">
+                  <Phone className="w-4 h-4 text-slate-650" />
+                </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Confirm New Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showConfirmPassword ? "text" : "password"}
-                      value={passwordData.confirmPassword}
-                      onChange={(e) =>
-                        setPasswordData({
-                          ...passwordData,
-                          confirmPassword: e.target.value,
-                        })
-                      }
-                      className="w-full px-4 py-2.5 pr-12 border-2 border-gray-200 rounded-xl focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none transition-all text-sm"
-                      placeholder="Confirm new password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="w-5 h-5" />
-                      ) : (
-                        <Eye className="w-5 h-5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                  <button
-                    onClick={handleCancelPassword}
-                    className="flex-1 px-4 py-2.5 border-2 border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors text-sm"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handlePasswordChange}
-                    disabled={isUpdatingPassword}
-                    className="flex-1 px-4 py-2.5 bg-amber-600 text-white rounded-xl font-medium hover:bg-amber-700 transition-colors shadow-sm hover:shadow-md flex items-center justify-center gap-2 disabled:opacity-70 text-sm"
-                  >
-                    {isUpdatingPassword ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Key className="w-4 h-4" />
-                    )}
-                    {isUpdatingPassword ? "Updating..." : "Update Password"}
-                  </button>
+                  <p className="text-xs font-semibold text-gray-550 uppercase tracking-wider">
+                    Phone Support
+                  </p>
+                  <a href="tel:7559302315" className="text-gray-900 text-sm font-semibold hover:text-blue-600">
+                    7559302315
+                  </a>
                 </div>
               </div>
-            ) : (
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl bg-gray-50/50">
-                <div className="flex items-center gap-3">
-                  <div className="p-1.5 sm:p-2 bg-gray-100 rounded-lg">
-                    <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Password
-                    </p>
-                    <p className="text-gray-900 text-sm">••••••••</p>
-                  </div>
-                </div>
-                <div className="sm:ml-auto">
-                  <span className="inline-flex items-center gap-1.5 text-xs text-green-700 bg-green-50 px-3 py-1.5 rounded-full font-medium">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    Secure
-                  </span>
-                </div>
-              </div>
-            )}
+            </div>
           </div>
 
           {/* Logout Section */}

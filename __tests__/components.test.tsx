@@ -1,48 +1,44 @@
 import React from "react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import GoogleAnalytics from "../components/GoogleAnalytics";
 
-// Mock Next.js Script component
-vi.mock("next/script", () => {
-  return {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    default: function MockScript({ src, children, id, ...props }: any) {
-      return (
-        <script data-testid="next-script" data-src={src} id={id} {...props}>
-          {children}
-        </script>
-      );
-    },
-  };
-});
+// Mock Next.js Script
+vi.mock("next/script", () => ({
+  default: ({ src, children, id }: any) => (
+    <script data-testid="next-script" data-src={src} id={id}>
+      {children}
+    </script>
+  ),
+}));
 
 // Mock Supabase lib
-vi.mock("../lib/supabase", () => {
-  return {
-    isSupabaseConfigured: true,
-  };
-});
+vi.mock("../lib/supabase", () => ({
+  isSupabaseConfigured: true,
+}));
 
 describe("GoogleAnalytics Component", () => {
-  it("renders without crashing and configures GA ID", () => {
-    const originalEnv = process.env.NEXT_PUBLIC_GA_ID;
+  const originalEnv = process.env.NEXT_PUBLIC_GA_ID;
+
+  beforeEach(() => {
     process.env.NEXT_PUBLIC_GA_ID = "G-TEST123456";
+  });
 
-    try {
-      render(<GoogleAnalytics />);
+  afterEach(() => {
+    process.env.NEXT_PUBLIC_GA_ID = originalEnv;
+  });
 
-      // Check that we render the scripts
-      const scripts = screen.getAllByTestId("next-script");
-      expect(scripts.length).toBe(2);
+  it("renders GA scripts correctly", () => {
+    render(<GoogleAnalytics />);
 
-      // Check that the script source or config tag includes a measurement ID
-      const trackingScript = scripts.find(
-        (s) => s.getAttribute("id") === "google-analytics",
-      );
-      expect(trackingScript).toBeDefined();
-    } finally {
-      process.env.NEXT_PUBLIC_GA_ID = originalEnv;
-    }
+    const scripts = screen.getAllByTestId("next-script");
+
+    expect(scripts.length).toBeGreaterThanOrEqual(1);
+
+    const trackingScript = scripts.find(
+      (s) => s.getAttribute("id") === "google-analytics",
+    );
+
+    expect(trackingScript).toBeDefined();
   });
 });

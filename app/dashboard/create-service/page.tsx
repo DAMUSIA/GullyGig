@@ -39,7 +39,7 @@ const CATEGORIES = [
   "Personal Trainer",
   "Art Teacher",
   "Drawing Teacher",
-  "Exam Preparation Coach",
+  "Tailor",
   "Other",
 ];
 
@@ -375,7 +375,7 @@ export default function CreateServicePage() {
             Create Service
           </h1>
           <p className="text-slate-500 mt-1.5 text-sm sm:text-base">
-            Tell Customers what you teach and start receiving enquiries. Simple,
+            Tell Customers what you do and start receiving enquiries. Simple,
             fast, and listing in under 30 seconds.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -404,20 +404,20 @@ export default function CreateServicePage() {
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
           {/* Form Side */}
           <div className="xl:col-span-8 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md space-y-8">
-            {/* Section 1 - What Do You Teach? */}
+            {/* Section 1 - What service do you provide? */}
             <div className="space-y-5">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
                 <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
                   1
                 </div>
                 <h3 className="font-extrabold text-slate-700 text-base">
-                  What Do You Teach?
+                  What service do you provide?
                 </h3>
               </div>
 
               {/* Category - REQUIRED */}
               <SearchableDropdown
-                label="Teaching Category"
+                label="Service Category"
                 required
                 options={CATEGORIES}
                 value={formData.category}
@@ -466,7 +466,7 @@ export default function CreateServicePage() {
                   2
                 </div>
                 <h3 className="font-extrabold text-slate-700 text-base">
-                  How Do You Teach?{" "}
+                  How Do You Provide Service?{" "}
                   <span className="text-xs font-normal text-slate-400 ml-1">
                     (Optional)
                   </span>
@@ -475,7 +475,7 @@ export default function CreateServicePage() {
 
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-slate-700">
-                  Where do you teach?{" "}
+                  Where do you provide service?{" "}
                   <span className="text-slate-400 font-normal">(Optional)</span>
                 </label>
                 <div className="flex flex-wrap gap-2.5">
@@ -577,7 +577,7 @@ export default function CreateServicePage() {
                   5
                 </div>
                 <h3 className="font-extrabold text-slate-700 text-base">
-                  Languages Spoken{" "}
+                  Languages Known{" "}
                   <span className="text-xs font-normal text-slate-400 ml-1">
                     (Optional)
                   </span>
@@ -787,7 +787,7 @@ export default function CreateServicePage() {
                   8
                 </div>
                 <h3 className="font-extrabold text-slate-700 text-base">
-                  About Your Teaching{" "}
+                  About Yourself{" "}
                   <span className="text-xs font-normal text-slate-400 ml-1">
                     (Optional)
                   </span>
@@ -799,7 +799,7 @@ export default function CreateServicePage() {
                   htmlFor="teaching-description"
                   className="block text-sm font-semibold text-slate-700"
                 >
-                  About Your Teaching{" "}
+                  About Your Service{" "}
                   <span className="text-slate-400 font-normal">(Optional)</span>
                 </label>
                 <textarea
@@ -812,7 +812,7 @@ export default function CreateServicePage() {
                       description: e.target.value,
                     }))
                   }
-                  placeholder="Describe what you teach and who you help. Class ranges, experience, teaching style, exam successes, etc. (Optional)"
+                  placeholder="Describe what you do and who you help."
                   className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 leading-relaxed font-sans resize-none"
                 />
                 <div className="flex items-center justify-between">

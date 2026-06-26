@@ -3,13 +3,10 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  CheckCircle,
-  XCircle,
   Shield,
   User,
   ChevronDown,
   ChevronUp,
-  Award,
 } from "lucide-react";
 import { UserProfile } from "@/lib/supabase";
 
@@ -58,24 +55,24 @@ export default function ProfileSidebar({
   const verification: VerificationItem[] = [
     {
       label: "Phone Verification",
-      verified: !!profile.phone_no,
-      description: "Identity confirmed via OTP",
+      verified: false,
+      description: "Confirm identity via secure OTP",
     },
     {
       label: "Email Verification",
-      verified:
-        !!profile.email &&
-        !profile.email.endsWith("@gullygig.in"),
-      description: "Email address confirmed",
+      verified: false,
+      description: "Confirm email address ownership",
+    },
+    {
+      label: "Profile Verification",
+      verified: false,
+      description: "Verify profile photo and details",
     },
   ];
 
   const startVerification = (item: VerificationItem) => {
-    alert(`Starting ${item.label} process...`);
+    alert("Coming Soon");
   };
-
-  const verifiedCount = verification.filter((v) => v.verified).length;
-  const trustScore = Math.round((verifiedCount / verification.length) * 100);
 
   return (
     <div className="space-y-4">
@@ -185,20 +182,6 @@ export default function ProfileSidebar({
         </div>
 
         <div className="p-4 sm:p-5">
-          {/* Trust Score */}
-          <div className="mb-4">
-            <div className="flex justify-between text-xs text-gray-500 mb-1">
-              <span>Verification Status</span>
-              <span className="font-medium text-blue-600">{trustScore}%</span>
-            </div>
-            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-blue-500 rounded-full"
-                style={{ width: `${trustScore}%` }}
-              />
-            </div>
-          </div>
-
           <div className="space-y-2.5">
             {verification.map((item, idx) => (
               <div
@@ -206,37 +189,22 @@ export default function ProfileSidebar({
                 className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0 py-1"
               >
                 <div>
-                  <span className="text-gray-700 text-sm">{item.label}</span>
+                  <span className="text-gray-700 text-sm font-semibold">{item.label}</span>
                   {showVerificationDetails && item.description && (
                     <p className="text-xs text-gray-400 mt-0.5">
                       {item.description}
                     </p>
                   )}
                 </div>
-                {item.verified ? (
-                  <span className="text-green-600 flex items-center gap-1 text-xs font-medium">
-                    <CheckCircle className="w-3.5 h-3.5" /> Verified
-                  </span>
-                ) : (
-                  <button
-                    onClick={() => startVerification(item)}
-                    className="text-blue-600 flex items-center gap-1 hover:text-blue-700 text-xs font-medium"
-                  >
-                    <XCircle className="w-3.5 h-3.5" /> Verify
-                  </button>
-                )}
+                <button
+                  onClick={() => startVerification(item)}
+                  className="text-blue-650 flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  Verify
+                </button>
               </div>
             ))}
           </div>
-
-          {trustScore === 100 && (
-            <div className="mt-4 p-2.5 bg-blue-50 rounded-lg flex items-center gap-2 border border-blue-100">
-              <Award className="w-3.5 h-3.5 text-blue-600" />
-              <p className="text-xs text-blue-700">
-                All verifications complete!
-              </p>
-            </div>
-          )}
         </div>
       </motion.div>
     </div>

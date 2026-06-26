@@ -58,7 +58,7 @@ export default function LanguageSelector({
     <div className="space-y-3">
       <div>
         <label className="block text-sm font-semibold text-slate-700">
-          Languages You Teach In
+          Languages You Know
         </label>
         <p className="text-xs text-slate-400 mt-0.5">
           Select one or more languages or add custom ones.

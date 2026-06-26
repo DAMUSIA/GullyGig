@@ -180,7 +180,7 @@ export default function ServicesPage() {
         const state = channel.presenceState();
         const count = Object.keys(state).reduce(
           (sum, key) => sum + state[key].length,
-          0
+          0,
         );
         setLiveViewers(count);
       })
@@ -545,8 +545,12 @@ export default function ServicesPage() {
                 <Sparkles className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="text-right">
-                <span className="text-lg font-black text-slate-800 dark:text-white leading-none">{services.length}</span>
-                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Total Services</p>
+                <span className="text-lg font-black text-slate-800 dark:text-white leading-none">
+                  {services.length}
+                </span>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                  Total Services
+                </p>
               </div>
             </div>
           )}

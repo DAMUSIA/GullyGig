@@ -2,12 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import {
-  Shield,
-  User,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import { Shield, User, ChevronDown, ChevronUp } from "lucide-react";
 import { UserProfile } from "@/lib/supabase";
 
 interface VerificationItem {
@@ -191,7 +186,9 @@ export default function ProfileSidebar({
                 className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0 py-1"
               >
                 <div>
-                  <span className="text-gray-700 text-sm font-semibold">{item.label}</span>
+                  <span className="text-gray-700 text-sm font-semibold">
+                    {item.label}
+                  </span>
                   {showVerificationDetails && item.description && (
                     <p className="text-xs text-gray-400 mt-0.5">
                       {item.description}

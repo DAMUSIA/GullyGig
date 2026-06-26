@@ -75,8 +75,6 @@ export default function SettingsPage() {
     loadProfile();
   }, [router]);
 
-
-
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
@@ -227,7 +225,9 @@ export default function SettingsPage() {
                 <h2 className="text-lg font-semibold text-gray-900">
                   Contact Us
                 </h2>
-                <p className="text-sm text-gray-500">Need support? Get in touch with our team</p>
+                <p className="text-sm text-gray-500">
+                  Need support? Get in touch with our team
+                </p>
               </div>
             </div>
 
@@ -240,7 +240,10 @@ export default function SettingsPage() {
                   <p className="text-xs font-semibold text-gray-505 uppercase tracking-wider">
                     Email Support
                   </p>
-                  <a href="mailto:support@gullygig.in" className="text-blue-600 text-sm font-semibold hover:underline">
+                  <a
+                    href="mailto:support@gullygig.in"
+                    className="text-blue-600 text-sm font-semibold hover:underline"
+                  >
                     support@gullygig.in
                   </a>
                 </div>
@@ -254,7 +257,10 @@ export default function SettingsPage() {
                   <p className="text-xs font-semibold text-gray-550 uppercase tracking-wider">
                     Phone Support
                   </p>
-                  <a href="tel:7559302315" className="text-gray-900 text-sm font-semibold hover:text-blue-600">
+                  <a
+                    href="tel:7559302315"
+                    className="text-gray-900 text-sm font-semibold hover:text-blue-600"
+                  >
                     7559302315
                   </a>
                 </div>

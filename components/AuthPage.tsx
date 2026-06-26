@@ -89,7 +89,11 @@ export default function AuthPage({
     setPassword("");
     setIsLoading(false);
     setIsGoogleLoading(false);
-    window.history.pushState(null, "", newMode === "register" ? "/Auth?mode=register" : "/Auth");
+    window.history.pushState(
+      null,
+      "",
+      newMode === "register" ? "/Auth?mode=register" : "/Auth",
+    );
     setMode(newMode);
   };
 

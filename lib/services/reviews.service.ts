@@ -89,7 +89,10 @@ export async function postReview(
 
   if (serviceError) {
     console.error("Database error checking service existence:", serviceError);
-    return { success: false, error: "Failed to submit review. Please try again later." };
+    return {
+      success: false,
+      error: "Failed to submit review. Please try again later.",
+    };
   }
 
   if (!service) {

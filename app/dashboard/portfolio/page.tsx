@@ -117,10 +117,6 @@ export default function DashboardPortfolioPage() {
 
   const activeService = services.find((s) => s.id === selectedServiceId);
 
-
-
-
-
   if (loading) {
     return (
       <div className="space-y-6 pb-20 max-w-[1200px] mx-auto animate-pulse">
@@ -263,7 +259,12 @@ export default function DashboardPortfolioPage() {
 
               <div className="pt-2">
                 <button
-                  onClick={() => showToast("View Portfolio feature is currently under maintenance.", "error")}
+                  onClick={() =>
+                    showToast(
+                      "View Portfolio feature is currently under maintenance.",
+                      "error",
+                    )
+                  }
                   className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-2xl transition cursor-pointer active:scale-95 shadow-md shadow-blue-500/10"
                 >
                   <ExternalLink className="h-4 w-4" />
@@ -294,7 +295,9 @@ export default function DashboardPortfolioPage() {
               <button
                 onClick={() => {
                   setPosterLoading(true);
-                  router.push(`/dashboard/portfolio/poster/${activeService.id}`);
+                  router.push(
+                    `/dashboard/portfolio/poster/${activeService.id}`,
+                  );
                 }}
                 disabled={posterLoading}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-2xl transition cursor-pointer active:scale-95 shrink-0 shadow-md shadow-blue-500/10 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -304,7 +307,9 @@ export default function DashboardPortfolioPage() {
                 ) : (
                   <FileImage className="h-4 w-4" />
                 )}
-                <span>{posterLoading ? "Generating..." : "Generate Poster"}</span>
+                <span>
+                  {posterLoading ? "Generating..." : "Generate Poster"}
+                </span>
               </button>
             </div>
           </div>

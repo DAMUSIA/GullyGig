@@ -29,7 +29,8 @@ async function getPortfolioData(idOrSlug: string) {
     let resolvedId = idOrSlug;
 
     // Check if idOrSlug is a valid UUID
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(idOrSlug)) {
       // It's a slug, e.g. "guitar-lessons-38fcd598"
       const parts = idOrSlug.split("-");
@@ -40,13 +41,18 @@ async function getPortfolioData(idOrSlug: string) {
         const { data: services, error: listError } = await supabaseAdmin
           .from("services")
           .select("id");
-        
+
         if (listError) {
-          console.error("Error listing services for slug resolution:", listError);
+          console.error(
+            "Error listing services for slug resolution:",
+            listError,
+          );
           return null;
         }
 
-        const matchedService = services?.find(s => s.id.startsWith(suffix.toLowerCase()));
+        const matchedService = services?.find((s) =>
+          s.id.startsWith(suffix.toLowerCase()),
+        );
         if (matchedService) {
           resolvedId = matchedService.id;
         } else {

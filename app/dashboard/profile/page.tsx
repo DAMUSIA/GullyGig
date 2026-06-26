@@ -30,7 +30,7 @@ export default function ProfilePage() {
 
   const showToast = (
     message: string,
-    type: "success" | "error" = "success"
+    type: "success" | "error" = "success",
   ) => {
     setToast({ message, type });
   };
@@ -143,10 +143,10 @@ export default function ProfilePage() {
           try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 3000);
-            
+
             const response = await fetch(
               `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
-              { signal: controller.signal }
+              { signal: controller.signal },
             );
             clearTimeout(timeoutId);
 
@@ -157,10 +157,13 @@ export default function ProfilePage() {
               throw new Error("Nominatim response not OK");
             }
           } catch (nominatimErr) {
-            console.warn("Nominatim reverse geocode failed, attempting BigDataCloud fallback...", nominatimErr);
+            console.warn(
+              "Nominatim reverse geocode failed, attempting BigDataCloud fallback...",
+              nominatimErr,
+            );
             try {
               const response = await fetch(
-                `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+                `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`,
               );
               if (response.ok) {
                 data = await response.json();
@@ -192,8 +195,14 @@ export default function ProfilePage() {
             } else if (data.locality !== undefined) {
               city = data.city || data.locality || "";
               const informative = data.localityInfo?.informative || [];
-              const areaItem = informative.find((i: { name: string; description?: string }) =>
-                ["suburb", "neighbourhood", "subdistrict", "locality"].includes(i.description?.toLowerCase() || "")
+              const areaItem = informative.find(
+                (i: { name: string; description?: string }) =>
+                  [
+                    "suburb",
+                    "neighbourhood",
+                    "subdistrict",
+                    "locality",
+                  ].includes(i.description?.toLowerCase() || ""),
               );
               neighborhood = areaItem?.name || data.locality || "";
               postcode = data.postcode || "";
@@ -205,17 +214,26 @@ export default function ProfilePage() {
               parts.length > 0 ? parts.join(", ") : displayName;
             handleInputChange("location", locationStr);
           } else {
-            showToast("Could not retrieve clean location details. Please fill it manually.", "error");
+            showToast(
+              "Could not retrieve clean location details. Please fill it manually.",
+              "error",
+            );
           }
         } catch (err) {
           console.error("GPS Reverse Geocoding Error:", err);
-          showToast("Could not retrieve clean location details. Please fill it manually.", "error");
+          showToast(
+            "Could not retrieve clean location details. Please fill it manually.",
+            "error",
+          );
         } finally {
           setIsLocating(false);
         }
       },
       (error) => {
-        console.error("GPS Coordinates Error:", error?.message || error?.code || String(error));
+        console.error(
+          "GPS Coordinates Error:",
+          error?.message || error?.code || String(error),
+        );
         let errorMsg = "Failed to fetch coordinates. Please fill manually.";
         if (error.code === error.PERMISSION_DENIED) {
           errorMsg =
@@ -255,7 +273,10 @@ export default function ProfilePage() {
         setIsEditing(false);
         showToast("Profile updated successfully!", "success");
       } else {
-        showToast(error || "Failed to update profile. Please try again.", "error");
+        showToast(
+          error || "Failed to update profile. Please try again.",
+          "error",
+        );
       }
     } catch (err) {
       console.error("Failed to save profile details:", err);

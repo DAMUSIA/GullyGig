@@ -59,9 +59,7 @@ export async function POST(request: Request) {
     }
 
     const isPseudoEmail =
-      email &&
-      email.startsWith("phone_") &&
-      email.endsWith("@gullygig.in");
+      email && email.startsWith("phone_") && email.endsWith("@gullygig.in");
     const dbEmail = isPseudoEmail ? null : email || null;
 
     // Insert new profile using service role (bypasses RLS)

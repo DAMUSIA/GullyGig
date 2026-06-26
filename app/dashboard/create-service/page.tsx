@@ -366,16 +366,26 @@ export default function CreateServicePage() {
 
   const getStepTitle = (step: number) => {
     switch (step) {
-      case 1: return "What service do you provide?";
-      case 2: return "Service Title";
-      case 3: return "How do you provide service?";
-      case 4: return "Location Details";
-      case 5: return "Availability";
-      case 6: return "Languages Known";
-      case 7: return "Pricing Details";
-      case 8: return "Contact Numbers";
-      case 9: return "About Yourself (Description)";
-      default: return "";
+      case 1:
+        return "What service do you provide?";
+      case 2:
+        return "Service Title";
+      case 3:
+        return "How do you provide service?";
+      case 4:
+        return "Location Details";
+      case 5:
+        return "Availability";
+      case 6:
+        return "Languages Known";
+      case 7:
+        return "Pricing Details";
+      case 8:
+        return "Contact Numbers";
+      case 9:
+        return "About Yourself (Description)";
+      default:
+        return "";
     }
   };
 
@@ -383,17 +393,20 @@ export default function CreateServicePage() {
     switch (step) {
       case 1:
         if (!formData.category) return false;
-        if (formData.category === "Other" && !(formData.customCategory || "").trim()) return false;
+        if (
+          formData.category === "Other" &&
+          !(formData.customCategory || "").trim()
+        )
+          return false;
         return true;
       case 2:
         return formData.title.trim().length >= 3;
-      case 8:
-        {
-          const cleanContacts = (formData.contact_numbers || [])
-            .map((n) => n.replace(/\D/g, ""))
-            .filter(n => n.length === 10);
-          return cleanContacts.length > 0;
-        }
+      case 8: {
+        const cleanContacts = (formData.contact_numbers || [])
+          .map((n) => n.replace(/\D/g, ""))
+          .filter((n) => n.length === 10);
+        return cleanContacts.length > 0;
+      }
       default:
         return true;
     }
@@ -549,9 +562,7 @@ export default function CreateServicePage() {
                   className="block text-sm font-semibold text-slate-700"
                 >
                   Starting Price{" "}
-                  <span className="text-slate-400 font-normal">
-                    (Optional)
-                  </span>
+                  <span className="text-slate-400 font-normal">(Optional)</span>
                 </label>
                 <div className="relative">
                   <input
@@ -580,9 +591,7 @@ export default function CreateServicePage() {
               <div className="space-y-1.5">
                 <label className="block text-sm font-semibold text-slate-700">
                   Price Unit{" "}
-                  <span className="text-slate-400 font-normal">
-                    (Optional)
-                  </span>
+                  <span className="text-slate-400 font-normal">(Optional)</span>
                 </label>
                 <div className="flex flex-wrap gap-2.5">
                   {PRICE_UNITS.map((unit) => {
@@ -674,9 +683,9 @@ export default function CreateServicePage() {
                     <button
                       type="button"
                       onClick={() => {
-                        const updated = (
-                          formData.contact_numbers || []
-                        ).filter((_, i) => i !== idx);
+                        const updated = (formData.contact_numbers || []).filter(
+                          (_, i) => i !== idx,
+                        );
                         setFormData((prev) => ({
                           ...prev,
                           contact_numbers: updated,
@@ -825,7 +834,9 @@ export default function CreateServicePage() {
                     Create Service
                   </h3>
                   <p className="text-xs text-slate-500 leading-relaxed max-w-none font-medium">
-                    Set up your professional tutoring service profile in a few steps. We will generate a public portfolio and scan-to-call posters for you!
+                    Set up your professional tutoring service profile in a few
+                    steps. We will generate a public portfolio and scan-to-call
+                    posters for you!
                   </p>
                 </div>
                 <button
@@ -856,9 +867,7 @@ export default function CreateServicePage() {
                 </div>
 
                 {/* Render active step input */}
-                <div className="py-2">
-                  {renderStepContent(currentStep)}
-                </div>
+                <div className="py-2">{renderStepContent(currentStep)}</div>
 
                 {/* Navigation buttons */}
                 <div className="flex items-center justify-between border-t border-slate-100 pt-6">
@@ -892,8 +901,16 @@ export default function CreateServicePage() {
                       }}
                       className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition cursor-pointer active:scale-95 flex items-center gap-1.5"
                     >
-                      {isSubmitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                      <span>{currentStep === 9 ? (isSubmitting ? "Publishing..." : "Publish Service") : "Next"}</span>
+                      {isSubmitting && (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      )}
+                      <span>
+                        {currentStep === 9
+                          ? isSubmitting
+                            ? "Publishing..."
+                            : "Publish Service"
+                          : "Next"}
+                      </span>
                     </button>
                   </div>
                 </div>

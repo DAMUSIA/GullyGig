@@ -64,7 +64,10 @@ export default function LegalClientPage({
     const shareData = {
       title: "GullyGig - Find Trusted Local Service Providers",
       text: "Discover verified tutors, cooks, babysitters, and skilled professionals near you on GullyGig!",
-      url: typeof window !== "undefined" ? window.location.origin : "https://gullygig.in",
+      url:
+        typeof window !== "undefined"
+          ? window.location.origin
+          : "https://gullygig.in",
     };
 
     if (navigator.share) {
@@ -131,42 +134,75 @@ export default function LegalClientPage({
     }
 
     if (isPrivacy) {
-      if (cleanTitle.includes("1. who we are")) return <Users className="h-5 w-5" />;
-      if (cleanTitle.includes("2. information we collect")) return <Database className="h-5 w-5" />;
-      if (cleanTitle.includes("3. how we use")) return <Eye className="h-5 w-5" />;
-      if (cleanTitle.includes("4. legal basis")) return <Scale className="h-5 w-5" />;
-      if (cleanTitle.includes("5. sharing of")) return <Users className="h-5 w-5" />;
-      if (cleanTitle.includes("6. data storage")) return <Lock className="h-5 w-5" />;
-      if (cleanTitle.includes("7. data retention")) return <Clock className="h-5 w-5" />;
-      if (cleanTitle.includes("8. cookies")) return <Cookie className="h-5 w-5" />;
-      if (cleanTitle.includes("9. your rights")) return <Shield className="h-5 w-5" />;
-      if (cleanTitle.includes("10. children")) return <Users className="h-5 w-5" />;
-      if (cleanTitle.includes("11. third-party")) return <Scale className="h-5 w-5" />;
-      if (cleanTitle.includes("12. changes")) return <Clock className="h-5 w-5" />;
+      if (cleanTitle.includes("1. who we are"))
+        return <Users className="h-5 w-5" />;
+      if (cleanTitle.includes("2. information we collect"))
+        return <Database className="h-5 w-5" />;
+      if (cleanTitle.includes("3. how we use"))
+        return <Eye className="h-5 w-5" />;
+      if (cleanTitle.includes("4. legal basis"))
+        return <Scale className="h-5 w-5" />;
+      if (cleanTitle.includes("5. sharing of"))
+        return <Users className="h-5 w-5" />;
+      if (cleanTitle.includes("6. data storage"))
+        return <Lock className="h-5 w-5" />;
+      if (cleanTitle.includes("7. data retention"))
+        return <Clock className="h-5 w-5" />;
+      if (cleanTitle.includes("8. cookies"))
+        return <Cookie className="h-5 w-5" />;
+      if (cleanTitle.includes("9. your rights"))
+        return <Shield className="h-5 w-5" />;
+      if (cleanTitle.includes("10. children"))
+        return <Users className="h-5 w-5" />;
+      if (cleanTitle.includes("11. third-party"))
+        return <Scale className="h-5 w-5" />;
+      if (cleanTitle.includes("12. changes"))
+        return <Clock className="h-5 w-5" />;
     } else {
-      if (cleanTitle.includes("1. about gullygig")) return <Scale className="h-5 w-5" />;
-      if (cleanTitle.includes("2. eligibility")) return <Users className="h-5 w-5" />;
-      if (cleanTitle.includes("3. user accounts")) return <Users className="h-5 w-5" />;
-      if (cleanTitle.includes("4. service providers")) return <Shield className="h-5 w-5" />;
-      if (cleanTitle.includes("5. service seekers")) return <Users className="h-5 w-5" />;
-      if (cleanTitle.includes("6. platform role")) return <Scale className="h-5 w-5" />;
-      if (cleanTitle.includes("7. payments")) return <DollarSign className="h-5 w-5" />;
-      if (cleanTitle.includes("8. prohibited conduct")) return <AlertCircle className="h-5 w-5 text-red-500" />;
-      if (cleanTitle.includes("9. ratings")) return <Star className="h-5 w-5 text-amber-500" />;
-      if (cleanTitle.includes("10. intellectual")) return <Shield className="h-5 w-5" />;
-      if (cleanTitle.includes("11. suspension")) return <Clock className="h-5 w-5" />;
-      if (cleanTitle.includes("12. limitation of liability")) return <AlertCircle className="h-5 w-5" />;
-      if (cleanTitle.includes("13. indemnification")) return <Shield className="h-5 w-5" />;
-      if (cleanTitle.includes("14. governing law")) return <Scale className="h-5 w-5" />;
-      if (cleanTitle.includes("15. changes to these terms")) return <Clock className="h-5 w-5" />;
-      if (cleanTitle.includes("16. severability")) return <Scale className="h-5 w-5" />;
-      if (cleanTitle.includes("17. entire agreement")) return <Scale className="h-5 w-5" />;
+      if (cleanTitle.includes("1. about gullygig"))
+        return <Scale className="h-5 w-5" />;
+      if (cleanTitle.includes("2. eligibility"))
+        return <Users className="h-5 w-5" />;
+      if (cleanTitle.includes("3. user accounts"))
+        return <Users className="h-5 w-5" />;
+      if (cleanTitle.includes("4. service providers"))
+        return <Shield className="h-5 w-5" />;
+      if (cleanTitle.includes("5. service seekers"))
+        return <Users className="h-5 w-5" />;
+      if (cleanTitle.includes("6. platform role"))
+        return <Scale className="h-5 w-5" />;
+      if (cleanTitle.includes("7. payments"))
+        return <DollarSign className="h-5 w-5" />;
+      if (cleanTitle.includes("8. prohibited conduct"))
+        return <AlertCircle className="h-5 w-5 text-red-500" />;
+      if (cleanTitle.includes("9. ratings"))
+        return <Star className="h-5 w-5 text-amber-500" />;
+      if (cleanTitle.includes("10. intellectual"))
+        return <Shield className="h-5 w-5" />;
+      if (cleanTitle.includes("11. suspension"))
+        return <Clock className="h-5 w-5" />;
+      if (cleanTitle.includes("12. limitation of liability"))
+        return <AlertCircle className="h-5 w-5" />;
+      if (cleanTitle.includes("13. indemnification"))
+        return <Shield className="h-5 w-5" />;
+      if (cleanTitle.includes("14. governing law"))
+        return <Scale className="h-5 w-5" />;
+      if (cleanTitle.includes("15. changes to these terms"))
+        return <Clock className="h-5 w-5" />;
+      if (cleanTitle.includes("16. severability"))
+        return <Scale className="h-5 w-5" />;
+      if (cleanTitle.includes("17. entire agreement"))
+        return <Scale className="h-5 w-5" />;
     }
 
-    if (cleanTitle.includes("user") || cleanTitle.includes("account")) return <Users className="h-5 w-5" />;
-    if (cleanTitle.includes("privacy") || cleanTitle.includes("security")) return <Shield className="h-5 w-5" />;
-    if (cleanTitle.includes("law") || cleanTitle.includes("legal")) return <Scale className="h-5 w-5" />;
-    if (cleanTitle.includes("changes") || cleanTitle.includes("date")) return <Clock className="h-5 w-5" />;
+    if (cleanTitle.includes("user") || cleanTitle.includes("account"))
+      return <Users className="h-5 w-5" />;
+    if (cleanTitle.includes("privacy") || cleanTitle.includes("security"))
+      return <Shield className="h-5 w-5" />;
+    if (cleanTitle.includes("law") || cleanTitle.includes("legal"))
+      return <Scale className="h-5 w-5" />;
+    if (cleanTitle.includes("changes") || cleanTitle.includes("date"))
+      return <Clock className="h-5 w-5" />;
 
     return <FileText className="h-5 w-5" />;
   };
@@ -180,9 +216,12 @@ export default function LegalClientPage({
     const flushList = () => {
       if (currentList.length > 0) {
         elements.push(
-          <ul key={`ul-${listKey++}`} className="space-y-2 text-sm text-slate-600 mt-2 list-none pl-1">
+          <ul
+            key={`ul-${listKey++}`}
+            className="space-y-2 text-sm text-slate-600 mt-2 list-none pl-1"
+          >
             {currentList}
-          </ul>
+          </ul>,
         );
         currentList = [];
       }
@@ -192,7 +231,11 @@ export default function LegalClientPage({
       const parts = txt.split("**");
       return parts.map((part, idx) => {
         if (idx % 2 === 1) {
-          return <strong key={idx} className="font-semibold text-slate-800">{part}</strong>;
+          return (
+            <strong key={idx} className="font-semibold text-slate-800">
+              {part}
+            </strong>
+          );
         }
         return part;
       });
@@ -214,23 +257,23 @@ export default function LegalClientPage({
             className="p-5 sm:p-6 bg-slate-50/80 rounded-2xl border border-slate-200/60 shadow-xs hover:shadow-sm transition-all duration-300 backdrop-blur-sm"
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className={`p-2.5 rounded-xl border ${
-                isProhibited 
-                  ? "bg-red-50 text-red-600 border-red-100/50" 
-                  : isPrivacy 
-                    ? "bg-blue-50 text-blue-600 border-blue-100/50" 
-                    : "bg-indigo-50 text-indigo-600 border-indigo-100/50"
-              }`}>
+              <div
+                className={`p-2.5 rounded-xl border ${
+                  isProhibited
+                    ? "bg-red-50 text-red-600 border-red-100/50"
+                    : isPrivacy
+                      ? "bg-blue-50 text-blue-600 border-blue-100/50"
+                      : "bg-indigo-50 text-indigo-600 border-indigo-100/50"
+                }`}
+              >
                 {IconComponent}
               </div>
               <h2 className="text-base sm:text-lg font-bold text-slate-900">
                 {sectionTitle}
               </h2>
             </div>
-            <div className="space-y-3.5">
-              {[...sectionContent]}
-            </div>
-          </section>
+            <div className="space-y-3.5">{[...sectionContent]}</div>
+          </section>,
         );
         sectionContent = [];
         sectionTitle = "";
@@ -249,15 +292,21 @@ export default function LegalClientPage({
         const titleText = line.substring(2);
         elements.push(
           <div key={`title-${i}`} className="flex items-center gap-4 mb-4 mt-2">
-            <div className={`p-3.5 rounded-2xl ${isPrivacy ? "bg-blue-100 text-blue-600" : "bg-indigo-100 text-indigo-600"}`}>
-              {isPrivacy ? <Shield className="h-8 w-8" /> : <FileText className="h-8 w-8" />}
+            <div
+              className={`p-3.5 rounded-2xl ${isPrivacy ? "bg-blue-100 text-blue-600" : "bg-indigo-100 text-indigo-600"}`}
+            >
+              {isPrivacy ? (
+                <Shield className="h-8 w-8" />
+              ) : (
+                <FileText className="h-8 w-8" />
+              )}
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                 {titleText}
               </h1>
             </div>
-          </div>
+          </div>,
         );
       } else if (line.startsWith("## ")) {
         flushSection();
@@ -267,7 +316,10 @@ export default function LegalClientPage({
         flushList();
         const subTitleText = line.substring(4);
         const content = (
-          <h3 key={`h3-${i}`} className="font-bold text-slate-800 text-sm sm:text-base mt-4 mb-1.5">
+          <h3
+            key={`h3-${i}`}
+            className="font-bold text-slate-800 text-sm sm:text-base mt-4 mb-1.5"
+          >
             {renderTextWithBold(subTitleText)}
           </h3>
         );
@@ -286,10 +338,16 @@ export default function LegalClientPage({
             {isCheck ? (
               <CheckCircle2 className="h-4.5 w-4.5 text-green-600 flex-shrink-0 mt-0.5" />
             ) : (
-              <span className={`font-bold text-lg leading-none mt-0.5 flex-shrink-0 ${isPrivacy ? "text-blue-500" : "text-indigo-500"}`}>•</span>
+              <span
+                className={`font-bold text-lg leading-none mt-0.5 flex-shrink-0 ${isPrivacy ? "text-blue-500" : "text-indigo-500"}`}
+              >
+                •
+              </span>
             )}
-            <span className="text-slate-600 text-sm leading-relaxed">{renderTextWithBold(cleanBulletText)}</span>
-          </li>
+            <span className="text-slate-600 text-sm leading-relaxed">
+              {renderTextWithBold(cleanBulletText)}
+            </span>
+          </li>,
         );
       } else {
         flushList();
@@ -437,9 +495,10 @@ export default function LegalClientPage({
                 </div>
               </Link>
               <p className="text-sm text-slate-500 leading-relaxed max-w mx-auto md:mx-0">
-                Discover trusted local professionals and skilled workers near you.
+                Discover trusted local professionals and skilled workers near
+                you.
               </p>
-              
+
               {/* Social Media & Share Icons */}
               <div className="flex items-center justify-center md:justify-start gap-2.5 mt-4 flex-wrap">
                 <button
@@ -451,7 +510,8 @@ export default function LegalClientPage({
                 </button>
                 {socialIcons.map((social) => {
                   const Icon = social.icon;
-                  const href = SOCIAL_LINKS[social.key as keyof typeof SOCIAL_LINKS];
+                  const href =
+                    SOCIAL_LINKS[social.key as keyof typeof SOCIAL_LINKS];
                   if (!href || href === "#") return null;
 
                   return (

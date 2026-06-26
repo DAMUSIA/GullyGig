@@ -412,7 +412,7 @@ export default function TeamPage() {
                - Tablet/Desktop (sm and up): h-10 w-36 (40px height, 144px width)
                You can adjust these classes (e.g. h-8, w-28, sm:h-10, sm:w-36) to fit your logo's dimensions.
             */}
-            <motion.div 
+            <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.96 }}
               transition={{ type: "spring", stiffness: 400, damping: 15 }}
@@ -466,15 +466,15 @@ export default function TeamPage() {
             transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
           >
             <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-slate-900 dark:text-white leading-[1.1] tracking-tight">
-              Meet the Team <br /> behind{" "}<br />
-              <motion.span 
-                animate={{ 
+              Meet the Team <br /> behind <br />
+              <motion.span
+                animate={{
                   scale: [1, 1.02, 1],
                 }}
-                transition={{ 
-                  duration: 4, 
-                  repeat: Infinity, 
-                  ease: "easeInOut" 
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
                 }}
                 whileHover={{ scale: 1.06, rotate: 1 }}
                 whileTap={{ scale: 0.97 }}

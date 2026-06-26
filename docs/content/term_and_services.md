@@ -22,12 +22,15 @@ By using the Platform, you confirm that you meet all of the above eligibility cr
 ## 3. User Accounts
 
 ### 3.1 Registration
+
 You must create an account to access most features of the Platform. You agree to provide true, accurate, and up-to-date information during registration and to keep this information updated.
 
 ### 3.2 Account Security
+
 You are responsible for maintaining the confidentiality of your login credentials. You must notify us immediately at support@gullygig.in if you suspect any unauthorized use of your account.
 
 ### 3.3 One Account Per User
+
 Each individual may register only one account. Creating multiple accounts is prohibited and may result in all accounts being permanently suspended.
 
 ## 4. Service Providers
@@ -65,15 +68,19 @@ Any disputes arising from services must be resolved between the Service Provider
 ## 7. Payments and Commission
 
 ### 7.1 Payment Processing
+
 All payments on the Platform are processed securely through Razorpay. By making a payment, you also agree to Razorpay's terms of service.
 
 ### 7.2 Commission
+
 GullyGig Connect charges a commission of approximately 10% on each completed transaction. This fee is deducted before the payout is made to the Service Provider. The exact commission percentage will be communicated on the Platform and may change with prior notice.
 
 ### 7.3 Refunds
+
 Refund requests must be raised within 48 hours of the service completion. Refunds are handled on a case-by-case basis. GullyGig Connect reserves the right to approve or reject refund requests.
 
 ### 7.4 Taxes
+
 All amounts displayed may be exclusive of applicable taxes such as GST. Users are responsible for their own tax obligations.
 
 ## 8. Prohibited Conduct

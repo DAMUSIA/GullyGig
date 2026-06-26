@@ -13,6 +13,7 @@ GullyGig Connect is a hyperlocal service marketplace that connects skilled indiv
 We collect the following categories of personal information:
 
 ### a) Information You Provide Directly:
+
 - Full name and profile photo
 - Email address and phone number
 - Residential or service area (city, locality, pin code)
@@ -22,6 +23,7 @@ We collect the following categories of personal information:
 - Reviews, ratings, and messages exchanged on the Platform
 
 ### b) Information Collected Automatically:
+
 - IP address, browser type, and device information
 - Location data (only when you grant permission)
 - Usage data: pages visited, time spent, features used

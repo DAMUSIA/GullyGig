@@ -43,80 +43,89 @@ export default function LocationSelector({
         try {
           try {
             // Attempt Nominatim reverse geocoding with a 3-second timeout
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3000);
-          
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
-            { signal: controller.signal }
-          );
-          clearTimeout(timeoutId);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-          if (response.ok) {
-            data = await response.json();
-            isNominatim = true;
-          } else {
-            throw new Error("Nominatim status not OK");
-          }
-        } catch (nominatimErr) {
-          console.warn("Nominatim reverse geocode failed, attempting BigDataCloud fallback...", nominatimErr);
-          try {
             const response = await fetch(
-              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
+              { signal: controller.signal },
             );
+            clearTimeout(timeoutId);
+
             if (response.ok) {
               data = await response.json();
+              isNominatim = true;
             } else {
-              throw new Error("BigDataCloud status not OK");
+              throw new Error("Nominatim status not OK");
             }
-          } catch (bdcErr) {
-            console.error("All reverse geocoding services failed:", bdcErr);
-          }
-        }
-
-        if (data) {
-          let cityName = "";
-          let areaName = "";
-
-          if (isNominatim && data.address) {
-            const addr = data.address;
-            areaName =
-              addr.neighbourhood ||
-              addr.suburb ||
-              addr.village ||
-              addr.residential ||
-              addr.subdistrict ||
-              "";
-            cityName =
-              addr.city ||
-              addr.town ||
-              addr.city_district ||
-              addr.state_district ||
-              addr.county ||
-              "";
-          } else if (data.locality !== undefined) {
-            cityName = data.city || data.locality || "";
-            const informative = data.localityInfo?.informative || [];
-            const areaItem = informative.find((i: { name: string; description?: string }) =>
-              ["suburb", "neighbourhood", "subdistrict", "locality"].includes(i.description?.toLowerCase() || "")
+          } catch (nominatimErr) {
+            console.warn(
+              "Nominatim reverse geocode failed, attempting BigDataCloud fallback...",
+              nominatimErr,
             );
-            areaName = areaItem?.name || data.locality || "";
+            try {
+              const response = await fetch(
+                `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`,
+              );
+              if (response.ok) {
+                data = await response.json();
+              } else {
+                throw new Error("BigDataCloud status not OK");
+              }
+            } catch (bdcErr) {
+              console.error("All reverse geocoding services failed:", bdcErr);
+            }
           }
 
-          onChange({
-            city: cityName || city,
-            area: areaName,
-            latitude: lat,
-            longitude: lon,
-          });
-        } else {
-          // Fallback if address object is missing
-          onChange({
-            city: city || "Unknown City",
-            area: "Detected Location",
-            latitude: lat,
-            longitude: lon,
-          });
+          if (data) {
+            let cityName = "";
+            let areaName = "";
+
+            if (isNominatim && data.address) {
+              const addr = data.address;
+              areaName =
+                addr.neighbourhood ||
+                addr.suburb ||
+                addr.village ||
+                addr.residential ||
+                addr.subdistrict ||
+                "";
+              cityName =
+                addr.city ||
+                addr.town ||
+                addr.city_district ||
+                addr.state_district ||
+                addr.county ||
+                "";
+            } else if (data.locality !== undefined) {
+              cityName = data.city || data.locality || "";
+              const informative = data.localityInfo?.informative || [];
+              const areaItem = informative.find(
+                (i: { name: string; description?: string }) =>
+                  [
+                    "suburb",
+                    "neighbourhood",
+                    "subdistrict",
+                    "locality",
+                  ].includes(i.description?.toLowerCase() || ""),
+              );
+              areaName = areaItem?.name || data.locality || "";
+            }
+
+            onChange({
+              city: cityName || city,
+              area: areaName,
+              latitude: lat,
+              longitude: lon,
+            });
+          } else {
+            // Fallback if address object is missing
+            onChange({
+              city: city || "Unknown City",
+              area: "Detected Location",
+              latitude: lat,
+              longitude: lon,
+            });
           }
         } catch (err) {
           console.error("GPS Reverse Geocoding Error:", err);
@@ -135,7 +144,10 @@ export default function LocationSelector({
         }
       },
       (error) => {
-        console.error("GPS Coordinates Error:", error?.message || error?.code || String(error));
+        console.error(
+          "GPS Coordinates Error:",
+          error?.message || error?.code || String(error),
+        );
         let errorMsg = "Failed to fetch coordinates. Please fill manually.";
         if (error.code === error.PERMISSION_DENIED) {
           errorMsg =

@@ -478,7 +478,7 @@ export default function TeamPage() {
                 }}
                 whileHover={{ scale: 1.06, rotate: 1 }}
                 whileTap={{ scale: 0.97 }}
-                className="relative inline-flex h-56 w-56 sm:h-24 sm:w-24 md:h-62 md:w-62 align-middle cursor-pointer"
+                className="relative inline-flex h-66 w-66 sm:h-44 sm:w-44 md:h-82 md:w-82 align-middle cursor-pointer"
               >
                 {/* 
                    LOGO SIZE CONFIGURATION (Heading):

@@ -178,7 +178,7 @@ export default function Hero(props: HeroProps = {}) {
             className="flex flex-wrap items-center gap-3.5 mb-8 lg:mb-10"
           >
             <Link
-              href="/register"
+              href="/Auth?mode=register"
               className="px-6 py-3.5 rounded-xl bg-brand-primary text-white font-semibold text-[15px] shadow-lg shadow-brand-primary/25 hover:shadow-xl hover:shadow-brand-primary/40 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 text-center"
             >
               Become a Provider

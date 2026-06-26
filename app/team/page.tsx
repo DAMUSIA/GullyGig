@@ -412,7 +412,12 @@ export default function TeamPage() {
                - Tablet/Desktop (sm and up): h-10 w-36 (40px height, 144px width)
                You can adjust these classes (e.g. h-8, w-28, sm:h-10, sm:w-36) to fit your logo's dimensions.
             */}
-            <div className="relative h-22 w-36 sm:h-28 sm:w-28 flex-shrink-0">
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 400, damping: 15 }}
+              className="relative h-22 w-36 sm:h-28 sm:w-28 flex-shrink-0 cursor-pointer"
+            >
               <Image
                 src={isDark ? "/logo_light.png" : "/logo_dark.png"}
                 alt="Logo"
@@ -420,7 +425,7 @@ export default function TeamPage() {
                 className="object-contain object-left"
                 priority
               />
-            </div>
+            </motion.div>
           </Link>
 
           <div className="flex items-center gap-4 sm:gap-6">
@@ -460,12 +465,21 @@ export default function TeamPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
           >
-            <span className="text-blue-600 dark:text-blue-400 font-extrabold text-xs sm:text-sm uppercase tracking-widest bg-blue-50 dark:bg-blue-500/10 px-5 py-2 rounded-full inline-block mb-6 border border-blue-200 dark:border-blue-500/20 shadow-sm">
-              Our Creators
-            </span>
             <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-slate-900 dark:text-white leading-[1.1] tracking-tight">
-              Meet the Team <br /> behind{" "}
-              <span className="relative inline-flex h-16 w-16 sm:h-24 sm:w-24 md:h-28 md:w-28 align-middle">
+              Meet the Team <br /> behind{" "}<br />
+              <motion.span 
+                animate={{ 
+                  scale: [1, 1.02, 1],
+                }}
+                transition={{ 
+                  duration: 4, 
+                  repeat: Infinity, 
+                  ease: "easeInOut" 
+                }}
+                whileHover={{ scale: 1.06, rotate: 1 }}
+                whileTap={{ scale: 0.97 }}
+                className="relative inline-flex h-56 w-56 sm:h-24 sm:w-24 md:h-62 md:w-62 align-middle cursor-pointer"
+              >
                 {/* 
                    LOGO SIZE CONFIGURATION (Heading):
                    - Size: Mobile (h-16 w-16), Tablet (sm:h-24 sm:w-24), Desktop (md:h-28 md:w-28)
@@ -476,9 +490,10 @@ export default function TeamPage() {
                   alt="Logo"
                   fill
                   className="object-contain object-left align-middle"
+                  priority
                 />
                 <svg
-                  className="absolute w-full h-3 -bottom-1 left-0 text-blue-500/30 dark:text-blue-400/30"
+                  className="absolute w-full h-3-bottom-1 left-0 text-blue-500/30 dark:text-blue-400/30"
                   viewBox="0 0 100 10"
                   preserveAspectRatio="none"
                 >
@@ -489,7 +504,7 @@ export default function TeamPage() {
                     fill="transparent"
                   />
                 </svg>
-              </span>
+              </motion.span>
             </h1>
           </motion.div>
         </div>

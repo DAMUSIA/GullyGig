@@ -171,7 +171,7 @@ export default function Footer({ onShowToast }: FooterProps) {
             <ul className="space-y-2.5 text-center md:text-right">
               <li>
                 <Link
-                  href="/terms/privacy"
+                  href="/legal?tab=privacy"
                   className="text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                   Privacy Policy
@@ -179,7 +179,7 @@ export default function Footer({ onShowToast }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="/terms/service"
+                  href="/legal?tab=terms"
                   className="text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                   Terms of Service
@@ -204,14 +204,14 @@ export default function Footer({ onShowToast }: FooterProps) {
           </p>
           <div className="flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500">
             <Link
-              href="/terms/privacy"
+              href="/legal?tab=privacy"
               className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
               Privacy
             </Link>
             <span>•</span>
             <Link
-              href="/terms/service"
+              href="/legal?tab=terms"
               className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
               Terms

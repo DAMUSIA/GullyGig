@@ -5,6 +5,7 @@ import Image from "next/image";
 import { signIn, getCurrentUser } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 export default function AuthPage({
   defaultMode,
@@ -32,10 +33,9 @@ export default function AuthPage({
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
-      if (path === "/register") {
-        setMode("register");
-      } else if (path === "/login") {
-        setMode("login");
+      const params = new URLSearchParams(window.location.search);
+      if (path === "/Auth") {
+        setMode(params.get("mode") === "register" ? "register" : "login");
       }
     };
     window.addEventListener("popstate", handlePopState);
@@ -89,7 +89,7 @@ export default function AuthPage({
     setPassword("");
     setIsLoading(false);
     setIsGoogleLoading(false);
-    window.history.pushState(null, "", `/${newMode}`);
+    window.history.pushState(null, "", newMode === "register" ? "/Auth?mode=register" : "/Auth");
     setMode(newMode);
   };
 
@@ -497,7 +497,22 @@ export default function AuthPage({
                     style={{ accentColor: primaryColor }}
                   />
                   <span className="text-gray-600">
-                    I agree to the Terms & Conditions
+                    I agree to the{" "}
+                    <Link
+                      href="/legal?tab=terms"
+                      target="_blank"
+                      className="text-blue-600 hover:underline font-bold"
+                    >
+                      Terms & Conditions
+                    </Link>{" "}
+                    and{" "}
+                    <Link
+                      href="/legal?tab=privacy"
+                      target="_blank"
+                      className="text-blue-600 hover:underline font-bold"
+                    >
+                      Privacy Policy
+                    </Link>
                   </span>
                 </label>
               )}

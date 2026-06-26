@@ -461,7 +461,7 @@ export default function ServicesPage() {
                - Tablet/Desktop (sm and up): h-10 w-36 (40px height, 144px width)
                You can adjust these classes (e.g. h-8, w-28, sm:h-10, sm:w-36) to fit your logo's dimensions.
             */}
-            <div className="relative h-8 w-28 sm:h-10 sm:w-36 flex-shrink-0">
+            <div className="relative h-22 w-32 sm:h-22 sm:w-48 flex-shrink-0">
               <Image
                 src={isDark ? "/logo_light.png" : "/logo_dark.png"}
                 alt="Logo"

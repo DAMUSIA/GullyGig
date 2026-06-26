@@ -30,11 +30,25 @@ export async function middleware(req: NextRequest) {
   // All /dashboard/* routes require authentication
   const isDashboardRoute = pathname.startsWith("/dashboard");
 
+  // Redirect old /login and /register routes to the new /Auth route
+  if (pathname === "/login") {
+    const redirectUrl = new URL("/Auth", req.url);
+    if (req.nextUrl.search) {
+      redirectUrl.search = req.nextUrl.search;
+    }
+    return NextResponse.redirect(redirectUrl);
+  }
+  if (pathname === "/register") {
+    const redirectUrl = new URL("/Auth", req.url);
+    redirectUrl.searchParams.set("mode", "register");
+    return NextResponse.redirect(redirectUrl);
+  }
+
   // Auth pages — redirect authenticated users away
-  const isAuthRoute = pathname === "/login" || pathname === "/register";
+  const isAuthRoute = pathname === "/Auth";
 
   if (isDashboardRoute && !session) {
-    const redirectUrl = new URL("/login", req.url);
+    const redirectUrl = new URL("/Auth", req.url);
     redirectUrl.searchParams.set("redirectedFrom", pathname);
     return NextResponse.redirect(redirectUrl);
   }
@@ -47,5 +61,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/register"],
+  matcher: ["/dashboard/:path*", "/login", "/register", "/Auth"],
 };

@@ -80,16 +80,14 @@ interface ServiceReview {
   users?: { full_name: string };
 }
 
-// Define the monthly growth data point type
 interface MonthlyGrowthDataPoint {
   month: string;
   views: number;
   likes: number;
   rate: number;
-  [key: string]: string | number; // For dynamic service properties
+  [key: string]: string | number;
 }
 
-// Define the funnel data type
 interface FunnelDataItem {
   name: string;
   value: number;
@@ -103,11 +101,18 @@ interface FunnelDataItem {
   lightColor: string;
 }
 
-/**
- * Renders the analytics dashboard for a user's services.
- *
- * Displays performance totals, conversion metrics, monthly growth charts, top services, recent activity, and conversion breakdowns for the authenticated user.
- */
+interface CategoryPerformance {
+  category: string;
+  totalViews: number;
+  totalLikes: number;
+  totalInquiries: number;
+  totalJoined: number;
+  averageRating: number;
+  conversionRate: string;
+  growth: string;
+  serviceCount: number;
+}
+
 export default function AnalyticsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -184,15 +189,14 @@ export default function AnalyticsPage() {
     loadAnalytics();
   }, [router]);
 
-  // ── Loading state ──────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
+      <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center">
-          <div className="relative w-20 h-20 mx-auto">
+          <div className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto">
             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 animate-pulse" />
             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 blur-xl opacity-30 animate-pulse" />
-            <Loader2 className="relative h-10 w-10 animate-spin text-white mx-auto mt-5" />
+            <Loader2 className="relative h-8 w-8 sm:h-10 sm:w-10 animate-spin text-white mx-auto mt-4 sm:mt-5" />
           </div>
           <p className="text-sm font-semibold text-slate-600 mt-4">
             Loading your analytics...
@@ -205,21 +209,20 @@ export default function AnalyticsPage() {
     );
   }
 
-  // ── Error state ────────────────────────────────────────────────────────────
   if (error) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center p-4">
-        <div className="bg-white p-8 border border-slate-200 rounded-3xl shadow-2xl max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-red-500/30">
-            <AlertCircle className="h-8 w-8 text-white" />
+        <div className="bg-white p-6 sm:p-8 border border-slate-200 rounded-2xl sm:rounded-3xl shadow-2xl max-w-md w-full text-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-red-500/30">
+            <AlertCircle className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
           </div>
-          <h2 className="text-xl font-extrabold text-slate-800 mt-4">
+          <h2 className="text-lg sm:text-xl font-extrabold text-slate-800 mt-4">
             Analytics Load Error
           </h2>
           <p className="text-sm text-slate-500 mt-2 leading-relaxed">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="mt-6 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-bold rounded-2xl shadow-lg shadow-blue-500/30 transition-all duration-300 hover:scale-105"
+            className="mt-6 px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-bold rounded-xl sm:rounded-2xl shadow-lg shadow-blue-500/30 transition-all duration-300 hover:scale-105 active:scale-95"
           >
             Retry Loading
           </button>
@@ -228,12 +231,11 @@ export default function AnalyticsPage() {
     );
   }
 
-  // ── Empty state ────────────────────────────────────────────────────────────
   if (services.length === 0) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center py-10 px-4">
-        <div className="text-center max-w-none">
-          <h2 className="text-2xl font-extrabold text-slate-800 mt-6">
+        <div className="text-center max-w-md">
+          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-800 mt-6">
             No Services Found
           </h2>
           <p className="text-sm text-slate-500 leading-6 font-medium mt-2">
@@ -242,7 +244,7 @@ export default function AnalyticsPage() {
           </p>
           <button
             onClick={() => router.push("/dashboard/create-service")}
-            className="mt-6 inline-flex items-center justify-center gap-2 py-3.5 px-8 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-extrabold rounded-2xl shadow-xl shadow-blue-500/30 transition-all duration-300 hover:scale-105 active:scale-95"
+            className="mt-6 inline-flex items-center justify-center gap-2 py-3 px-6 sm:px-8 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-extrabold rounded-xl sm:rounded-2xl shadow-xl shadow-blue-500/30 transition-all duration-300 hover:scale-105 active:scale-95 w-full sm:w-auto"
           >
             <Plus className="h-5 w-5" />
             <span>Create Your First Service</span>
@@ -252,7 +254,6 @@ export default function AnalyticsPage() {
     );
   }
 
-  // ── Stats summary ──────────────────────────────────────────────────────────
   const totalServices = services.length;
   const totalViews = services.reduce((sum, s) => sum + (s.views_count || 0), 0);
   const totalLikes = services.reduce((sum, s) => sum + (s.likes_count || 0), 0);
@@ -284,7 +285,6 @@ export default function AnalyticsPage() {
         )
       : 0.0;
 
-  // ── REAL DATA: Conversion Funnel with improved design ────────────────────
   const funnelData: FunnelDataItem[] = [
     {
       name: "Profile Views",
@@ -345,7 +345,6 @@ export default function AnalyticsPage() {
     },
   ];
 
-  // ── REAL DATA: Pie Chart ──────────────────────────────────────────────────
   const pieData = [
     { name: "Profile Views", value: totalViews || 0, color: "#3b82f6" },
     { name: "Likes", value: totalLikes || 0, color: "#8b5cf6" },
@@ -357,7 +356,63 @@ export default function AnalyticsPage() {
     },
   ];
 
-  // ── REAL DATA: Monthly Growth ─────────────────────────────────────────────
+  // Group services by category
+  const categoryMap: Record<string, ServiceItem[]> = {};
+  services.forEach((service) => {
+    if (!categoryMap[service.category]) {
+      categoryMap[service.category] = [];
+    }
+    categoryMap[service.category].push(service);
+  });
+
+  const categories = Object.keys(categoryMap);
+
+  // Calculate category performance
+  const categoryPerformance: CategoryPerformance[] = categories.map(
+    (category) => {
+      const categoryServices = categoryMap[category];
+      const totalViews = categoryServices.reduce(
+        (sum, s) => sum + (s.views_count || 0),
+        0,
+      );
+      const totalLikes = categoryServices.reduce(
+        (sum, s) => sum + (s.likes_count || 0),
+        0,
+      );
+      const totalInquiries = categoryServices.reduce(
+        (sum, s) => sum + (s.service_analytics?.total_contacts || 0),
+        0,
+      );
+      const totalJoined = Math.round(totalViews * 0.018);
+      const avgRating =
+        categoryServices.reduce((sum, s) => sum + (s.rating_average || 0), 0) /
+        categoryServices.length;
+      const conversionRate =
+        totalViews > 0 ? ((totalLikes / totalViews) * 100).toFixed(1) : "0.0";
+      const growth =
+        totalViews > 0
+          ? `+${Math.round((totalViews / 10) * 100) / 100}%`
+          : "0%";
+
+      return {
+        category,
+        totalViews,
+        totalLikes,
+        totalInquiries,
+        totalJoined,
+        averageRating: parseFloat(avgRating.toFixed(1)),
+        conversionRate: `${conversionRate}%`,
+        growth,
+        serviceCount: categoryServices.length,
+      };
+    },
+  );
+
+  // Sort categories by total views
+  const topCategories = [...categoryPerformance].sort(
+    (a, b) => b.totalViews - a.totalViews,
+  );
+
   const getMonthlyGrowthData = (): MonthlyGrowthDataPoint[] => {
     const monthNames = [
       "Jan",
@@ -380,7 +435,7 @@ export default function AnalyticsPage() {
         views: number;
         likes: number;
         rate: number;
-        services: Record<
+        categories: Record<
           string,
           { views: number; likes: number; rate: number }
         >;
@@ -392,10 +447,10 @@ export default function AnalyticsPage() {
         views: 0,
         likes: 0,
         rate: 0,
-        services: {},
+        categories: {},
       };
-      services.forEach((service) => {
-        monthMap[month].services[service.title] = {
+      categories.forEach((category) => {
+        monthMap[month].categories[category] = {
           views: 0,
           likes: 0,
           rate: 0,
@@ -410,13 +465,13 @@ export default function AnalyticsPage() {
       if (monthMap[month]) {
         monthMap[month].views += service.views_count || 0;
         monthMap[month].likes += service.likes_count || 0;
-        if (monthMap[month].services[service.title]) {
-          monthMap[month].services[service.title].views +=
+        if (monthMap[month].categories[service.category]) {
+          monthMap[month].categories[service.category].views +=
             service.views_count || 0;
-          monthMap[month].services[service.title].likes +=
+          monthMap[month].categories[service.category].likes +=
             service.likes_count || 0;
           if (service.views_count > 0) {
-            monthMap[month].services[service.title].rate =
+            monthMap[month].categories[service.category].rate =
               (service.likes_count / service.views_count) * 100;
           }
         }
@@ -425,12 +480,12 @@ export default function AnalyticsPage() {
 
     let cumulativeViews = 0;
     let cumulativeLikes = 0;
-    const serviceCumulative: Record<
+    const categoryCumulative: Record<
       string,
       { views: number; likes: number; rate: number }
     > = {};
-    services.forEach((service) => {
-      serviceCumulative[service.title] = { views: 0, likes: 0, rate: 0 };
+    categories.forEach((category) => {
+      categoryCumulative[category] = { views: 0, likes: 0, rate: 0 };
     });
 
     return monthNames.map((month) => {
@@ -447,21 +502,21 @@ export default function AnalyticsPage() {
         rate: parseFloat(rate.toFixed(1)),
       };
 
-      services.forEach((service) => {
-        const title = service.title;
-        serviceCumulative[title].views +=
-          monthMap[month].services[title]?.views || 0;
-        serviceCumulative[title].likes +=
-          monthMap[month].services[title]?.likes || 0;
-        if (serviceCumulative[title].views > 0) {
-          serviceCumulative[title].rate =
-            (serviceCumulative[title].likes / serviceCumulative[title].views) *
+      categories.forEach((category) => {
+        categoryCumulative[category].views +=
+          monthMap[month].categories[category]?.views || 0;
+        categoryCumulative[category].likes +=
+          monthMap[month].categories[category]?.likes || 0;
+        if (categoryCumulative[category].views > 0) {
+          categoryCumulative[category].rate =
+            (categoryCumulative[category].likes /
+              categoryCumulative[category].views) *
             100;
         }
-        dataPoint[`${title}_views`] = serviceCumulative[title].views;
-        dataPoint[`${title}_likes`] = serviceCumulative[title].likes;
-        dataPoint[`${title}_rate`] = parseFloat(
-          serviceCumulative[title].rate.toFixed(1),
+        dataPoint[`${category}_views`] = categoryCumulative[category].views;
+        dataPoint[`${category}_likes`] = categoryCumulative[category].likes;
+        dataPoint[`${category}_rate`] = parseFloat(
+          categoryCumulative[category].rate.toFixed(1),
         );
       });
 
@@ -470,9 +525,8 @@ export default function AnalyticsPage() {
   };
 
   const monthlyGrowthData = getMonthlyGrowthData();
-  const serviceTitles = services.map((s) => s.title);
 
-  const getServiceColor = (index: number) => {
+  const getCategoryColor = (index: number) => {
     const colors = [
       "#3b82f6",
       "#ec4899",
@@ -497,38 +551,14 @@ export default function AnalyticsPage() {
     let max = 0;
     monthlyGrowthData.forEach((item) => {
       max = Math.max(max, item.views, item.likes);
-      serviceTitles.forEach((title) => {
-        max = Math.max(max, (item[`${title}_views`] as number) || 0);
-        max = Math.max(max, (item[`${title}_likes`] as number) || 0);
+      categories.forEach((category) => {
+        max = Math.max(max, (item[`${category}_views`] as number) || 0);
+        max = Math.max(max, (item[`${category}_likes`] as number) || 0);
       });
     });
     return Math.max(10, max + 5);
   };
 
-  // ── REAL DATA: Top Performing Services ────────────────────────────────────
-  const topServicesList = [...services]
-    .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
-    .slice(0, 5)
-    .map((s) => ({
-      id: s.id,
-      name: s.title,
-      category: s.category,
-      views: s.views_count || 0,
-      likes: s.likes_count || 0,
-      inquiries: s.service_analytics?.total_contacts || 0,
-      joined: Math.round((s.views_count || 0) * 0.018),
-      rating: s.rating_average || 0,
-      rate:
-        s.views_count > 0
-          ? `${((s.likes_count / s.views_count) * 100).toFixed(1)}%`
-          : "0%",
-      growth:
-        s.views_count > 0
-          ? `+${Math.round((s.views_count / 10) * 100) / 100}%`
-          : "0%",
-    }));
-
-  // ── REAL DATA: Recent Activity ────────────────────────────────────────────
   const getRecentActivity = () => {
     const activities: {
       text: string;
@@ -600,7 +630,6 @@ export default function AnalyticsPage() {
 
   const recentActivity = getRecentActivity();
 
-  // ── REAL DATA: Conversion Overview ────────────────────────────────────────
   const conversionOverview = [
     {
       label: "Profile Views",
@@ -663,49 +692,49 @@ export default function AnalyticsPage() {
       : "0.0";
 
   const tooltipStyle = {
-    borderRadius: "14px",
+    borderRadius: "12px",
     border: "1px solid #e2e8f0",
     boxShadow: "0 12px 30px rgba(59,130,246,0.15)",
-    fontSize: "12px",
+    fontSize: "10px",
     backgroundColor: "white",
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/20 pb-20">
-      <div className="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/20 pb-12 sm:pb-20">
+      <div className="max-w-[1536px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-8">
         {/* Header */}
         <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-indigo-600/10 rounded-3xl blur-3xl -z-10 animate-pulse" />
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/60 backdrop-blur-xl rounded-3xl p-6 border border-white/40 shadow-xl shadow-blue-500/5">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-indigo-600/10 rounded-2xl sm:rounded-3xl blur-3xl -z-10 animate-pulse" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white/60 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/40 shadow-xl shadow-blue-500/5">
             <div>
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg shadow-blue-500/30">
-                  <Activity className="h-6 w-6 text-white" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="p-2 sm:p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl sm:rounded-2xl shadow-lg shadow-blue-500/30">
+                  <Activity className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-600 bg-clip-text text-transparent">
+                  <h1 className="text-lg sm:text-2xl lg:text-3xl font-extrabold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-600 bg-clip-text text-transparent">
                     Performance Analytics
                   </h1>
-                  <p className="text-sm text-slate-500 font-medium flex items-center gap-2">
-                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <p className="text-xs sm:text-sm text-slate-500 font-medium flex items-center gap-2">
+                    <span className="inline-block w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400 animate-pulse" />
                     {totalServices} services • {totalViews.toLocaleString()}{" "}
                     total views
                   </p>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-blue-200/60 px-4 py-2 rounded-2xl shadow-sm">
-                <Sparkles className="h-4 w-4 text-blue-500 animate-pulse" />
-                <span className="text-xs font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-1.5 sm:gap-2 bg-white/80 backdrop-blur-sm border border-blue-200/60 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl shadow-sm">
+                <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-500 animate-pulse" />
+                <span className="text-[10px] sm:text-xs font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   {totalServices} Services • {totalViews.toLocaleString()} Views
                 </span>
               </div>
-              {topServicesList.length > 0 && (
-                <div className="hidden md:flex items-center gap-2 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 px-4 py-2 rounded-2xl shadow-sm">
-                  <Crown className="h-4 w-4 text-amber-500" />
-                  <span className="text-xs font-bold text-amber-700">
-                    Top: {topServicesList[0].name}
+              {topCategories.length > 0 && (
+                <div className="hidden md:flex items-center gap-2 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl shadow-sm">
+                  <Crown className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-500" />
+                  <span className="text-[10px] sm:text-xs font-bold text-amber-700 truncate max-w-[100px]">
+                    Top: {topCategories[0].category}
                   </span>
                 </div>
               )}
@@ -725,33 +754,33 @@ export default function AnalyticsPage() {
         />
 
         {/* ─── IMPROVED CONVERSION FUNNEL ─── */}
-        <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-500/5 hover:shadow-blue-500/10 transition-all duration-500">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">
+        <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl shadow-blue-500/5 hover:shadow-blue-500/10 transition-all duration-500">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6 lg:mb-8">
             <div>
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/30">
-                  <Target className="h-4 w-4 text-white" />
+                <div className="p-1.5 sm:p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl shadow-lg shadow-blue-500/30">
+                  <Target className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
                 </div>
-                <h3 className="text-lg font-extrabold text-slate-800">
+                <h3 className="text-base sm:text-lg font-extrabold text-slate-800">
                   Conversion Funnel
                 </h3>
               </div>
-              <p className="text-xs text-slate-400 font-medium ml-11">
+              <p className="text-[10px] sm:text-xs text-slate-400 font-medium ml-8 sm:ml-11">
                 Customer journey from views to students joined
               </p>
             </div>
-            <div className="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/60 px-5 py-2.5 rounded-2xl shadow-md shadow-blue-500/5">
-              <div className="p-1.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full">
-                <Rocket className="h-3.5 w-3.5 text-white" />
+            <div className="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/60 px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl shadow-md shadow-blue-500/5">
+              <div className="p-1 sm:p-1.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full">
+                <Rocket className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-white" />
               </div>
-              <span className="text-sm font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <span className="text-xs sm:text-sm font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 Overall: {overallConversionRate}%
               </span>
             </div>
           </div>
 
-          {/* Improved Funnel Stages */}
-          <div className="flex flex-col items-center py-4 space-y-4">
+          {/* Improved Funnel Stages - Mobile Optimized */}
+          <div className="flex flex-col items-center py-2 sm:py-4 space-y-3 sm:space-y-4">
             {funnelData.map((item, idx) => {
               const maxWidth = 90;
               const minWidth = 30;
@@ -766,73 +795,67 @@ export default function AnalyticsPage() {
                   className="relative w-full flex justify-center group"
                   onMouseEnter={() => setHoveredFunnel(idx)}
                   onMouseLeave={() => setHoveredFunnel(null)}
+                  onTouchStart={() => setHoveredFunnel(idx)}
+                  onTouchEnd={() => setHoveredFunnel(null)}
                 >
-                  {/* Stage container */}
                   <div
                     className={`relative transition-all duration-500 cursor-pointer`}
                     style={{
-                      width: `${widthPercent}%`,
-                      minWidth: "180px",
+                      width: `${Math.max(widthPercent, 80)}%`,
+                      minWidth: "140px",
                     }}
                   >
-                    {/* Main stage bar */}
                     <div
-                      className={`relative bg-gradient-to-r ${item.gradient} rounded-2xl transition-all duration-500
+                      className={`relative bg-gradient-to-r ${item.gradient} rounded-xl sm:rounded-2xl transition-all duration-500
                         ${isHovered ? "scale-105 shadow-2xl " + item.bgGlow : "shadow-lg " + item.bgGlow}
                       `}
                       style={{
-                        height: isHovered ? "64px" : "56px",
+                        height: isHovered ? "52px" : "44px",
                       }}
                     >
-                      {/* Animated glow effect */}
                       {isHovered && (
-                        <div className="absolute inset-0 rounded-2xl bg-white/20 animate-pulse" />
+                        <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-white/20 animate-pulse" />
                       )}
 
-                      {/* Progress bar fill animation */}
                       <div
-                        className="absolute inset-0 rounded-2xl bg-white/10 transition-all duration-1000"
+                        className="absolute inset-0 rounded-xl sm:rounded-2xl bg-white/10 transition-all duration-1000"
                         style={{
                           width: isHovered ? "100%" : "0%",
                           transition: "width 0.8s ease-in-out",
                         }}
                       />
 
-                      {/* Icon */}
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                      <div className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2">
                         <div
-                          className={`p-1.5 rounded-xl bg-white/20 backdrop-blur-sm transition-all duration-300 ${isHovered ? "scale-110" : ""}`}
+                          className={`p-1 sm:p-1.5 rounded-lg sm:rounded-xl bg-white/20 backdrop-blur-sm transition-all duration-300 ${isHovered ? "scale-110" : ""}`}
                         >
                           <Icon
-                            className={`h-4 w-4 text-white/90 transition-all duration-300 ${isHovered ? "rotate-12" : ""}`}
+                            className={`h-3 w-3 sm:h-4 sm:w-4 text-white/90 transition-all duration-300 ${isHovered ? "rotate-12" : ""}`}
                           />
                         </div>
                       </div>
 
-                      {/* Label */}
-                      <div className="absolute left-14 top-1/2 -translate-y-1/2">
+                      <div className="absolute left-8 sm:left-14 top-1/2 -translate-y-1/2">
                         <span
-                          className={`text-white text-xs sm:text-sm font-extrabold transition-all duration-300 ${isHovered ? "tracking-wider" : ""}`}
+                          className={`text-white text-[10px] sm:text-sm font-extrabold transition-all duration-300 ${isHovered ? "tracking-wider" : ""}`}
                         >
                           {item.name}
                         </span>
                       </div>
 
-                      {/* Value and Percentage */}
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-3">
+                      <div className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 sm:gap-3">
                         <span
-                          className={`text-white text-sm sm:text-base font-black transition-all duration-300 ${isHovered ? "scale-110" : ""}`}
+                          className={`text-white text-xs sm:text-base font-black transition-all duration-300 ${isHovered ? "scale-110" : ""}`}
                         >
                           {item.value.toLocaleString()}
                         </span>
                         <span
-                          className={`text-white/90 text-[10px] sm:text-xs font-bold bg-white/20 px-2.5 py-0.5 rounded-full backdrop-blur-sm ${isHovered ? "bg-white/30" : ""}`}
+                          className={`text-white/90 text-[8px] sm:text-xs font-bold bg-white/20 px-1.5 sm:px-2.5 py-0.5 rounded-full backdrop-blur-sm ${isHovered ? "bg-white/30" : ""}`}
                         >
                           {item.percentage}
                         </span>
                       </div>
 
-                      {/* Bottom accent bar */}
                       <div
                         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-0.5 bg-white/30 rounded-full transition-all duration-500"
                         style={{
@@ -842,8 +865,7 @@ export default function AnalyticsPage() {
                       />
                     </div>
 
-                    {/* Percentage bar indicator */}
-                    <div className="mt-2 h-1 w-full bg-slate-100/60 rounded-full overflow-hidden">
+                    <div className="mt-1.5 sm:mt-2 h-1 w-full bg-slate-100/60 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-1000"
                         style={{
@@ -854,56 +876,43 @@ export default function AnalyticsPage() {
                       />
                     </div>
 
-                    {/* Hover tooltip */}
                     {isHovered && (
-                      <div className="absolute -right-56 top-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-sm border border-blue-200/60 rounded-xl px-4 py-2.5 shadow-xl shadow-blue-500/20 z-20 animate-in fade-in slide-in-from-right-5">
-                        <p className="text-xs font-bold text-slate-700">
+                      <div className="absolute -right-48 sm:-right-56 top-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-sm border border-blue-200/60 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 shadow-xl shadow-blue-500/20 z-20 animate-in fade-in slide-in-from-right-5 hidden sm:block">
+                        <p className="text-[10px] sm:text-xs font-bold text-slate-700">
                           {item.description}
                         </p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">
+                        <p className="text-[8px] sm:text-[10px] text-slate-400 mt-0.5">
                           {item.value.toLocaleString()} total •{" "}
                           {item.percentage} of total
                         </p>
-                        <div className="mt-1.5 flex items-center gap-2">
-                          <div
-                            className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: item.color }}
-                          />
-                          <span className="text-[9px] font-bold text-slate-500">
-                            Conversion rate
-                          </span>
-                        </div>
                       </div>
                     )}
                   </div>
 
-                  {/* Stage number badge */}
-                  <div className="absolute -left-6 top-1/2 -translate-y-1/2">
+                  <div className="absolute -left-4 sm:-left-6 top-1/2 -translate-y-1/2">
                     <div
-                      className={`w-6 h-6 rounded-full bg-gradient-to-br ${item.gradient} text-white text-[9px] font-black flex items-center justify-center shadow-md transition-all duration-300 ${isHovered ? "scale-110 shadow-lg" : ""}`}
+                      className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br ${item.gradient} text-white text-[8px] sm:text-[9px] font-black flex items-center justify-center shadow-md transition-all duration-300 ${isHovered ? "scale-110 shadow-lg" : ""}`}
                     >
                       {idx + 1}
                     </div>
                   </div>
 
-                  {/* Connecting line between stages */}
                   {idx < funnelData.length - 1 && (
-                    <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-0.5 h-4 bg-gradient-to-b from-blue-400/60 to-blue-300/20 animate-pulse" />
+                    <div className="absolute -bottom-4 sm:-bottom-6 left-1/2 -translate-x-1/2 w-0.5 h-3 sm:h-4 bg-gradient-to-b from-blue-400/60 to-blue-300/20 animate-pulse" />
                   )}
                 </div>
               );
             })}
           </div>
 
-          {/* Success message */}
-          <div className="mt-8 bg-gradient-to-r from-blue-50/80 via-indigo-50/80 to-blue-50/80 border border-blue-200/40 rounded-2xl px-6 py-4 text-center">
+          <div className="mt-4 sm:mt-6 lg:mt-8 bg-gradient-to-r from-blue-50/80 via-indigo-50/80 to-blue-50/80 border border-blue-200/40 rounded-xl sm:rounded-2xl px-4 sm:px-6 py-3 sm:py-4 text-center">
             <div className="flex items-center justify-center gap-2 flex-wrap">
-              <span className="text-lg">🎉</span>
-              <span className="text-sm font-extrabold text-slate-700">
+              <span className="text-base sm:text-lg">🎉</span>
+              <span className="text-xs sm:text-sm font-extrabold text-slate-700">
                 Great! Your overall conversion rate is{" "}
                 <span className="text-blue-600">{overallConversionRate}%</span>
               </span>
-              <span className="text-xs text-slate-500 font-medium">
+              <span className="text-[10px] sm:text-xs text-slate-500 font-medium">
                 •{" "}
                 {totalViews > 0
                   ? `${totalViews.toLocaleString()} views • ${totalLikes.toLocaleString()} likes`
@@ -914,25 +923,25 @@ export default function AnalyticsPage() {
         </div>
 
         {/* ─── MONTHLY GROWTH ─── */}
-        <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-500/5 hover:shadow-blue-500/10 transition-all duration-500">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+        <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl shadow-blue-500/5 hover:shadow-blue-500/10 transition-all duration-500">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6">
             <div>
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg shadow-emerald-500/30">
-                  <LineChartIcon className="h-4 w-4 text-white" />
+                <div className="p-1.5 sm:p-2 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg sm:rounded-xl shadow-lg shadow-emerald-500/30">
+                  <LineChartIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
                 </div>
-                <h3 className="text-lg font-extrabold text-slate-800">
-                  Monthly Growth
+                <h3 className="text-base sm:text-lg font-extrabold text-slate-800">
+                  Monthly Growth by Category
                 </h3>
               </div>
-              <p className="text-xs text-slate-400 font-medium ml-11">
-                {serviceTitles.length} services • Views, Likes & Rate trends
+              <p className="text-[10px] sm:text-xs text-slate-400 font-medium ml-8 sm:ml-11">
+                {categories.length} categories • Views, Likes & Rate trends
               </p>
             </div>
-            <div className="flex gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
+            <div className="flex gap-0.5 sm:gap-1 bg-slate-100/80 p-0.5 sm:p-1 rounded-lg sm:rounded-xl border border-slate-200/60">
               <button
                 onClick={() => setActiveTab("views")}
-                className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all duration-200 ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 text-[8px] sm:text-[10px] font-bold rounded-lg transition-all duration-200 ${
                   activeTab === "views"
                     ? "bg-blue-600 text-white shadow-md shadow-blue-500/30"
                     : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
@@ -942,7 +951,7 @@ export default function AnalyticsPage() {
               </button>
               <button
                 onClick={() => setActiveTab("likes")}
-                className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all duration-200 ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 text-[8px] sm:text-[10px] font-bold rounded-lg transition-all duration-200 ${
                   activeTab === "likes"
                     ? "bg-purple-600 text-white shadow-md shadow-purple-500/30"
                     : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
@@ -952,7 +961,7 @@ export default function AnalyticsPage() {
               </button>
               <button
                 onClick={() => setActiveTab("rate")}
-                className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all duration-200 ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 text-[8px] sm:text-[10px] font-bold rounded-lg transition-all duration-200 ${
                   activeTab === "rate"
                     ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/30"
                     : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
@@ -963,33 +972,35 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          {/* Legend */}
-          <div className="flex flex-wrap gap-2 mb-4 text-[10px] font-bold">
-            {serviceTitles.slice(0, 8).map((title, idx) => (
+          {/* Legend - Show Categories */}
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4 text-[8px] sm:text-[10px] font-bold overflow-x-auto pb-2 sm:pb-0">
+            {categories.slice(0, 8).map((category, idx) => (
               <span
                 key={idx}
-                className="flex items-center gap-1.5 bg-white/80 px-2.5 py-1 rounded-lg border border-slate-200/60 shadow-sm"
+                className="flex items-center gap-1 sm:gap-1.5 bg-white/80 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg border border-slate-200/60 shadow-sm whitespace-nowrap"
               >
                 <span
-                  className="w-2.5 h-2.5 rounded-full"
-                  style={{ backgroundColor: getServiceColor(idx) }}
+                  className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 rounded-full"
+                  style={{ backgroundColor: getCategoryColor(idx) }}
                 />
-                {title.length > 10 ? title.substring(0, 10) + "…" : title}
+                {category.length > 8
+                  ? category.substring(0, 8) + "…"
+                  : category}
               </span>
             ))}
-            {serviceTitles.length > 8 && (
-              <span className="text-slate-400 flex items-center bg-white/80 px-2.5 py-1 rounded-lg border border-slate-200/60">
-                +{serviceTitles.length - 8} more
+            {categories.length > 8 && (
+              <span className="text-slate-400 flex items-center bg-white/80 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg border border-slate-200/60 whitespace-nowrap text-[8px] sm:text-[10px]">
+                +{categories.length - 8} more
               </span>
             )}
           </div>
 
-          {/* Chart */}
-          <div className="h-80 w-full">
+          {/* Chart - Mobile Optimized */}
+          <div className="h-60 sm:h-72 lg:h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={monthlyGrowthData}
-                margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+                margin={{ top: 5, right: 5, left: -10, bottom: 5 }}
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
@@ -999,55 +1010,57 @@ export default function AnalyticsPage() {
                 <XAxis
                   dataKey="month"
                   stroke="#94a3b8"
-                  fontSize={10}
+                  fontSize={8}
                   tickLine={false}
                   axisLine={{ stroke: "#cbd5e1" }}
+                  interval={0}
                 />
                 <YAxis
                   stroke="#94a3b8"
-                  fontSize={10}
+                  fontSize={8}
                   tickLine={false}
                   axisLine={{ stroke: "#cbd5e1" }}
                   domain={[0, getMaxGrowthValue()]}
+                  width={30}
                 />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend
                   verticalAlign="top"
-                  height={25}
-                  iconSize={10}
+                  height={20}
+                  iconSize={8}
                   iconType="circle"
-                  wrapperStyle={{ fontSize: "10px", fontWeight: "bold" }}
+                  wrapperStyle={{ fontSize: "8px", fontWeight: "bold" }}
                 />
 
-                {serviceTitles.map((title, idx) => {
+                {categories.map((category, idx) => {
                   const dataKey =
                     activeTab === "views"
-                      ? `${title}_views`
+                      ? `${category}_views`
                       : activeTab === "likes"
-                        ? `${title}_likes`
-                        : `${title}_rate`;
-                  const color = getServiceColor(idx);
+                        ? `${category}_likes`
+                        : `${category}_rate`;
+                  const color = getCategoryColor(idx);
                   const isRate = activeTab === "rate";
                   return (
                     <Line
-                      key={`${title}_${activeTab}`}
+                      key={`${category}_${activeTab}`}
                       type="monotone"
                       dataKey={dataKey}
                       stroke={color}
-                      strokeWidth={isRate ? 2.5 : 2.5}
-                      strokeDasharray={isRate ? "6 4" : "0"}
+                      strokeWidth={isRate ? 2 : 2}
+                      strokeDasharray={isRate ? "4 3" : "0"}
                       dot={{
-                        r: isRate ? 4 : 3,
+                        r: isRate ? 3 : 2.5,
                         fill: color,
                         stroke: "white",
                         strokeWidth: 1,
                       }}
                       activeDot={{
-                        r: isRate ? 6 : 5,
+                        r: isRate ? 5 : 4,
                         stroke: color,
                         strokeWidth: 2,
                       }}
-                      name={`${title} (${activeTab === "views" ? "Views" : activeTab === "likes" ? "Likes" : "Rate %"})`}
+                      name={category}
                     />
                   );
                 })}
@@ -1055,102 +1068,105 @@ export default function AnalyticsPage() {
             </ResponsiveContainer>
           </div>
 
-          {/* Summary Stats */}
-          <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-blue-50/70 rounded-xl px-3 py-2 text-center border border-blue-200/40">
-              <p className="text-[10px] font-bold text-slate-400 uppercase">
+          {/* Summary Stats - Mobile Optimized */}
+          <div className="mt-3 sm:mt-4 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-3">
+            <div className="bg-blue-50/70 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1.5 sm:py-2 text-center border border-blue-200/40">
+              <p className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase">
                 Total Views
               </p>
-              <p className="text-sm font-black text-blue-600">
+              <p className="text-xs sm:text-sm font-black text-blue-600">
                 {totalViews.toLocaleString()}
               </p>
             </div>
-            <div className="bg-purple-50/70 rounded-xl px-3 py-2 text-center border border-purple-200/40">
-              <p className="text-[10px] font-bold text-slate-400 uppercase">
+            <div className="bg-purple-50/70 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1.5 sm:py-2 text-center border border-purple-200/40">
+              <p className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase">
                 Total Likes
               </p>
-              <p className="text-sm font-black text-purple-600">
+              <p className="text-xs sm:text-sm font-black text-purple-600">
                 {totalLikes.toLocaleString()}
               </p>
             </div>
-            <div className="bg-emerald-50/70 rounded-xl px-3 py-2 text-center border border-emerald-200/40">
-              <p className="text-[10px] font-bold text-slate-400 uppercase">
+            <div className="bg-emerald-50/70 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1.5 sm:py-2 text-center border border-emerald-200/40">
+              <p className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase">
                 Conversion Rate
               </p>
-              <p className="text-sm font-black text-emerald-600">
+              <p className="text-xs sm:text-sm font-black text-emerald-600">
                 {overallConversionRate}%
               </p>
             </div>
-            <div className="bg-amber-50/70 rounded-xl px-3 py-2 text-center border border-amber-200/40">
-              <p className="text-[10px] font-bold text-slate-400 uppercase">
-                Total Services
+            <div className="bg-amber-50/70 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1.5 sm:py-2 text-center border border-amber-200/40">
+              <p className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase">
+                Total Categories
               </p>
-              <p className="text-sm font-black text-amber-600">
-                {totalServices}
+              <p className="text-xs sm:text-sm font-black text-amber-600">
+                {categories.length}
               </p>
             </div>
           </div>
         </div>
 
-        {/* ─── TOP PERFORMING SERVICES ─── */}
-        <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl shadow-2xl shadow-blue-500/5 hover:shadow-blue-500/10 transition-all duration-500 overflow-hidden">
-          <div className="px-6 py-5 border-b border-blue-100/60 bg-gradient-to-r from-blue-50/30 via-white to-indigo-50/30">
+        {/* ─── TOP PERFORMING CATEGORIES ─── */}
+        <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-2xl sm:rounded-3xl shadow-2xl shadow-blue-500/5 hover:shadow-blue-500/10 transition-all duration-500 overflow-hidden">
+          <div className="px-4 sm:px-6 py-3 sm:py-5 border-b border-blue-100/60 bg-gradient-to-r from-blue-50/30 via-white to-indigo-50/30">
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg shadow-amber-500/30">
-                    <Award className="h-4 w-4 text-white" />
+                  <div className="p-1.5 sm:p-2 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg sm:rounded-xl shadow-lg shadow-amber-500/30">
+                    <Award className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
                   </div>
-                  <h3 className="text-lg font-extrabold text-slate-800">
-                    Top Performing Services
+                  <h3 className="text-sm sm:text-lg font-extrabold text-slate-800">
+                    Top Performing Categories
                   </h3>
                 </div>
-                <p className="text-xs text-slate-400 font-medium ml-11">
-                  {topServicesList.length} services • Total views:{" "}
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium ml-8 sm:ml-11">
+                  {topCategories.length} categories • Total views:{" "}
                   {totalViews.toLocaleString()}
                 </p>
               </div>
-              <span className="text-[10px] font-bold text-blue-600 bg-blue-50/80 px-3 py-1.5 rounded-full border border-blue-200/60 shadow-sm">
-                {topServicesList.length} services
+              <span className="text-[8px] sm:text-[10px] font-bold text-blue-600 bg-blue-50/80 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border border-blue-200/60 shadow-sm">
+                {topCategories.length} categories
               </span>
             </div>
           </div>
-          {topServicesList.length > 0 ? (
+          {topCategories.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full text-left">
+              <table className="w-full text-left text-[10px] sm:text-sm">
                 <thead>
                   <tr className="bg-gradient-to-r from-slate-50/80 to-slate-100/30">
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                    <th className="px-2 sm:px-6 py-2 sm:py-3.5 text-[8px] sm:text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                       #
                     </th>
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-                      Service
+                    <th className="px-2 sm:px-6 py-2 sm:py-3.5 text-[8px] sm:text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                      Category
                     </th>
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
+                    <th className="px-1 sm:px-6 py-2 sm:py-3.5 text-[8px] sm:text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
+                      Services
+                    </th>
+                    <th className="px-1 sm:px-6 py-2 sm:py-3.5 text-[8px] sm:text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
                       Views
                     </th>
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
+                    <th className="px-1 sm:px-6 py-2 sm:py-3.5 text-[8px] sm:text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center hidden sm:table-cell">
                       Likes
                     </th>
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
+                    <th className="px-1 sm:px-6 py-2 sm:py-3.5 text-[8px] sm:text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center hidden md:table-cell">
                       Inquiries
                     </th>
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
+                    <th className="px-1 sm:px-6 py-2 sm:py-3.5 text-[8px] sm:text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center hidden lg:table-cell">
                       Joined
                     </th>
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
+                    <th className="px-1 sm:px-6 py-2 sm:py-3.5 text-[8px] sm:text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center hidden lg:table-cell">
                       Rating
                     </th>
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
+                    <th className="px-1 sm:px-6 py-2 sm:py-3.5 text-[8px] sm:text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
                       Conversion
                     </th>
-                    <th className="px-6 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
+                    <th className="px-1 sm:px-6 py-2 sm:py-3.5 text-[8px] sm:text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center hidden xl:table-cell">
                       Growth
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100/60">
-                  {topServicesList.map((s, idx) => {
+                  {topCategories.map((cat, idx) => {
                     const colorMap = [
                       {
                         bg: "from-blue-400 to-blue-600",
@@ -1176,71 +1192,80 @@ export default function AnalyticsPage() {
                     const medalIcons = [
                       <Crown
                         key="crown"
-                        className="h-3.5 w-3.5 text-yellow-400"
+                        className="h-2.5 w-2.5 sm:h-3.5 sm:w-3.5 text-yellow-400"
                       />,
                       <Medal
                         key="medal2"
-                        className="h-3.5 w-3.5 text-slate-400"
+                        className="h-2.5 w-2.5 sm:h-3.5 sm:w-3.5 text-slate-400"
                       />,
                       <Medal
                         key="medal3"
-                        className="h-3.5 w-3.5 text-amber-600"
+                        className="h-2.5 w-2.5 sm:h-3.5 sm:w-3.5 text-amber-600"
                       />,
                       <Flame
                         key="flame"
-                        className="h-3.5 w-3.5 text-orange-400"
+                        className="h-2.5 w-2.5 sm:h-3.5 sm:w-3.5 text-orange-400"
                       />,
-                      <Zap key="zap" className="h-3.5 w-3.5 text-blue-400" />,
+                      <Zap
+                        key="zap"
+                        className="h-2.5 w-2.5 sm:h-3.5 sm:w-3.5 text-blue-400"
+                      />,
                     ];
                     const colors = colorMap[idx % colorMap.length];
                     return (
                       <tr
-                        key={s.id}
+                        key={cat.category}
                         className="hover:bg-gradient-to-r hover:from-blue-50/30 hover:to-transparent transition-all duration-300 group"
                       >
-                        <td className="px-6 py-4 text-center">
-                          <div className="flex items-center justify-center gap-1">
+                        <td className="px-2 sm:px-6 py-2 sm:py-4 text-center">
+                          <div className="flex items-center justify-center gap-0.5 sm:gap-1">
                             {idx < 3 && medalIcons[idx]}
                             <span
-                              className={`w-7 h-7 rounded-full bg-gradient-to-br ${colors.bg} text-white text-[10px] font-black flex items-center justify-center group-hover:scale-110 transition-transform shadow-md ${colors.shadow}`}
+                              className={`w-5 h-5 sm:w-7 sm:h-7 rounded-full bg-gradient-to-br ${colors.bg} text-white text-[8px] sm:text-[10px] font-black flex items-center justify-center group-hover:scale-110 transition-transform shadow-md ${colors.shadow}`}
                             >
                               {idx + 1}
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 font-extrabold text-slate-800">
-                          {s.name}
-                          <span className="text-[10px] font-medium text-slate-400 ml-2">
-                            ({s.category})
+                        <td className="px-2 sm:px-6 py-2 sm:py-4">
+                          <div className="font-extrabold text-slate-800">
+                            {cat.category}
+                          </div>
+                          <span className="text-[7px] sm:text-[10px] font-medium text-blue-600 bg-blue-50/70 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg border border-blue-200/40 inline-block mt-0.5 sm:mt-1">
+                            {cat.serviceCount} service
+                            {cat.serviceCount > 1 ? "s" : ""}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-center font-bold text-slate-700">
-                          {s.views.toLocaleString()}
+                        <td className="px-1 sm:px-6 py-2 sm:py-4 text-center font-bold text-slate-700">
+                          {cat.serviceCount}
                         </td>
-                        <td className="px-6 py-4 text-center font-bold text-slate-700">
-                          {s.likes.toLocaleString()}
+                        <td className="px-1 sm:px-6 py-2 sm:py-4 text-center font-bold text-slate-700">
+                          {cat.totalViews.toLocaleString()}
                         </td>
-                        <td className="px-6 py-4 text-center font-bold text-slate-700">
-                          {s.inquiries.toLocaleString()}
+                        <td className="px-1 sm:px-6 py-2 sm:py-4 text-center font-bold text-slate-700 hidden sm:table-cell">
+                          {cat.totalLikes.toLocaleString()}
                         </td>
-                        <td className="px-6 py-4 text-center font-bold text-slate-700">
-                          {s.joined.toLocaleString()}
+                        <td className="px-1 sm:px-6 py-2 sm:py-4 text-center font-bold text-slate-700 hidden md:table-cell">
+                          {cat.totalInquiries.toLocaleString()}
                         </td>
-                        <td className="px-6 py-4 text-center">
-                          <span className="inline-flex items-center gap-1 text-amber-500 font-bold bg-amber-50/70 border border-amber-200/40 px-3 py-1 rounded-xl shadow-sm">
-                            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                            {s.rating.toFixed(1)}
+                        <td className="px-1 sm:px-6 py-2 sm:py-4 text-center font-bold text-slate-700 hidden lg:table-cell">
+                          {cat.totalJoined.toLocaleString()}
+                        </td>
+                        <td className="px-1 sm:px-6 py-2 sm:py-4 text-center hidden lg:table-cell">
+                          <span className="inline-flex items-center gap-0.5 sm:gap-1 text-amber-500 font-bold bg-amber-50/70 border border-amber-200/40 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-lg sm:rounded-xl shadow-sm">
+                            <Star className="h-2.5 w-2.5 sm:h-3.5 sm:w-3.5 fill-amber-400 text-amber-400" />
+                            {cat.averageRating.toFixed(1)}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-center">
-                          <span className="font-extrabold text-blue-600 bg-blue-50/70 px-3 py-1 rounded-xl border border-blue-200/40 shadow-sm">
-                            {s.rate}
+                        <td className="px-1 sm:px-6 py-2 sm:py-4 text-center">
+                          <span className="font-extrabold text-blue-600 bg-blue-50/70 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-lg sm:rounded-xl border border-blue-200/40 shadow-sm text-[8px] sm:text-xs">
+                            {cat.conversionRate}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-center">
-                          <span className="inline-flex items-center gap-1 text-emerald-600 font-bold bg-emerald-50/70 px-3 py-1 rounded-xl border border-emerald-200/40 shadow-sm">
-                            <TrendingUp className="h-3 w-3" />
-                            {s.growth}
+                        <td className="px-1 sm:px-6 py-2 sm:py-4 text-center hidden xl:table-cell">
+                          <span className="inline-flex items-center gap-0.5 sm:gap-1 text-emerald-600 font-bold bg-emerald-50/70 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-lg sm:rounded-xl border border-emerald-200/40 shadow-sm text-[8px] sm:text-xs">
+                            <TrendingUp className="h-2 w-2 sm:h-3 sm:w-3" />
+                            {cat.growth}
                           </span>
                         </td>
                       </tr>
@@ -1250,67 +1275,67 @@ export default function AnalyticsPage() {
               </table>
             </div>
           ) : (
-            <div className="p-8 text-center text-slate-400">
-              <p className="text-sm font-medium">
-                No services available to rank.
+            <div className="p-4 sm:p-8 text-center text-slate-400">
+              <p className="text-xs sm:text-sm font-medium">
+                No categories available to rank.
               </p>
             </div>
           )}
         </div>
 
         {/* ─── TWO COLUMN: RECENT ACTIVITY + CONVERSION OVERVIEW ─── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Recent Activity */}
-          <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-500/5 hover:shadow-blue-500/10 transition-all duration-500">
-            <div className="flex items-center justify-between mb-5">
+          <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl shadow-blue-500/5 hover:shadow-blue-500/10 transition-all duration-500">
+            <div className="flex items-center justify-between mb-3 sm:mb-5">
               <div>
                 <div className="flex items-center gap-2">
-                  <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/30">
-                    <Clock className="h-4 w-4 text-white" />
+                  <div className="p-1.5 sm:p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl shadow-lg shadow-blue-500/30">
+                    <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
                   </div>
-                  <h3 className="text-lg font-extrabold text-slate-800">
+                  <h3 className="text-sm sm:text-lg font-extrabold text-slate-800">
                     Recent Activity
                   </h3>
                 </div>
-                <p className="text-xs text-slate-400 font-medium ml-11">
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium ml-8 sm:ml-11">
                   {recentActivity.length} recent updates from your services
                 </p>
               </div>
-              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50/80 px-3 py-1.5 rounded-full border border-emerald-200/60 shadow-sm animate-pulse flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <span className="text-[8px] sm:text-[10px] font-bold text-emerald-600 bg-emerald-50/80 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border border-emerald-200/60 shadow-sm animate-pulse flex items-center gap-1 sm:gap-1.5">
+                <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-emerald-500" />
                 Live
               </span>
             </div>
             {recentActivity.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {recentActivity.map((activity, idx) => {
                   const Icon = activity.icon;
                   return (
                     <div
                       key={idx}
-                      className={`flex items-start gap-4 bg-gradient-to-r ${activity.bgGradient} rounded-2xl p-4 hover:from-blue-50/30 hover:to-indigo-50/30 transition-all duration-300 border border-transparent hover:border-blue-200/40 group shadow-sm hover:shadow-md`}
+                      className={`flex items-start gap-2 sm:gap-4 bg-gradient-to-r ${activity.bgGradient} rounded-xl sm:rounded-2xl p-3 sm:p-4 hover:from-blue-50/30 hover:to-indigo-50/30 transition-all duration-300 border border-transparent hover:border-blue-200/40 group shadow-sm hover:shadow-md`}
                     >
                       <div
-                        className={`w-10 h-10 rounded-xl bg-gradient-to-r ${activity.gradient} text-white flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform shadow-md`}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-r ${activity.gradient} text-white flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform shadow-md`}
                       >
-                        <Icon className="h-4 w-4" />
+                        <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-slate-700 leading-relaxed">
+                        <p className="text-[10px] sm:text-sm font-semibold text-slate-700 leading-relaxed">
                           {activity.text}
                         </p>
-                        <span className="text-[10px] font-bold text-slate-400">
+                        <span className="text-[8px] sm:text-[10px] font-bold text-slate-400">
                           {activity.time}
                         </span>
                       </div>
-                      <ChevronRight className="h-4 w-4 text-slate-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300 shrink-0" />
+                      <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 text-slate-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <div className="text-center py-8 text-slate-400">
-                <p className="text-sm font-medium">
+              <div className="text-center py-6 sm:py-8 text-slate-400">
+                <p className="text-xs sm:text-sm font-medium">
                   No recent activity to display.
                 </p>
               </div>
@@ -1318,18 +1343,18 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Conversion Overview */}
-          <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-500/5 hover:shadow-blue-500/10 transition-all duration-500">
-            <div className="flex items-center justify-between mb-5">
+          <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl shadow-blue-500/5 hover:shadow-blue-500/10 transition-all duration-500">
+            <div className="flex items-center justify-between mb-3 sm:mb-5">
               <div>
                 <div className="flex items-center gap-2">
-                  <div className="p-2 bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl shadow-lg shadow-rose-500/30">
-                    <PieChartIcon className="h-4 w-4 text-white" />
+                  <div className="p-1.5 sm:p-2 bg-gradient-to-br from-rose-500 to-pink-600 rounded-lg sm:rounded-xl shadow-lg shadow-rose-500/30">
+                    <PieChartIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
                   </div>
-                  <h3 className="text-lg font-extrabold text-slate-800">
+                  <h3 className="text-sm sm:text-lg font-extrabold text-slate-800">
                     Conversion Overview
                   </h3>
                 </div>
-                <p className="text-xs text-slate-400 font-medium ml-11">
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium ml-8 sm:ml-11">
                   Total: {totalViews.toLocaleString()} views •{" "}
                   {totalLikes.toLocaleString()} likes
                 </p>
@@ -1337,15 +1362,15 @@ export default function AnalyticsPage() {
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="relative w-52 h-52">
+              <div className="relative w-40 h-40 sm:w-48 sm:h-48 lg:w-52 lg:h-52">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={pieData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={60}
-                      outerRadius={85}
+                      innerRadius={45}
+                      outerRadius={65}
                       paddingAngle={3}
                       dataKey="value"
                     >
@@ -1354,7 +1379,7 @@ export default function AnalyticsPage() {
                           key={`cell-${index}`}
                           fill={entry.color}
                           stroke="#ffffff"
-                          strokeWidth={3}
+                          strokeWidth={2}
                         />
                       ))}
                     </Pie>
@@ -1362,25 +1387,29 @@ export default function AnalyticsPage() {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  <span className="text-xl sm:text-2xl lg:text-3xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     {overallConversionRate}%
                   </span>
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                  <span className="text-[7px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                     Conversion
                   </span>
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+              <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 mt-3 sm:mt-4">
                 {conversionOverview.map((item, idx) => {
                   const Icon = item.icon;
                   return (
                     <div
                       key={idx}
-                      className={`flex items-center gap-1.5 bg-gradient-to-r ${item.bg} to-white px-3 py-1.5 rounded-xl border ${item.border} shadow-sm hover:shadow-md transition-all duration-200`}
+                      className={`flex items-center gap-1 sm:gap-1.5 bg-gradient-to-r ${item.bg} to-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border ${item.border} shadow-sm hover:shadow-md transition-all duration-200`}
                     >
-                      <Icon className={`h-3 w-3 ${item.text}`} />
-                      <span className={`text-[10px] font-bold ${item.text}`}>
+                      <Icon
+                        className={`h-2.5 w-2.5 sm:h-3 sm:w-3 ${item.text}`}
+                      />
+                      <span
+                        className={`text-[8px] sm:text-[10px] font-bold ${item.text}`}
+                      >
                         {item.label === "Profile Views"
                           ? "Views"
                           : item.label === "Students Joined"
@@ -1395,30 +1424,32 @@ export default function AnalyticsPage() {
               </div>
             </div>
 
-            <div className="mt-5 space-y-2 border-t border-slate-100/60 pt-4">
+            <div className="mt-3 sm:mt-5 space-y-1.5 sm:space-y-2 border-t border-slate-100/60 pt-3 sm:pt-4">
               {conversionOverview.map((item, idx) => {
                 const Icon = item.icon;
                 return (
                   <div
                     key={idx}
-                    className={`flex items-center justify-between group ${item.bg} hover:${item.bg} px-3 py-2 rounded-xl transition-all duration-200 border border-transparent hover:${item.border}`}
+                    className={`flex items-center justify-between group ${item.bg} hover:${item.bg} px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl transition-all duration-200 border border-transparent hover:${item.border}`}
                   >
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-1.5 sm:gap-2.5">
                       <div
-                        className={`w-6 h-6 rounded-lg bg-gradient-to-r ${item.gradient} text-white flex items-center justify-center shadow-sm`}
+                        className={`w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-gradient-to-r ${item.gradient} text-white flex items-center justify-center shadow-sm`}
                       >
-                        <Icon className="h-3 w-3" />
+                        <Icon className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                       </div>
-                      <span className={`text-xs font-bold ${item.text}`}>
+                      <span
+                        className={`text-[10px] sm:text-xs font-bold ${item.text}`}
+                      >
                         {item.label}
                       </span>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-xs font-black text-slate-800">
+                    <div className="flex items-center gap-2 sm:gap-4">
+                      <span className="text-[10px] sm:text-xs font-black text-slate-800">
                         {item.value.toLocaleString()}
                       </span>
                       <span
-                        className={`text-[10px] font-bold ${item.text} w-12 text-right`}
+                        className={`text-[8px] sm:text-[10px] font-bold ${item.text} w-10 sm:w-12 text-right`}
                       >
                         {item.percentage}
                       </span>

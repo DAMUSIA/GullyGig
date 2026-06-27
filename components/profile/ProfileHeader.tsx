@@ -181,19 +181,6 @@ export default function ProfileHeader({
                     {profile.full_name}
                   </h2>
 
-                  {/* Badges - Wrap on mobile */}
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center sm:justify-start mb-3">
-                    <span className="px-2 py-0.5 sm:px-2.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full flex items-center gap-1">
-                      <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Top Rated
-                    </span>
-                    <span className="px-2 py-0.5 sm:px-2.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full flex items-center gap-1">
-                      <Award className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Verified
-                    </span>
-                    <span className="px-2 py-0.5 sm:px-2.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full flex items-center gap-1">
-                      <Shield className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Trusted
-                    </span>
-                  </div>
-
                   {/* Contact Info - Stack on mobile, row on desktop */}
                   <div className="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-3 text-xs sm:text-sm text-gray-600">
                     {profile.phone_no && (
@@ -270,3 +257,4 @@ export default function ProfileHeader({
     </motion.div>
   );
 }
+//

@@ -58,6 +58,23 @@ export default function ProfileSidebar({
 
   const age = calculateAge(profile.dob);
 
+  // Get min and max date for birth (100 years ago to 18 years ago)
+  const getDateLimits = () => {
+    const today = new Date();
+    const maxDate = new Date(today);
+    maxDate.setFullYear(today.getFullYear() - 18); // Must be at least 18 years old
+
+    const minDate = new Date(today);
+    minDate.setFullYear(today.getFullYear() - 120); // Max 120 years old
+
+    return {
+      max: maxDate.toISOString().split("T")[0],
+      min: minDate.toISOString().split("T")[0],
+    };
+  };
+
+  const dateLimits = getDateLimits();
+
   const verification: VerificationItem[] = [
     {
       label: "Phone Verification",
@@ -78,6 +95,32 @@ export default function ProfileSidebar({
 
   const startVerification = (item: VerificationItem) => {
     onShowToast(`${item.label} is coming soon!`, "error");
+  };
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    // Additional validation to prevent invalid dates
+    if (value) {
+      const dateParts = value.split("-");
+      if (dateParts.length === 3) {
+        const year = parseInt(dateParts[0]);
+        // Reject years with more than 4 digits or invalid range
+        if (
+          year < 1900 ||
+          year > new Date().getFullYear() ||
+          dateParts[0].length > 4
+        ) {
+          onShowToast(
+            "Please enter a valid birth year (1900 - current year)",
+            "error",
+          );
+          return;
+        }
+      }
+    }
+
+    onInputChange("dob", value);
   };
 
   return (
@@ -123,9 +166,14 @@ export default function ProfileSidebar({
                 <input
                   type="date"
                   value={formData.dob}
-                  onChange={(e) => onInputChange("dob", e.target.value)}
+                  onChange={handleDateChange}
+                  min={dateLimits.min}
+                  max={dateLimits.max}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm text-gray-900"
                 />
+                <p className="text-xs text-gray-400 mt-1">
+                  You must be at least 18 years old
+                </p>
               </div>
             </div>
           ) : (

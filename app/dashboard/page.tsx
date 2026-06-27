@@ -208,35 +208,31 @@ export default function DashboardPage() {
     setIsSaving(true);
 
     try {
-      // 1. Delete associated service likes
-      const { error: likesErr } = await supabase
-        .from("service_likes")
-        .delete()
-        .eq("service_id", serviceId);
-      if (likesErr) throw likesErr;
+      // Get the current session token to authenticate the API request
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
 
-      // 2. Delete associated service ratings
-      const { error: ratingsErr } = await supabase
-        .from("service_ratings")
-        .delete()
-        .eq("service_id", serviceId);
-      if (ratingsErr) throw ratingsErr;
+      if (!token) {
+        throw new Error("You are not logged in. Please log in and try again.");
+      }
 
-      // 3. Delete associated service analytics
-      const { error: analyticsErr } = await supabase
-        .from("service_analytics")
-        .delete()
-        .eq("service_id", serviceId);
-      if (analyticsErr) throw analyticsErr;
+      // Call the server-side API route which uses the admin client to bypass RLS
+      const response = await fetch("/api/services/delete", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ serviceId }),
+      });
 
-      // 4. Delete the service listing
-      const { error: serviceErr } = await supabase
-        .from("services")
-        .delete()
-        .eq("id", serviceId);
-      if (serviceErr) throw serviceErr;
+      const result = await response.json();
 
-      // Update state locally
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to delete service.");
+      }
+
+      // Update state locally to immediately reflect the deletion in the UI
       setServices((prev) => prev.filter((s) => s.id !== serviceId));
       setEditingService(null);
       showToast("Service listing deleted successfully!", "success");

@@ -125,7 +125,16 @@ function useMediaQuery(query: string): boolean {
 
 // ============================================
 // Desktop Sidebar Component
-// ============================================
+/**
+ * Renders the desktop dashboard sidebar.
+ *
+ * @param collapsed - Whether the sidebar is in its compact state
+ * @param setCollapsed - Updates the collapsed state
+ * @param currentPath - Current route used to highlight the active navigation item
+ * @param onLogout - Handles logout from the sidebar
+ * @param profileName - Display name shown in the profile section
+ * @param profileEmail - Email address shown in the profile section
+ */
 function DesktopSidebar({
   collapsed,
   setCollapsed,
@@ -161,7 +170,7 @@ function DesktopSidebar({
                 transition={{ duration: 0.2 }}
                 className="flex items-center flex-shrink-0"
               >
-                <div className="relative h-12 w-26 sm:h-28 sm:w-28 overflow-hidden flex-shrink-0">
+                <div className="relative h-28 w-28 sm:h-28 sm:w-28 overflow-hidden flex-shrink-0">
                   <Image
                     src="/logo_light.png"
                     alt="Logo"
@@ -180,7 +189,7 @@ function DesktopSidebar({
                 transition={{ duration: 0.2 }}
                 className="flex-shrink-0 mx-auto"
               >
-                <div className="relative h-12 w-12 overflow-hidden">
+                <div className="relative h-10 w-100 overflow-hidden">
                   <Image
                     src="/logo_light.png"
                     alt="Logo"
@@ -331,7 +340,16 @@ function DesktopSidebar({
 
 // ============================================
 // Mobile Sidebar Component
-// ============================================
+/**
+ * Renders the mobile dashboard sidebar drawer.
+ *
+ * @param isOpen - Whether the drawer is visible
+ * @param onClose - Called when the backdrop, close button, or a navigation item is selected
+ * @param currentPath - The current route used to highlight the active navigation item
+ * @param onLogout - Called when the user selects logout
+ * @param profileName - The displayed user name
+ * @param profileEmail - The displayed user email
+ */
 function MobileSidebar({
   isOpen,
   onClose,
@@ -373,7 +391,7 @@ function MobileSidebar({
           {/* Logo Area */}
           <div className="flex items-center h-20 px-4 border-b border-white/5 flex-shrink-0">
             <div className="flex items-center flex-1">
-              <div className="relative h-12 w-26 sm:h-28 sm:w-28 overflow-hidden flex-shrink-0">
+              <div className="relative h-28 w-36 sm:h-28 sm:w-28 overflow-hidden flex-shrink-0">
                 <Image
                   src="/logo_light.png"
                   alt="Logo"
@@ -464,7 +482,11 @@ function MobileSidebar({
 
 // ============================================
 // Main Layout
-// ============================================
+/**
+ * Renders the dashboard layout with responsive navigation and authentication gating.
+ *
+ * @param children - The page content to display inside the dashboard layout
+ */
 export default function DashboardLayout({
   children,
 }: {
@@ -488,7 +510,7 @@ export default function DashboardLayout({
       const { user, session } = await getCurrentUser();
 
       if (!user || !session) {
-        router.replace("/login");
+        router.replace("/Auth");
         return;
       }
 
@@ -503,7 +525,7 @@ export default function DashboardLayout({
       setProfileEmail(email);
       setIsLoading(false);
     } catch {
-      router.replace("/login");
+      router.replace("/Auth");
     }
   }, [router]);
 
@@ -519,7 +541,7 @@ export default function DashboardLayout({
     const unsubscribe = onAuthStateChange((event) => {
       if (event === "SIGNED_OUT") {
         setIsLoading(false);
-        router.replace("/login");
+        router.replace("/Auth");
       } else if (event === "SIGNED_IN") {
         checkAuth();
       }
@@ -541,7 +563,7 @@ export default function DashboardLayout({
     setIsLoading(false);
 
     // Step 2: Navigate to login page instantly (no await, no refresh delay)
-    router.push("/login");
+    router.push("/Auth");
 
     // Step 3: Sign out in the background (doesn't block UI)
     // Use void to explicitly ignore the promise
@@ -671,15 +693,6 @@ export default function DashboardLayout({
 
             {/* Right Side */}
             <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="relative p-2 rounded-xl hover:bg-white/50 transition focus:ring-2 focus:ring-blue-400 focus:outline-none cursor-pointer"
-                aria-label="Notifications"
-              >
-                <Bell className="h-5 w-5 text-slate-600" />
-                <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 bg-gradient-to-r from-red-500 to-red-400 rounded-full animate-pulse"></span>
-              </motion.button>
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg shadow-blue-500/25 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 cursor-pointer"

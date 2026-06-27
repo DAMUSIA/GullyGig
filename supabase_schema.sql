@@ -155,8 +155,30 @@ CREATE POLICY "Allow users to update/delete their own service_ratings"
 CREATE POLICY "Allow public read access to service_analytics"
   ON public.service_analytics FOR SELECT USING (true);
 
-CREATE POLICY "Allow public insert of service_analytics"
-  ON public.service_analytics FOR INSERT WITH CHECK (true);
+-- Only service_role can write to analytics
+-- (Client writes should go through API routes that use service_role)
 
-CREATE POLICY "Allow public update of service_analytics"
-  ON public.service_analytics FOR UPDATE USING (true) WITH CHECK (true);
+-- --- TABLE GRANTS ---
+-- Users table: authenticated users can manage their own profiles, anon can read
+GRANT SELECT ON TABLE public.users TO anon;
+GRANT SELECT, INSERT, UPDATE ON TABLE public.users TO authenticated;
+GRANT ALL ON TABLE public.users TO postgres, service_role;
+
+-- Services table: authenticated users can manage their own services, anon can read
+GRANT SELECT ON TABLE public.services TO anon;
+GRANT SELECT, INSERT, UPDATE ON TABLE public.services TO authenticated;
+GRANT ALL ON TABLE public.services TO postgres, service_role;
+
+-- Service likes: authenticated users can like/unlike, anon can read
+GRANT SELECT ON TABLE public.service_likes TO anon;
+GRANT SELECT, INSERT, DELETE ON TABLE public.service_likes TO authenticated;
+GRANT ALL ON TABLE public.service_likes TO postgres, service_role;
+
+-- Service ratings: authenticated users can review, anon can read
+GRANT SELECT ON TABLE public.service_ratings TO anon;
+GRANT SELECT, INSERT, UPDATE ON TABLE public.service_ratings TO authenticated;
+GRANT ALL ON TABLE public.service_ratings TO postgres, service_role;
+
+-- Service analytics: only service_role can write, all can read
+GRANT SELECT ON TABLE public.service_analytics TO anon, authenticated;
+GRANT ALL ON TABLE public.service_analytics TO postgres, service_role;

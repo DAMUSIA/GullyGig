@@ -77,6 +77,9 @@ interface ServiceUser {
   };
 }
 
+/**
+ * Renders the nearby services marketplace page with search, filtering, sorting, likes, details, and reviews.
+ */
 export default function NearbyServicePage() {
   const [currentUser, setCurrentUser] = useState<ServiceUser | null>(null);
 
@@ -530,6 +533,8 @@ export default function NearbyServicePage() {
         errorObj?.message || (err instanceof Error ? err.message : String(err));
       if (errMsg && errMsg.includes("service_ratings_user_service_unique")) {
         errMsg = "You have already submitted a review for this tutor/service.";
+      } else if (errMsg && errMsg.includes("Service listing not found.")) {
+        errMsg = "Something went wrong. Please try again later.";
       }
       setReviewError(errMsg || "Failed to submit review. Try again.");
     } finally {
@@ -654,7 +659,7 @@ export default function NearbyServicePage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
-              Nearby Providers & Tutors
+              Nearby Providers
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
               Discover verified local instructors, academic tutors, and yoga

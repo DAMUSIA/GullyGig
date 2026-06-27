@@ -21,6 +21,13 @@ const POPULAR_LANGUAGES = [
   "Punjabi",
 ];
 
+/**
+ * Lets users select, remove, and add languages.
+ *
+ * @param selectedLanguages - The currently selected languages.
+ * @param onChange - Called with the updated language list when the selection changes.
+ * @returns The language selector UI.
+ */
 export default function LanguageSelector({
   selectedLanguages,
   onChange,
@@ -58,7 +65,7 @@ export default function LanguageSelector({
     <div className="space-y-3">
       <div>
         <label className="block text-sm font-semibold text-slate-700">
-          Languages You Teach In
+          Languages You Know
         </label>
         <p className="text-xs text-slate-400 mt-0.5">
           Select one or more languages or add custom ones.

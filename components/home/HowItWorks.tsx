@@ -55,6 +55,11 @@ const itemVariants = {
   show: { opacity: 1, x: 0, transition: { duration: 0.5 } },
 };
 
+/**
+ * Renders the "How GullyGig Works" section with provider and customer steps.
+ *
+ * @returns The section content for the platform's provider and customer onboarding overview.
+ */
 export default function HowItWorks() {
   return (
     <section
@@ -146,7 +151,7 @@ export default function HowItWorks() {
 
             <div className="mt-8 pt-4">
               <Link
-                href="/register"
+                href="/Auth?mode=register"
                 className="inline-block text-center text-sm font-bold text-brand-primary border border-brand-primary-light bg-brand-bg-light rounded-full px-8 py-3.5 hover:bg-brand-bg-hover transition-all active:scale-95 shadow-sm"
               >
                 Join as Provider
@@ -213,7 +218,7 @@ export default function HowItWorks() {
 
             <div className="mt-8 pt-4">
               <Link
-                href="/register"
+                href="/Auth?mode=register"
                 className="inline-block text-center text-sm font-bold text-white bg-brand-primary rounded-full px-8 py-3.5 hover:opacity-95 transition-all active:scale-95 shadow-md shadow-blue-500/10"
               >
                 Find a Service

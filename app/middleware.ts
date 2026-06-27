@@ -2,6 +2,14 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+/**
+ * Handles authentication-based route redirects for the app.
+ *
+ * Redirects legacy `/login` and `/register` requests to `/Auth`, protects `/dashboard/*` routes for signed-out users, and sends signed-in users away from `/Auth`.
+ *
+ * @param req - The incoming request.
+ * @returns The response to send for the request.
+ */
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
 
@@ -30,11 +38,25 @@ export async function middleware(req: NextRequest) {
   // All /dashboard/* routes require authentication
   const isDashboardRoute = pathname.startsWith("/dashboard");
 
+  // Redirect old /login and /register routes to the new /Auth route
+  if (pathname === "/login") {
+    const redirectUrl = new URL("/Auth", req.url);
+    if (req.nextUrl.search) {
+      redirectUrl.search = req.nextUrl.search;
+    }
+    return NextResponse.redirect(redirectUrl);
+  }
+  if (pathname === "/register") {
+    const redirectUrl = new URL("/Auth", req.url);
+    redirectUrl.searchParams.set("mode", "register");
+    return NextResponse.redirect(redirectUrl);
+  }
+
   // Auth pages — redirect authenticated users away
-  const isAuthRoute = pathname === "/login" || pathname === "/register";
+  const isAuthRoute = pathname === "/Auth";
 
   if (isDashboardRoute && !session) {
-    const redirectUrl = new URL("/login", req.url);
+    const redirectUrl = new URL("/Auth", req.url);
     redirectUrl.searchParams.set("redirectedFrom", pathname);
     return NextResponse.redirect(redirectUrl);
   }
@@ -47,5 +69,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/register"],
+  matcher: ["/dashboard/:path*", "/login", "/register", "/Auth"],
 };

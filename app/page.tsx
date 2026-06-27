@@ -15,6 +15,11 @@ import ServicesSection from "@/components/home/ServicesSection";
 import HowItWorks from "@/components/home/HowItWorks";
 import TrustSection from "@/components/home/TrustSection";
 
+/**
+ * Renders the home page with theme switching, section navigation, and toast notifications.
+ *
+ * @returns The home page layout.
+ */
 export default function Home() {
   const [toast, setToast] = useState<string | null>(null);
   const [darkMode, setDarkMode] = useState(false);
@@ -146,7 +151,7 @@ export default function Home() {
                   Find Nearby Services
                 </Link>
                 <Link
-                  href="/register"
+                  href="/Auth?mode=register"
                   className="w-full sm:w-auto text-center text-sm font-bold text-white bg-brand-teal px-8 py-4 rounded-full shadow-lg hover:opacity-95 hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-95"
                 >
                   Register as Provider

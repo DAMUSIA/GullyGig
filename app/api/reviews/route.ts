@@ -82,11 +82,10 @@ export async function POST(request: Request) {
     const result = await postReview(user.id, serviceId, rating, comment);
 
     if (!result.success) {
-      const isNotFound = result.error === "Service listing not found.";
-      return NextResponse.json(
-        { error: result.error },
-        { status: isNotFound ? 404 : 400 },
-      );
+      let statusCode = 400;
+      if (result.errorCode === "NOT_FOUND") statusCode = 404;
+      else if (result.errorCode === "SERVER_ERROR") statusCode = 500;
+      return NextResponse.json({ error: result.error }, { status: statusCode });
     }
 
     return NextResponse.json(result, { headers: limitResult.headers });

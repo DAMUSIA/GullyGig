@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   ChevronRight,
   Info,
+  Loader2,
 } from "lucide-react";
 
 import { getCurrentUser, supabase } from "@/lib/supabase";
@@ -39,7 +40,7 @@ const CATEGORIES = [
   "Personal Trainer",
   "Art Teacher",
   "Drawing Teacher",
-  "Exam Preparation Coach",
+  "Tailor",
   "Other",
 ];
 
@@ -83,6 +84,9 @@ interface ServiceUser {
   };
 }
 
+/**
+ * Renders the service creation page with authentication, a multi-step setup flow, and publishing to Supabase.
+ */
 export default function CreateServicePage() {
   const router = useRouter();
 
@@ -113,6 +117,7 @@ export default function CreateServicePage() {
 
   // Track if user has edited the title manually
   const [isTitleManuallyEdited, setIsTitleManuallyEdited] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
 
   // Authentication Check
   useEffect(() => {
@@ -120,7 +125,7 @@ export default function CreateServicePage() {
       try {
         const result = await getCurrentUser();
         if (!result.user) {
-          router.push("/login");
+          router.push("/Auth");
           return;
         }
         const currentUser = result.user as ServiceUser;
@@ -136,7 +141,7 @@ export default function CreateServicePage() {
         }
       } catch (err) {
         console.error("Auth check error:", err);
-        router.push("/login");
+        router.push("/Auth");
       } finally {
         setAuthLoading(false);
       }
@@ -362,6 +367,402 @@ export default function CreateServicePage() {
     );
   }
 
+  const getStepTitle = (step: number) => {
+    switch (step) {
+      case 1:
+        return "What service do you provide?";
+      case 2:
+        return "Service Title";
+      case 3:
+        return "How do you provide service?";
+      case 4:
+        return "Location Details";
+      case 5:
+        return "Availability";
+      case 6:
+        return "Languages Known";
+      case 7:
+        return "Pricing Details";
+      case 8:
+        return "Contact Numbers";
+      case 9:
+        return "About Yourself (Description)";
+      default:
+        return "";
+    }
+  };
+
+  const isStepValid = (step: number) => {
+    switch (step) {
+      case 1:
+        if (!formData.category) return false;
+        if (
+          formData.category === "Other" &&
+          !(formData.customCategory || "").trim()
+        )
+          return false;
+        return true;
+      case 2:
+        return formData.title.trim().length >= 3;
+      case 8: {
+        const contacts = formData.contact_numbers || [];
+        if (contacts.length === 0) return false;
+        // All non-empty contacts must be exactly 10 digits
+        return (
+          contacts.every((n) => {
+            const clean = n.replace(/\D/g, "");
+            return clean.length === 0 || clean.length === 10;
+          }) && contacts.some((n) => n.replace(/\D/g, "").length === 10)
+        );
+      }
+      default:
+        return true;
+    }
+  };
+
+  const renderStepContent = (step: number) => {
+    switch (step) {
+      case 1:
+        return (
+          <div className="space-y-4">
+            <SearchableDropdown
+              label="Service Category"
+              required
+              options={CATEGORIES}
+              value={formData.category}
+              onChange={handleCategoryChange}
+              customValue={formData.customCategory}
+              onCustomChange={(val) =>
+                setFormData((prev) => ({ ...prev, customCategory: val }))
+              }
+              placeholder="Choose a category (e.g. Science Tutor, Piano Teacher)"
+            />
+          </div>
+        );
+      case 2:
+        return (
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-sm">
+                <label
+                  htmlFor="service-title"
+                  className="font-semibold text-slate-700"
+                >
+                  Service Title <span className="text-red-500">*</span>
+                </label>
+                <span
+                  className={`text-[10px] font-semibold ${formData.title.trim().length >= 3 ? "text-slate-400" : "text-amber-500"}`}
+                >
+                  {formData.title.trim().length} / 80
+                </span>
+              </div>
+              <input
+                id="service-title"
+                type="text"
+                required
+                value={formData.title}
+                onChange={handleTitleChange}
+                placeholder="e.g. Private Mathematics Tutor"
+                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 font-medium"
+              />
+              <p className="text-[10px] text-slate-400">
+                Minimum 3 characters. Suggestive based on category.
+              </p>
+            </div>
+          </div>
+        );
+      case 3:
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700">
+                Where do you provide service?{" "}
+                <span className="text-slate-400 font-normal">(Optional)</span>
+              </label>
+              <div className="flex flex-wrap gap-2.5">
+                {TEACHING_MODES.map((mode) => {
+                  const isSelected = formData.service_modes.includes(mode);
+                  return (
+                    <button
+                      type="button"
+                      key={mode}
+                      onClick={() => handleToggleMode(mode)}
+                      className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-sm font-semibold border transition-all active:scale-95 cursor-pointer shadow-xs ${
+                        isSelected
+                          ? "bg-blue-600 border-blue-600 text-white"
+                          : "bg-white border-slate-200 text-slate-600 hover:border-slate-350 hover:bg-slate-55/40"
+                      }`}
+                    >
+                      {isSelected && (
+                        <Check className="h-3.5 w-3.5 text-white" />
+                      )}
+                      <span>{mode}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      case 4:
+        return (
+          <div className="space-y-4">
+            <LocationSelector
+              city={formData.city}
+              area={formData.area}
+              latitude={formData.latitude}
+              longitude={formData.longitude}
+              onChange={handleLocationChange}
+            />
+          </div>
+        );
+      case 5:
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700">
+                When are you usually available?{" "}
+                <span className="text-slate-400 font-normal">(Optional)</span>
+              </label>
+              <div className="flex flex-wrap gap-2.5">
+                {AVAILABILITY_OPTIONS.map((option) => {
+                  const isSelected = formData.availability.includes(option);
+                  return (
+                    <button
+                      type="button"
+                      key={option}
+                      onClick={() => handleToggleAvailability(option)}
+                      className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-sm font-semibold border transition-all active:scale-95 cursor-pointer shadow-xs ${
+                        isSelected
+                          ? "bg-blue-600 border-blue-600 text-white"
+                          : "bg-white border-slate-200 text-slate-600 hover:border-slate-350 hover:bg-slate-55/40"
+                      }`}
+                    >
+                      {isSelected && (
+                        <Check className="h-3.5 w-3.5 text-white" />
+                      )}
+                      <span>{option}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      case 6:
+        return (
+          <div className="space-y-4">
+            <LanguageSelector
+              selectedLanguages={formData.languages}
+              onChange={(languages) =>
+                setFormData((prev) => ({ ...prev, languages }))
+              }
+            />
+          </div>
+        );
+      case 7:
+        return (
+          <div className="space-y-4">
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="starting-price"
+                  className="block text-sm font-semibold text-slate-700"
+                >
+                  Starting Price{" "}
+                  <span className="text-slate-400 font-normal">(Optional)</span>
+                </label>
+                <div className="relative">
+                  <input
+                    id="starting-price"
+                    type="number"
+                    min="0"
+                    value={formData.starting_price || ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormData((prev) => ({
+                        ...prev,
+                        starting_price: val === "" ? null : Number(val),
+                      }));
+                    }}
+                    placeholder="e.g. 500"
+                    className="w-full pl-9 pr-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 font-medium"
+                  />
+                  <div className="absolute left-3.5 top-3.5 flex items-center justify-center">
+                    <span className="text-sm font-extrabold text-slate-400">
+                      ₹
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-slate-700">
+                  Price Unit{" "}
+                  <span className="text-slate-400 font-normal">(Optional)</span>
+                </label>
+                <div className="flex flex-wrap gap-2.5">
+                  {PRICE_UNITS.map((unit) => {
+                    const isSelected = formData.price_unit === unit;
+                    const isDisabled = formData.starting_price === null;
+                    return (
+                      <button
+                        type="button"
+                        key={unit}
+                        onClick={() => {
+                          if (!isDisabled) {
+                            setFormData((prev) => ({
+                              ...prev,
+                              price_unit: unit,
+                            }));
+                          }
+                        }}
+                        disabled={isDisabled}
+                        className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-sm font-semibold border transition-all active:scale-95 cursor-pointer shadow-xs ${
+                          isSelected
+                            ? "bg-blue-600 border-blue-600 text-white"
+                            : "bg-white border-slate-200 text-slate-600 hover:border-slate-350 hover:bg-slate-55/40"
+                        } ${isDisabled ? "opacity-50 cursor-not-allowed hover:bg-white hover:border-slate-200" : ""}`}
+                      >
+                        {isSelected && (
+                          <Check className="h-3.5 w-3.5 text-white" />
+                        )}
+                        <span>{unit}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {formData.starting_price === null && (
+                  <p className="text-[10px] text-amber-500 mt-1">
+                    Set a starting price first to select a price unit
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      case 8:
+        return (
+          <div className="space-y-4">
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-slate-700">
+                Contact numbers for Customers to reach you{" "}
+                <span className="text-red-500">*</span>
+                <span className="text-[10px] font-normal text-slate-400 ml-2">
+                  (Enter exactly 10 digits)
+                </span>
+              </label>
+
+              {(formData.contact_numbers || []).map((num, idx) => {
+                const cleanNum = cleanPhoneNumber(num);
+                const isValid = cleanNum.length === 10;
+                const isComplete = num.length > 0;
+
+                return (
+                  <div key={idx} className="flex items-center gap-2">
+                    <div className="flex-1 relative">
+                      <input
+                        type="text"
+                        required
+                        value={num}
+                        onChange={(e) =>
+                          handleContactChange(idx, e.target.value)
+                        }
+                        placeholder="Enter 10-digit phone number"
+                        className={`w-full px-4 py-2.5 bg-white border rounded-xl shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 font-medium transition-all ${
+                          isComplete && !isValid
+                            ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
+                            : isValid
+                              ? "border-green-400 focus:border-green-500 focus:ring-green-500/20"
+                              : "border-slate-200"
+                        }`}
+                      />
+                      {isComplete && isValid && (
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500 text-xs font-bold">
+                          ✓
+                        </span>
+                      )}
+                      {isComplete && !isValid && (
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500 text-[10px] font-bold">
+                          Need 10 digits
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = (formData.contact_numbers || []).filter(
+                          (_, i) => i !== idx,
+                        );
+                        setFormData((prev) => ({
+                          ...prev,
+                          contact_numbers: updated,
+                        }));
+                      }}
+                      className="px-3.5 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                );
+              })}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    contact_numbers: [...(prev.contact_numbers || []), ""],
+                  }));
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2.5 border border-blue-200 text-blue-600 hover:bg-blue-50 text-xs font-bold rounded-xl transition cursor-pointer"
+              >
+                + Add Contact Number
+              </button>
+              <p className="text-[10px] text-slate-400 mt-1">
+                Enter up to 10 digits (numbers only). Example: 9876543210
+              </p>
+            </div>
+          </div>
+        );
+      case 9:
+        return (
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label
+                htmlFor="teaching-description"
+                className="block text-sm font-semibold text-slate-700"
+              >
+                About Your Service{" "}
+                <span className="text-slate-400 font-normal">(Optional)</span>
+              </label>
+              <textarea
+                id="teaching-description"
+                rows={4}
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+                placeholder="Describe what you do and who you help."
+                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 leading-relaxed font-sans resize-none"
+              />
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] text-slate-400">
+                  Optional: Add details to help Customers/parents understand
+                  your teaching style.
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/20">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -372,10 +773,10 @@ export default function CreateServicePage() {
             Quick Tutor Launch
           </span>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight font-sans">
-            Create Teaching Service
+            Create Service
           </h1>
           <p className="text-slate-500 mt-1.5 text-sm sm:text-base">
-            Tell Customers what you teach and start receiving enquiries. Simple,
+            Tell Customers what you do and start receiving enquiries. Simple,
             fast, and listing in under 30 seconds.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -402,431 +803,8 @@ export default function CreateServicePage() {
 
         {/* Layout Grid */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-          {/* Form Side */}
-          <div className="xl:col-span-8 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md space-y-8">
-            {/* Section 1 - What Do You Teach? */}
-            <div className="space-y-5">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
-                  1
-                </div>
-                <h3 className="font-extrabold text-slate-700 text-base">
-                  What Do You Teach?
-                </h3>
-              </div>
-
-              {/* Category - REQUIRED */}
-              <SearchableDropdown
-                label="Teaching Category"
-                required
-                options={CATEGORIES}
-                value={formData.category}
-                onChange={handleCategoryChange}
-                customValue={formData.customCategory}
-                onCustomChange={(val) =>
-                  setFormData((prev) => ({ ...prev, customCategory: val }))
-                }
-                placeholder="Choose a category (e.g. Science Tutor, Piano Teacher)"
-              />
-
-              {/* Service Title - REQUIRED */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-sm">
-                  <label
-                    htmlFor="service-title"
-                    className="font-semibold text-slate-700"
-                  >
-                    Service Title <span className="text-red-500">*</span>
-                  </label>
-                  <span
-                    className={`text-[10px] font-semibold ${formData.title.trim().length >= 3 ? "text-slate-400" : "text-amber-500"}`}
-                  >
-                    {formData.title.trim().length} / 80
-                  </span>
-                </div>
-                <input
-                  id="service-title"
-                  type="text"
-                  required
-                  value={formData.title}
-                  onChange={handleTitleChange}
-                  placeholder="e.g. Private Mathematics Tutor"
-                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 font-medium"
-                />
-                <p className="text-[10px] text-slate-400">
-                  Minimum 3 characters. Suggestive based on category.
-                </p>
-              </div>
-            </div>
-
-            {/* Section 2 - How Do You Teach? - OPTIONAL */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
-                  2
-                </div>
-                <h3 className="font-extrabold text-slate-700 text-base">
-                  How Do You Teach?{" "}
-                  <span className="text-xs font-normal text-slate-400 ml-1">
-                    (Optional)
-                  </span>
-                </h3>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-slate-700">
-                  Where do you teach?{" "}
-                  <span className="text-slate-400 font-normal">(Optional)</span>
-                </label>
-                <div className="flex flex-wrap gap-2.5">
-                  {TEACHING_MODES.map((mode) => {
-                    const isSelected = formData.service_modes.includes(mode);
-                    return (
-                      <button
-                        type="button"
-                        key={mode}
-                        onClick={() => handleToggleMode(mode)}
-                        className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-sm font-semibold border transition-all active:scale-95 cursor-pointer shadow-xs ${
-                          isSelected
-                            ? "bg-blue-600 border-blue-600 text-white"
-                            : "bg-white border-slate-200 text-slate-600 hover:border-slate-350 hover:bg-slate-55/40"
-                        }`}
-                      >
-                        {isSelected && (
-                          <Check className="h-3.5 w-3.5 text-white" />
-                        )}
-                        <span>{mode}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Section 3 - Location - OPTIONAL */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
-                  3
-                </div>
-                <h3 className="font-extrabold text-slate-700 text-base">
-                  Location{" "}
-                  <span className="text-xs font-normal text-slate-400 ml-1">
-                    (Optional)
-                  </span>
-                </h3>
-              </div>
-
-              <LocationSelector
-                city={formData.city}
-                area={formData.area}
-                latitude={formData.latitude}
-                longitude={formData.longitude}
-                onChange={handleLocationChange}
-              />
-            </div>
-
-            {/* Section 4 - Availability - OPTIONAL */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
-                  4
-                </div>
-                <h3 className="font-extrabold text-slate-700 text-base">
-                  Availability{" "}
-                  <span className="text-xs font-normal text-slate-400 ml-1">
-                    (Optional)
-                  </span>
-                </h3>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-slate-700">
-                  When are you usually available?{" "}
-                  <span className="text-slate-400 font-normal">(Optional)</span>
-                </label>
-                <div className="flex flex-wrap gap-2.5">
-                  {AVAILABILITY_OPTIONS.map((option) => {
-                    const isSelected = formData.availability.includes(option);
-                    return (
-                      <button
-                        type="button"
-                        key={option}
-                        onClick={() => handleToggleAvailability(option)}
-                        className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-sm font-semibold border transition-all active:scale-95 cursor-pointer shadow-xs ${
-                          isSelected
-                            ? "bg-blue-600 border-blue-600 text-white"
-                            : "bg-white border-slate-200 text-slate-600 hover:border-slate-350 hover:bg-slate-55/40"
-                        }`}
-                      >
-                        {isSelected && (
-                          <Check className="h-3.5 w-3.5 text-white" />
-                        )}
-                        <span>{option}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Section 5 - Languages Spoken - OPTIONAL */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
-                  5
-                </div>
-                <h3 className="font-extrabold text-slate-700 text-base">
-                  Languages Spoken{" "}
-                  <span className="text-xs font-normal text-slate-400 ml-1">
-                    (Optional)
-                  </span>
-                </h3>
-              </div>
-
-              <LanguageSelector
-                selectedLanguages={formData.languages}
-                onChange={(languages) =>
-                  setFormData((prev) => ({ ...prev, languages }))
-                }
-              />
-            </div>
-
-            {/* Section 6 - Pricing - OPTIONAL */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
-                  6
-                </div>
-                <h3 className="font-extrabold text-slate-700 text-base">
-                  Pricing{" "}
-                  <span className="text-xs font-normal text-slate-400 ml-1">
-                    (Optional)
-                  </span>
-                </h3>
-              </div>
-
-              <div className="space-y-3">
-                <div className="space-y-1.5">
-                  <label
-                    htmlFor="starting-price"
-                    className="block text-sm font-semibold text-slate-700"
-                  >
-                    Starting Price{" "}
-                    <span className="text-slate-400 font-normal">
-                      (Optional)
-                    </span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="starting-price"
-                      type="number"
-                      min="0"
-                      value={formData.starting_price || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setFormData((prev) => ({
-                          ...prev,
-                          starting_price: val === "" ? null : Number(val),
-                        }));
-                      }}
-                      placeholder="e.g. 500"
-                      className="w-full pl-9 pr-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 font-medium"
-                    />
-                    <div className="absolute left-3.5 top-3.5 flex items-center justify-center">
-                      <span className="text-sm font-extrabold text-slate-400">
-                        ₹
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-semibold text-slate-700">
-                    Price Unit{" "}
-                    <span className="text-slate-400 font-normal">
-                      (Optional)
-                    </span>
-                  </label>
-                  <div className="flex flex-wrap gap-2.5">
-                    {PRICE_UNITS.map((unit) => {
-                      const isSelected = formData.price_unit === unit;
-                      const isDisabled = formData.starting_price === null;
-                      return (
-                        <button
-                          type="button"
-                          key={unit}
-                          onClick={() => {
-                            if (!isDisabled) {
-                              setFormData((prev) => ({
-                                ...prev,
-                                price_unit: unit,
-                              }));
-                            }
-                          }}
-                          disabled={isDisabled}
-                          className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-sm font-semibold border transition-all active:scale-95 cursor-pointer shadow-xs ${
-                            isSelected
-                              ? "bg-blue-600 border-blue-600 text-white"
-                              : "bg-white border-slate-200 text-slate-600 hover:border-slate-350 hover:bg-slate-55/40"
-                          } ${isDisabled ? "opacity-50 cursor-not-allowed hover:bg-white hover:border-slate-200" : ""}`}
-                        >
-                          {isSelected && (
-                            <Check className="h-3.5 w-3.5 text-white" />
-                          )}
-                          <span>{unit}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {formData.starting_price === null && (
-                    <p className="text-[10px] text-amber-500 mt-1">
-                      Set a starting price first to select a price unit
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Section 7 - Contact Numbers - REQUIRED */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
-                  7
-                </div>
-                <h3 className="font-extrabold text-slate-700 text-base">
-                  Contact Numbers <span className="text-red-500">*</span>
-                </h3>
-              </div>
-
-              <div className="space-y-3">
-                <label className="block text-sm font-semibold text-slate-700">
-                  Contact numbers for Customers to reach you{" "}
-                  <span className="text-red-500">*</span>
-                  <span className="text-[10px] font-normal text-slate-400 ml-2">
-                    (Enter exactly 10 digits)
-                  </span>
-                </label>
-
-                {(formData.contact_numbers || []).map((num, idx) => {
-                  const cleanNum = cleanPhoneNumber(num);
-                  const isValid = cleanNum.length === 10;
-                  const isComplete = num.length > 0;
-
-                  return (
-                    <div key={idx} className="flex items-center gap-2">
-                      <div className="flex-1 relative">
-                        <input
-                          type="text"
-                          required
-                          value={num}
-                          onChange={(e) =>
-                            handleContactChange(idx, e.target.value)
-                          }
-                          placeholder="Enter 10-digit phone number"
-                          className={`w-full px-4 py-2.5 bg-white border rounded-xl shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 font-medium transition-all ${
-                            isComplete && !isValid
-                              ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                              : isValid
-                                ? "border-green-400 focus:border-green-500 focus:ring-green-500/20"
-                                : "border-slate-200"
-                          }`}
-                        />
-                        {isComplete && isValid && (
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500 text-xs font-bold">
-                            ✓
-                          </span>
-                        )}
-                        {isComplete && !isValid && (
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500 text-[10px] font-bold">
-                            Need 10 digits
-                          </span>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const updated = (
-                            formData.contact_numbers || []
-                          ).filter((_, i) => i !== idx);
-                          setFormData((prev) => ({
-                            ...prev,
-                            contact_numbers: updated,
-                          }));
-                        }}
-                        className="px-3.5 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  );
-                })}
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      contact_numbers: [...(prev.contact_numbers || []), ""],
-                    }));
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2.5 border border-blue-200 text-blue-600 hover:bg-blue-50 text-xs font-bold rounded-xl transition cursor-pointer"
-                >
-                  + Add Contact Number
-                </button>
-                <p className="text-[10px] text-slate-400 mt-1">
-                  Enter up to 10 digits (numbers only). Example: 9876543210
-                </p>
-              </div>
-            </div>
-
-            {/* Section 8 - About Your Teaching - OPTIONAL */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-50">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
-                  8
-                </div>
-                <h3 className="font-extrabold text-slate-700 text-base">
-                  About Your Teaching{" "}
-                  <span className="text-xs font-normal text-slate-400 ml-1">
-                    (Optional)
-                  </span>
-                </h3>
-              </div>
-
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="teaching-description"
-                  className="block text-sm font-semibold text-slate-700"
-                >
-                  About Your Teaching{" "}
-                  <span className="text-slate-400 font-normal">(Optional)</span>
-                </label>
-                <textarea
-                  id="teaching-description"
-                  rows={4}
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  placeholder="Describe what you teach and who you help. Class ranges, experience, teaching style, exam successes, etc. (Optional)"
-                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 leading-relaxed font-sans resize-none"
-                />
-                <div className="flex items-center justify-between">
-                  <p className="text-[10px] text-slate-400">
-                    Optional: Add details to help Customers/parents understand
-                    your teaching style.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Sticky Live Preview Column */}
-          <div className="xl:col-span-4 xl:sticky xl:top-24 w-full">
+          {/* Sticky Live Preview Column (Renders at top on mobile, right on desktop) */}
+          <div className="xl:col-span-4 xl:sticky xl:top-24 w-full order-1 xl:order-2">
             <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 mb-4 w-full shadow-sm">
               <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
                 <Info className="h-4 w-4 text-blue-500 flex-shrink-0" />
@@ -851,15 +829,106 @@ export default function CreateServicePage() {
 
             <LivePreviewCard data={formData} />
           </div>
+
+          {/* Form Side (Renders below preview on mobile, left on desktop) */}
+          <div className="xl:col-span-8 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md space-y-8 order-2 xl:order-1">
+            {currentStep === 0 ? (
+              <div className="text-center py-10 px-4 space-y-6 flex flex-col items-center">
+                <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center border border-blue-100/40">
+                  <Sparkles className="h-7 w-7 animate-pulse" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-extrabold text-slate-850">
+                    Create Service
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed max-w-none font-medium">
+                    Set up your professional tutoring service profile in a few
+                    steps. We will generate a public portfolio and scan-to-call
+                    posters for you!
+                  </p>
+                </div>
+                <button
+                  onClick={() => setCurrentStep(1)}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3.5 px-8 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-2xl transition cursor-pointer active:scale-95 shadow-md shadow-blue-500/10"
+                >
+                  Create a Tutoring Service
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Progress header */}
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div>
+                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">
+                      Step {currentStep} of 9
+                    </span>
+                    <h4 className="text-sm font-extrabold text-slate-700 mt-2">
+                      {getStepTitle(currentStep)}
+                    </h4>
+                  </div>
+                  <div className="w-24 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                    <div
+                      className="bg-blue-600 h-full transition-all duration-300"
+                      style={{ width: `${(currentStep / 9) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Render active step input */}
+                <div className="py-2">{renderStepContent(currentStep)}</div>
+
+                {/* Navigation buttons */}
+                <div className="flex items-center justify-between border-t border-slate-100 pt-6">
+                  {currentStep > 1 ? (
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(currentStep - 1)}
+                      className="px-5 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-650 text-xs font-extrabold rounded-xl transition cursor-pointer active:scale-95"
+                    >
+                      Back
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(0)}
+                      className="px-5 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-650 text-xs font-extrabold rounded-xl transition cursor-pointer active:scale-95"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                  <div className="ml-auto">
+                    <button
+                      type="button"
+                      disabled={!isStepValid(currentStep) || isSubmitting}
+                      onClick={() => {
+                        if (currentStep < 9) {
+                          setCurrentStep(currentStep + 1);
+                        } else {
+                          handlePublish();
+                        }
+                      }}
+                      className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition cursor-pointer active:scale-95 flex items-center gap-1.5"
+                    >
+                      {isSubmitting && (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      )}
+                      <span>
+                        {currentStep === 9
+                          ? isSubmitting
+                            ? "Publishing..."
+                            : "Publish Service"
+                          : "Next"}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Sticky Bottom Actions Bar */}
-      <PublishStickyBar
-        isValid={isFormValid()}
-        isLoading={isSubmitting}
-        onPublish={handlePublish}
-      />
+      {/* SUCCESS DIALOG AND MOPUP REMOVED IN STICKY BAR */}
 
       {/* Success Dialog Modal */}
       <AnimatePresence>

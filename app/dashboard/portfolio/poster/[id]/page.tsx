@@ -90,6 +90,9 @@ interface ServiceItem {
   };
 }
 
+/**
+ * Provides a poster generator page for a service listing.
+ */
 export default function PosterGeneratorPage() {
   const params = useParams();
   const router = useRouter();
@@ -125,7 +128,7 @@ export default function PosterGeneratorPage() {
           user: { id: string } | null;
         };
         if (!user) {
-          router.push("/login");
+          router.push("/Auth");
           return;
         }
 

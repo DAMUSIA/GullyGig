@@ -86,7 +86,8 @@ export async function POST(request: Request) {
     const result = await toggleLike(user.id, serviceId, action);
 
     if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
+      const statusCode = result.errorCode === "SERVER_ERROR" ? 500 : 400;
+      return NextResponse.json({ error: result.error }, { status: statusCode });
     }
 
     return NextResponse.json(result, { headers: limitResult.headers });

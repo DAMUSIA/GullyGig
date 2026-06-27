@@ -16,6 +16,15 @@ interface LocationSelectorProps {
   }) => void;
 }
 
+/**
+ * Renders location fields and lets the user attach the current GPS position.
+ *
+ * @param city - The selected city
+ * @param area - The selected area or locality
+ * @param latitude - The selected latitude
+ * @param longitude - The selected longitude
+ * @param onChange - Called when any location field changes
+ */
 export default function LocationSelector({
   city,
   area,
@@ -38,35 +47,79 @@ export default function LocationSelector({
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude: lat, longitude: lon } = position.coords;
+        let data;
+        let isNominatim = false;
         try {
-          // Fetch reverse geocoding from OpenStreetMap Nominatim
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
-          );
+          try {
+            // Attempt Nominatim reverse geocoding with a 3-second timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-          if (!response.ok) throw new Error("Failed to fetch address details");
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
+              { signal: controller.signal },
+            );
+            clearTimeout(timeoutId);
 
-          const data = await response.json();
-          if (data && data.address) {
-            const addr = data.address;
+            if (response.ok) {
+              data = await response.json();
+              isNominatim = true;
+            } else {
+              throw new Error("Nominatim status not OK");
+            }
+          } catch (nominatimErr) {
+            console.warn(
+              "Nominatim reverse geocode failed, attempting BigDataCloud fallback...",
+              nominatimErr,
+            );
+            try {
+              const response = await fetch(
+                `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`,
+              );
+              if (response.ok) {
+                data = await response.json();
+              } else {
+                throw new Error("BigDataCloud status not OK");
+              }
+            } catch (bdcErr) {
+              console.error("All reverse geocoding services failed:", bdcErr);
+            }
+          }
 
-            // Extract area name (neighbourhood, suburb, village, residential, etc.)
-            const areaName =
-              addr.neighbourhood ||
-              addr.suburb ||
-              addr.village ||
-              addr.residential ||
-              addr.subdistrict ||
-              "";
+          if (data) {
+            let cityName = "";
+            let areaName = "";
 
-            // Extract city/town name
-            const cityName =
-              addr.city ||
-              addr.town ||
-              addr.city_district ||
-              addr.state_district ||
-              addr.county ||
-              "";
+            if (isNominatim && data.address) {
+              const addr = data.address;
+              areaName =
+                addr.neighbourhood ||
+                addr.suburb ||
+                addr.village ||
+                addr.residential ||
+                addr.subdistrict ||
+                "";
+              cityName =
+                addr.city ||
+                addr.town ||
+                addr.city_district ||
+                addr.state_district ||
+                addr.county ||
+                "";
+            } else if (data.locality !== undefined) {
+              cityName = data.city || data.locality || "";
+              const informative = data.localityInfo?.informative || [];
+              const areaItem = informative.find(
+                (i: { name: string; description?: string }) =>
+                  [
+                    "suburb",
+                    "neighbourhood",
+                    "subdistrict",
+                    "locality",
+                  ].includes(i.description?.toLowerCase() || ""),
+              );
+              areaName = areaItem?.name || data.locality || "";
+            }
 
             onChange({
               city: cityName || city,
@@ -100,11 +153,16 @@ export default function LocationSelector({
         }
       },
       (error) => {
-        console.error("GPS Coordinates Error:", error);
+        console.error(
+          "GPS Coordinates Error:",
+          error?.message || error?.code || String(error),
+        );
         let errorMsg = "Failed to fetch coordinates. Please fill manually.";
         if (error.code === error.PERMISSION_DENIED) {
           errorMsg =
-            "Location permission denied. Please search or fill manually.";
+            "Location permission denied or disabled by permissions policy. Please fill manually.";
+        } else if (error.message) {
+          errorMsg = `${error.message} Please fill manually.`;
         }
         setLocateError(errorMsg);
         setIsLocating(false);

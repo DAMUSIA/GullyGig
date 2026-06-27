@@ -103,6 +103,11 @@ interface FunnelDataItem {
   lightColor: string;
 }
 
+/**
+ * Renders the analytics dashboard for a user's services.
+ *
+ * Displays performance totals, conversion metrics, monthly growth charts, top services, recent activity, and conversion breakdowns for the authenticated user.
+ */
 export default function AnalyticsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -122,7 +127,7 @@ export default function AnalyticsPage() {
           user: { id: string } | null;
         };
         if (!user) {
-          router.push("/login");
+          router.push("/Auth");
           return;
         }
 

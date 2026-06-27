@@ -16,9 +16,9 @@ export interface AnalyticsUpdate {
 }
 
 /**
- * Upsert a row in service_analytics for the given service.
- * Merges only the fields provided — other fields are left untouched
- * if the row already exists.
+ * Updates or creates analytics totals for a service.
+ *
+ * @param update - The analytics values to store for the service.
  */
 export async function upsertServiceAnalytics(
   update: AnalyticsUpdate,
@@ -27,11 +27,16 @@ export async function upsertServiceAnalytics(
 
   const { serviceId, totalLikes, totalReviews, averageRating } = update;
 
-  const { data: existingRow } = await supabaseAdmin
+  const { data: existingRow, error: lookupError } = await supabaseAdmin
     .from("service_analytics")
-    .select("id")
+    .select("service_id")
     .eq("service_id", serviceId)
     .maybeSingle();
+
+  if (lookupError) {
+    console.error("Analytics lookup error:", lookupError);
+    throw new Error("Failed to lookup analytics record");
+  }
 
   const now = new Date().toISOString();
 
@@ -41,21 +46,33 @@ export async function upsertServiceAnalytics(
     if (totalReviews !== undefined) patch.total_reviews = totalReviews;
     if (averageRating !== undefined) patch.average_rating = averageRating;
 
-    await supabaseAdmin
+    const { error: updateError } = await supabaseAdmin
       .from("service_analytics")
       .update(patch)
       .eq("service_id", serviceId);
+
+    if (updateError) {
+      console.error("Analytics update error:", updateError);
+      throw new Error("Failed to update analytics record");
+    }
   } else {
-    await supabaseAdmin.from("service_analytics").insert({
-      service_id: serviceId,
-      total_likes: totalLikes ?? 0,
-      total_views: 0,
-      unique_visitors: 0,
-      total_contacts: 0,
-      total_reviews: totalReviews ?? 0,
-      average_rating: averageRating ?? 0,
-      portfolio_views: 0,
-      updated_at: now,
-    });
+    const { error: insertError } = await supabaseAdmin
+      .from("service_analytics")
+      .insert({
+        service_id: serviceId,
+        total_likes: totalLikes ?? 0,
+        total_views: 0,
+        unique_visitors: 0,
+        total_contacts: 0,
+        total_reviews: totalReviews ?? 0,
+        average_rating: averageRating ?? 0,
+        portfolio_views: 0,
+        updated_at: now,
+      });
+
+    if (insertError) {
+      console.error("Analytics insert error:", insertError);
+      throw new Error("Failed to insert analytics record");
+    }
   }
 }

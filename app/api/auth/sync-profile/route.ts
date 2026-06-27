@@ -14,6 +14,12 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   },
 });
 
+/**
+ * Syncs an authenticated user's profile into the users table.
+ *
+ * @param request - The incoming request containing the authorization token and profile data
+ * @returns A response indicating whether the profile was saved, already exists, or the request failed
+ */
 export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get("Authorization");

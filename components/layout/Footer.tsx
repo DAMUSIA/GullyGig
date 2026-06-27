@@ -26,6 +26,12 @@ const SOCIAL_LINKS = {
   whatsapp: "https://chat.whatsapp.com/HG3U2hP7IEu0EHAiftscCq",
 };
 
+/**
+ * Renders the site footer.
+ *
+ * @param onShowToast - Displays a toast message when sharing falls back to copy-to-clipboard or fails.
+ * @returns The footer content.
+ */
 export default function Footer({ onShowToast }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
@@ -107,7 +113,7 @@ export default function Footer({ onShowToast }: FooterProps) {
               href="/"
               className="flex items-center justify-center md:justify-start mb-4"
             >
-              <div className="relative h-12 w-26 sm:h-28 sm:w-28 overflow-hidden flex-shrink-0">
+              <div className="relative h-32 w-34 sm:h-28 sm:w-28 overflow-hidden flex-shrink-0">
                 {/* Light theme logo */}
                 <Image
                   src="/logo_dark.png"
@@ -127,6 +133,26 @@ export default function Footer({ onShowToast }: FooterProps) {
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w mx-auto md:mx-0">
               Discover trusted local professionals and skilled workers near you.
             </p>
+            <div className="mt-3.5 space-y-1 text-xs text-slate-450 dark:text-slate-400 flex flex-col items-center md:items-start font-semibold">
+              <span className="flex items-center gap-1">
+                <span>Support:</span>
+                <a
+                  href="mailto:support@gullygig.in"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  support@gullygig.in
+                </a>
+              </span>
+              <span className="flex items-center gap-1">
+                <span>Phone:</span>
+                <a
+                  href="tel:7559302315"
+                  className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                >
+                  7559302315
+                </a>
+              </span>
+            </div>
 
             {/* Social Icons */}
             <div className="flex items-center justify-center md:justify-start gap-2 mt-4 flex-wrap">
@@ -171,7 +197,7 @@ export default function Footer({ onShowToast }: FooterProps) {
             <ul className="space-y-2.5 text-center md:text-right">
               <li>
                 <Link
-                  href="/privacy"
+                  href="/legal?tab=privacy"
                   className="text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                   Privacy Policy
@@ -179,7 +205,7 @@ export default function Footer({ onShowToast }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="/terms"
+                  href="/legal?tab=terms"
                   className="text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
                   Terms of Service
@@ -204,14 +230,14 @@ export default function Footer({ onShowToast }: FooterProps) {
           </p>
           <div className="flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500">
             <Link
-              href="/privacy"
+              href="/legal?tab=privacy"
               className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
               Privacy
             </Link>
             <span>•</span>
             <Link
-              href="/terms"
+              href="/legal?tab=terms"
               className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
               Terms

@@ -3,6 +3,12 @@ import { supabaseAdmin } from "../../../../lib/supabase-admin";
 import { rateLimit, getIdentifier } from "../../../../lib/rate-limit";
 import { SignupSchema, formatZodError } from "../../../../lib/validation";
 
+/**
+ * Handles a signup request.
+ *
+ * @param request - The incoming signup request.
+ * @returns A JSON response indicating success or the reason the signup failed.
+ */
 export async function POST(request: Request) {
   // Rate limiting — strict for auth endpoints
   const identifier = getIdentifier(request);
@@ -93,6 +99,13 @@ export async function POST(request: Request) {
     });
 
     if (insertError) {
+      // Sanitize error before logging to avoid leaking PII
+      const sanitizedError = {
+        code: insertError.code,
+        message: insertError.message,
+        hint: insertError.hint,
+      };
+      console.error("Signup profile insert error:", sanitizedError);
       // Roll back the created auth user to avoid orphan accounts
       try {
         await supabaseAdmin.auth.admin.deleteUser(authData.user.id);

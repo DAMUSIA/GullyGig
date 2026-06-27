@@ -18,6 +18,7 @@ import {
   Navigation,
   Inbox,
   Sparkles,
+  Users,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -72,6 +73,9 @@ const CATEGORY_CHIPS = [
 
 const ITEMS_PER_PAGE = 5;
 
+/**
+ * Displays the services directory with search, filters, sorting, pagination, and live viewer presence.
+ */
 export default function ServicesPage() {
   const [isDark, setIsDark] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -89,6 +93,9 @@ export default function ServicesPage() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Live viewer count via Supabase Realtime Presence
+  const [liveViewers, setLiveViewers] = useState(0);
 
   // Auto-scroll to first service when page changes
   const isFirstRender = React.useRef(true);
@@ -161,6 +168,35 @@ export default function ServicesPage() {
     });
 
     return () => observer.disconnect();
+  }, []);
+
+  // Supabase Realtime Presence for live viewer count
+  useEffect(() => {
+    if (!supabase) return;
+
+    const channel = supabase.channel("services-page-presence", {
+      config: { presence: { key: Math.random().toString(36).slice(2) } },
+    });
+
+    channel
+      .on("presence", { event: "sync" }, () => {
+        const state = channel.presenceState();
+        const count = Object.keys(state).reduce(
+          (sum, key) => sum + state[key].length,
+          0,
+        );
+        setLiveViewers(count);
+      })
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await channel.track({ online_at: new Date().toISOString() });
+        }
+      });
+
+    return () => {
+      channel.untrack();
+      if (supabase) supabase.removeChannel(channel);
+    };
   }, []);
 
   const toggleDarkMode = () => {
@@ -461,7 +497,7 @@ export default function ServicesPage() {
                - Tablet/Desktop (sm and up): h-10 w-36 (40px height, 144px width)
                You can adjust these classes (e.g. h-8, w-28, sm:h-10, sm:w-36) to fit your logo's dimensions.
             */}
-            <div className="relative h-8 w-28 sm:h-10 sm:w-36 flex-shrink-0">
+            <div className="relative h-22 w-32 sm:h-22 sm:w-48 flex-shrink-0">
               <Image
                 src={isDark ? "/logo_light.png" : "/logo_dark.png"}
                 alt="Logo"
@@ -496,14 +532,31 @@ export default function ServicesPage() {
       </header>
 
       <main className="flex-1 max-w-[1140px] w-full mx-auto px-6 pt-28 pb-20">
-        <div className="text-center md:text-left mb-8 space-y-2">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Services & Expertise Directory
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Browse verified local services, view portfolios, check average
-            ratings, and contact neighbors directly.
-          </p>
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-8 gap-3">
+          <div className="text-center md:text-left space-y-2">
+            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Services & Expertise Directory
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Browse verified local services, view portfolios, check average
+              ratings, and contact neighbors directly.
+            </p>
+          </div>
+          {!loading && services.length > 0 && (
+            <div className="flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs shrink-0 self-center md:self-start">
+              <div className="w-7 h-7 bg-blue-50 dark:bg-blue-500/10 rounded-lg flex items-center justify-center">
+                <Sparkles className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div className="text-right">
+                <span className="text-lg font-black text-slate-800 dark:text-white leading-none">
+                  {services.length}
+                </span>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                  Total Services
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-3xl p-5 md:p-6 shadow-md shadow-blue-500/5 mb-8 space-y-4">
@@ -857,15 +910,6 @@ export default function ServicesPage() {
                         <Share2 className="h-3.5 w-3.5" />
                       </button>
 
-                      {/* View Portfolio Button */}
-                      <Link
-                        href={`/p/${service.id}`}
-                        className="inline-flex items-center justify-center gap-1 px-3.5 py-2 bg-slate-900 dark:bg-slate-800 hover:bg-slate-850 dark:hover:bg-slate-750 text-white font-extrabold text-xs rounded-xl shadow-sm transition cursor-pointer active:scale-95"
-                      >
-                        <span>Portfolio</span>
-                        <ExternalLink className="h-3 w-3" />
-                      </Link>
-
                       {/* DIRECT GREEN CALL BUTTON */}
                       {hasContacts && directPhone && (
                         <a
@@ -939,6 +983,20 @@ export default function ServicesPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Live Viewers Badge */}
+      {liveViewers > 0 && (
+        <div className="fixed bottom-5 right-5 z-40 flex items-center gap-1.5 px-3 py-1.5 bg-slate-900/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-700/50 rounded-full shadow-lg">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+          </span>
+          <Users className="h-3 w-3 text-slate-400" />
+          <span className="text-[10px] font-bold text-slate-300">
+            {liveViewers} viewing
+          </span>
+        </div>
+      )}
     </div>
   );
 }

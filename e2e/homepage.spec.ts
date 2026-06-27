@@ -26,7 +26,7 @@ test.describe("GullyGig Landing Page E2E Tests", () => {
     await ctaButton.click();
 
     // Verify redirect to register page
-    await expect(page).toHaveURL(/\/register/);
+    await expect(page).toHaveURL(/\/Auth\?mode=register/);
 
     // Verify form is visible
     await expect(page.locator('h2:has-text("Sign Up")')).toBeVisible();

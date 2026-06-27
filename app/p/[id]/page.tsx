@@ -23,16 +23,45 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   },
 });
 
-// Fetch function to load portfolio data
-async function getPortfolioData(id: string) {
+/**
+ * Loads portfolio data for a service identifier or slug.
+ *
+ * @param idOrSlug - The service UUID or slug suffix to resolve
+ * @returns The portfolio service data and associated reviews, or `null` if the portfolio cannot be resolved or loaded
+ */
+async function getPortfolioData(idOrSlug: string) {
   try {
+    let resolvedId = idOrSlug;
+
+    // Check if idOrSlug is a valid UUID
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(idOrSlug)) {
+      // It's a slug, e.g. "guitar-lessons-uuid-here"
+      // Extract the UUID from the end
+      const parts = idOrSlug.split("-");
+      // The last 5 parts should be the UUID (8-4-4-4-12 hex segments)
+      if (parts.length >= 5) {
+        const possibleUuid = parts.slice(-5).join("-");
+        if (uuidRegex.test(possibleUuid)) {
+          resolvedId = possibleUuid;
+        } else {
+          console.error(`Invalid UUID in slug: ${idOrSlug}`);
+          return null;
+        }
+      } else {
+        console.error(`Invalid slug format: ${idOrSlug}`);
+        return null;
+      }
+    }
+
     // 1. Fetch service detail with user profile and analytics
     const { data: serviceData, error: serviceError } = await supabaseAdmin
       .from("services")
       .select(
         "*, users:user_id(full_name, location, about, phone_no, created_at, social_links), service_analytics(*)",
       )
-      .eq("id", id)
+      .eq("id", resolvedId)
       .single();
 
     if (serviceError || !serviceData) {
@@ -50,7 +79,7 @@ async function getPortfolioData(id: string) {
     const { data: reviewsData } = await supabaseAdmin
       .from("service_ratings")
       .select("*, users:user_id(full_name)")
-      .eq("service_id", id)
+      .eq("service_id", resolvedId)
       .order("created_at", { ascending: false });
 
     return {
@@ -132,6 +161,11 @@ export async function generateMetadata({
   };
 }
 
+/**
+ * Renders the public portfolio page for the requested portfolio identifier.
+ *
+ * @returns The portfolio page for a matching service, or a not found message when no service is available.
+ */
 export default async function PublicPortfolioPage({ params }: PageProps) {
   const { id } = await params;
   const data = await getPortfolioData(id);
@@ -139,7 +173,7 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
   if (!data || !data.service) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4 font-sans transition-colors duration-300">
-        <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl max-w-md w-full text-center space-y-4">
+        <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl max-w-none w-full text-center space-y-4">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto" />
           <h2 className="text-lg font-extrabold text-slate-850 dark:text-slate-105">
             Portfolio Not Found

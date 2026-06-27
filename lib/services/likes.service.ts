@@ -16,6 +16,7 @@ export interface LikeResult {
   alreadyUnliked?: boolean;
   message?: string;
   error?: string;
+  errorCode?: "CLIENT_ERROR" | "SERVER_ERROR";
 }
 
 /**
@@ -52,8 +53,14 @@ async function getLikesCount(serviceId: string): Promise<number> {
 }
 
 /**
- * Toggle like/unlike on a service.
- * Validates that the user is not the service owner.
+ * Toggles a user's like on a service listing.
+ *
+ * Prevents the service owner from liking their own listing and keeps the stored like count in sync after a change.
+ *
+ * @param userId - The user performing the action
+ * @param serviceId - The service listing being updated
+ * @param action - The like action to apply
+ * @returns A result indicating whether the operation succeeded, the current liked state, and the updated likes count
  */
 export async function toggleLike(
   userId: string,
@@ -61,7 +68,11 @@ export async function toggleLike(
   action: "like" | "unlike",
 ): Promise<LikeResult> {
   if (!supabaseAdmin) {
-    return { success: false, error: "Service unavailable" };
+    return {
+      success: false,
+      error: "Service unavailable",
+      errorCode: "SERVER_ERROR",
+    };
   }
 
   // Prevent self-like
@@ -75,6 +86,7 @@ export async function toggleLike(
     return {
       success: false,
       error: "You cannot like your own service listing.",
+      errorCode: "CLIENT_ERROR",
     };
   }
 
@@ -126,7 +138,15 @@ export async function toggleLike(
           message: "You already liked this service",
         };
       }
-      return { success: false, error: insertError.message };
+      console.error(
+        "Database error adding like to service_likes:",
+        insertError,
+      );
+      return {
+        success: false,
+        error: "Failed to like this service. Please try again.",
+        errorCode: "SERVER_ERROR",
+      };
     }
   } else {
     const { error: deleteError } = await supabaseAdmin
@@ -136,7 +156,15 @@ export async function toggleLike(
       .eq("user_id", userId);
 
     if (deleteError) {
-      return { success: false, error: deleteError.message };
+      console.error(
+        "Database error removing like from service_likes:",
+        deleteError,
+      );
+      return {
+        success: false,
+        error: "Failed to unlike this service. Please try again.",
+        errorCode: "SERVER_ERROR",
+      };
     }
   }
 

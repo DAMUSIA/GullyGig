@@ -22,6 +22,7 @@ import {
   ShieldCheck,
   Eye,
   Award,
+  AlertCircle,
 } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
@@ -125,22 +126,33 @@ const formatMonthYear = (dateStr?: string) => {
   return `${months[d.getMonth()]} ${d.getFullYear()}`;
 };
 
+/**
+ * Renders the client-side service portfolio page.
+ *
+ * @param initialService - The service listing and provider data to display.
+ * @param initialReviews - The initial set of reviews for the listing.
+ * @param portfolioId - The portfolio identifier used to build share and QR links.
+ * @returns The portfolio page content.
+ */
 export default function PortfolioPageClient({
   initialService,
   initialReviews,
   portfolioId,
 }: PortfolioPageClientProps) {
   // Theme state
-  const [darkMode, setDarkMode] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      const savedTheme = localStorage.getItem("theme");
-      const systemPrefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)",
-      ).matches;
-      return savedTheme === "dark" || (!savedTheme && systemPrefersDark);
-    }
-    return false;
-  });
+  const [mounted, setMounted] = useState(false);
+  const [darkMode, setDarkMode] = useState<boolean>(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+    const savedTheme = localStorage.getItem("theme");
+    const systemPrefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)",
+    ).matches;
+
+    setDarkMode(savedTheme === "dark" || (!savedTheme && systemPrefersDark));
+  }, []);
 
   // Auth & Interactions
   const [user, setUser] = useState<SupabaseUser | null>(null);
@@ -176,9 +188,9 @@ export default function PortfolioPageClient({
   const [copiedPhoneIdx, setCopiedPhoneIdx] = useState<number | null>(null);
   const [showShareDropdown, setShowShareDropdown] = useState(false);
 
-  // IMPORTANT: Generate portfolio URL using the ID
+  // IMPORTANT: Generate portfolio URL using the ID and title
   // This will be the same on both server and client because we're using the ID
-  const portfolioUrl = getPortfolioUrl(portfolioId);
+  const portfolioUrl = getPortfolioUrl(portfolioId, initialService.title);
 
   // Store QR code URL and share text in state to avoid hydration mismatch
   const [qrCodeUrl, setQrCodeUrl] = useState("");
@@ -542,10 +554,14 @@ ${fullPortfolioUrl}
           className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-800 transition shadow-xs cursor-pointer"
           title="Toggle Light/Dark Theme"
         >
-          {darkMode ? (
-            <Sun className="h-5 w-5 text-amber-500" />
+          {mounted ? (
+            darkMode ? (
+              <Sun className="h-5 w-5 text-amber-500" />
+            ) : (
+              <Moon className="h-5 w-5 text-indigo-650" />
+            )
           ) : (
-            <Moon className="h-5 w-5 text-indigo-650" />
+            <div className="h-5 w-5" />
           )}
         </button>
       </div>
@@ -910,7 +926,12 @@ ${fullPortfolioUrl}
               {/* Leave Review Form */}
               <div className="border-t border-slate-100 dark:border-slate-800/60 pt-6 space-y-4">
                 <h4 className="text-sm font-extrabold">Write a Review</h4>
-                {userHasReviewed ? (
+                {user && user.id === initialService.user_id ? (
+                  <div className="p-4 bg-amber-500/5 border border-amber-500/15 rounded-2xl text-xs font-semibold text-amber-650 dark:text-amber-450 flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 shrink-0 text-amber-500" />
+                    <span>You cannot review your own service listing.</span>
+                  </div>
+                ) : userHasReviewed ? (
                   <div className="p-4 bg-blue-500/5 border border-blue-500/10 rounded-2xl text-xs font-semibold text-blue-650 dark:text-blue-400">
                     You have already submitted a review for this service
                     provider. Thank you for your feedback!
@@ -1200,73 +1221,75 @@ ${fullPortfolioUrl}
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-2.5">
-                {/* WhatsApp - Primary */}
-                <a
-                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center justify-center gap-2 py-2.5 px-3 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-950/50 border border-emerald-200/50 dark:border-emerald-800/30 text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-emerald-200 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
-                >
-                  <MessageCircle className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                  <span>WhatsApp</span>
-                </a>
-
-                {/* Telegram */}
-                <a
-                  href={`https://t.me/share/url?url=${encodeURIComponent(portfolioUrl)}&text=${encodeURIComponent(shareText)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center justify-center gap-2 py-2.5 px-3 bg-sky-50 dark:bg-sky-950/30 hover:bg-sky-100 dark:hover:bg-sky-950/50 border border-sky-200/50 dark:border-sky-800/30 text-sky-700 dark:text-sky-300 hover:text-sky-800 dark:hover:text-sky-200 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
-                >
-                  <Send className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                  <span>Telegram</span>
-                </a>
-
-                {/* LinkedIn */}
-                <a
-                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(portfolioUrl)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center justify-center gap-2 py-2.5 px-3 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-950/50 border border-blue-200/50 dark:border-blue-800/30 text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
-                >
-                  <svg
-                    className="h-4 w-4 group-hover:scale-110 transition-transform"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+              {mounted && (
+                <div className="grid grid-cols-2 gap-2.5">
+                  {/* WhatsApp - Primary */}
+                  <a
+                    href={`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-center gap-2 py-2.5 px-3 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-950/50 border border-emerald-200/50 dark:border-emerald-800/30 text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-emerald-200 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
                   >
-                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-                    <rect width="4" height="12" x="2" y="9" />
-                    <circle cx="4" cy="4" r="2" />
-                  </svg>
-                  <span>LinkedIn</span>
-                </a>
+                    <MessageCircle className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                    <span>WhatsApp</span>
+                  </a>
 
-                {/* Facebook */}
-                <a
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(portfolioUrl)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center justify-center gap-2 py-2.5 px-3 bg-indigo-50 dark:bg-indigo-950/30 hover:bg-indigo-100 dark:hover:bg-indigo-950/50 border border-indigo-200/50 dark:border-indigo-800/30 text-indigo-700 dark:text-indigo-300 hover:text-indigo-800 dark:hover:text-indigo-200 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
-                >
-                  <svg
-                    className="h-4 w-4 group-hover:scale-110 transition-transform"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                  {/* Telegram */}
+                  <a
+                    href={`https://t.me/share/url?url=${encodeURIComponent(portfolioUrl)}&text=${encodeURIComponent(shareText)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-center gap-2 py-2.5 px-3 bg-sky-50 dark:bg-sky-950/30 hover:bg-sky-100 dark:hover:bg-sky-950/50 border border-sky-200/50 dark:border-sky-800/30 text-sky-700 dark:text-sky-300 hover:text-sky-800 dark:hover:text-sky-200 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
                   >
-                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-                  </svg>
-                  <span>Facebook</span>
-                </a>
-              </div>
+                    <Send className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                    <span>Telegram</span>
+                  </a>
+
+                  {/* LinkedIn */}
+                  <a
+                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(portfolioUrl)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-center gap-2 py-2.5 px-3 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-950/50 border border-blue-200/50 dark:border-blue-800/30 text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+                  >
+                    <svg
+                      className="h-4 w-4 group-hover:scale-110 transition-transform"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                      <rect width="4" height="12" x="2" y="9" />
+                      <circle cx="4" cy="4" r="2" />
+                    </svg>
+                    <span>LinkedIn</span>
+                  </a>
+
+                  {/* Facebook */}
+                  <a
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(portfolioUrl)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-center gap-2 py-2.5 px-3 bg-indigo-50 dark:bg-indigo-950/30 hover:bg-indigo-100 dark:hover:bg-indigo-950/50 border border-indigo-200/50 dark:border-indigo-800/30 text-indigo-700 dark:text-indigo-300 hover:text-indigo-800 dark:hover:text-indigo-200 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+                  >
+                    <svg
+                      className="h-4 w-4 group-hover:scale-110 transition-transform"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                    </svg>
+                    <span>Facebook</span>
+                  </a>
+                </div>
+              )}
 
               {/* Copy Link */}
               <button
@@ -1389,7 +1412,7 @@ ${fullPortfolioUrl}
             onClick={() => setShowAuthModal(false)}
             className="absolute inset-0 bg-slate-950/60 backdrop-blur-md cursor-pointer"
           />
-          <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-850 rounded-3xl p-6 shadow-2xl z-10 flex flex-col gap-5 text-center animate-in zoom-in-95 duration-200">
+          <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-850 rounded-3xl p-6 shadow-2xl z-10 flex flex-col gap-5 text-center animate-in zoom-in-95 duration-200">
             <div className="w-12 h-12 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto">
               <ShieldCheck className="h-6 w-6" />
             </div>
@@ -1404,13 +1427,13 @@ ${fullPortfolioUrl}
 
             <div className="flex flex-col gap-2 pt-2">
               <a
-                href={`/login?redirect=${encodeURIComponent(window.location.pathname)}`}
+                href={`/Auth?redirect=${encodeURIComponent(window.location.pathname)}`}
                 className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold rounded-2xl transition shadow-md shadow-blue-500/10 cursor-pointer"
               >
                 Log In
               </a>
               <a
-                href={`/register?redirect=${encodeURIComponent(window.location.pathname)}`}
+                href={`/Auth?mode=register&redirect=${encodeURIComponent(window.location.pathname)}`}
                 className="w-full py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-extrabold rounded-2xl transition cursor-pointer"
               >
                 Create Free Account

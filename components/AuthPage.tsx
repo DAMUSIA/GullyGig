@@ -5,7 +5,13 @@ import Image from "next/image";
 import { signIn, getCurrentUser } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
+/**
+ * Renders the authentication page with login, registration, and Google sign-in flows.
+ *
+ * @param defaultMode - The initial mode to display.
+ */
 export default function AuthPage({
   defaultMode,
 }: {
@@ -32,10 +38,9 @@ export default function AuthPage({
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
-      if (path === "/register") {
-        setMode("register");
-      } else if (path === "/login") {
-        setMode("login");
+      const params = new URLSearchParams(window.location.search);
+      if (path === "/Auth") {
+        setMode(params.get("mode") === "register" ? "register" : "login");
       }
     };
     window.addEventListener("popstate", handlePopState);
@@ -89,7 +94,11 @@ export default function AuthPage({
     setPassword("");
     setIsLoading(false);
     setIsGoogleLoading(false);
-    window.history.pushState(null, "", `/${newMode}`);
+    window.history.pushState(
+      null,
+      "",
+      newMode === "register" ? "/Auth?mode=register" : "/Auth",
+    );
     setMode(newMode);
   };
 
@@ -303,8 +312,8 @@ export default function AuthPage({
             ))}
           </div>
 
-          <div className="relative z-10">
-            <div className="relative h-12 w-26 sm:h-28 sm:w-28 overflow-hidden mb-8">
+          <div className="relative z-10 flex flex-col items-start">
+            <div className="relative h-46 w-56 overflow-hidden">
               <Image
                 src="/logo_light.png"
                 alt="Logo"
@@ -313,8 +322,8 @@ export default function AuthPage({
               />
             </div>
 
-            <p className="text-white/70 text-sm mt-3 leading-relaxed">
-              Bridge the gap between local talent and community needs
+            <p className="text-white/70 text-md mt-1 leading-none">
+              Opportunity Starts Here
             </p>
           </div>
         </div>
@@ -497,7 +506,22 @@ export default function AuthPage({
                     style={{ accentColor: primaryColor }}
                   />
                   <span className="text-gray-600">
-                    I agree to the Terms & Conditions
+                    I agree to the{" "}
+                    <Link
+                      href="/legal?tab=terms"
+                      target="_blank"
+                      className="text-blue-600 hover:underline font-bold"
+                    >
+                      Terms & Conditions
+                    </Link>{" "}
+                    and{" "}
+                    <Link
+                      href="/legal?tab=privacy"
+                      target="_blank"
+                      className="text-blue-600 hover:underline font-bold"
+                    >
+                      Privacy Policy
+                    </Link>
                   </span>
                 </label>
               )}

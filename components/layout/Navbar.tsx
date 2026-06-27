@@ -19,6 +19,13 @@ const NAV_LINKS = [
   { name: "Our Team", href: "/team", id: "team" },
 ];
 
+/**
+ * Renders the site navbar with section highlighting, theme switching, and responsive navigation.
+ *
+ * @param darkMode - Controls the theme-dependent logo and theme toggle icon.
+ * @param onToggleDarkMode - Handles theme toggle button clicks.
+ * @returns The navbar header element.
+ */
 export default function Navbar({ darkMode, onToggleDarkMode }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -109,7 +116,7 @@ export default function Navbar({ darkMode, onToggleDarkMode }: NavbarProps) {
                - Desktop size is set by classes `sm:h-16 sm:w-16` (64px)
                To make the logo larger or smaller, adjust these Tailwind classes.
             */
-            className="flex h-12 w-26 sm:h-28 sm:w-28 items-center justify-center rounded-xl overflow-hidden"
+            className="flex h-30 w-34 sm:h-28 sm:w-28 items-center justify-center rounded-xl overflow-hidden"
           >
             <Image
               src={darkMode ? "/logo_light.png" : "/logo_dark.png"}
@@ -176,13 +183,13 @@ export default function Navbar({ darkMode, onToggleDarkMode }: NavbarProps) {
           {/* Authentication Actions */}
           <div className="hidden sm:flex items-center gap-3">
             <Link
-              href="/login"
+              href="/Auth"
               className="px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-brand-primary dark:hover:text-brand-primary transition-colors active:scale-95"
             >
               Sign In
             </Link>
             <Link
-              href="/register"
+              href="/Auth?mode=register"
               className="px-6 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-bold shadow-lg shadow-brand-primary/25 hover:shadow-xl hover:shadow-brand-primary/40 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 text-center"
             >
               Register Now
@@ -251,14 +258,14 @@ export default function Navbar({ darkMode, onToggleDarkMode }: NavbarProps) {
                 className="flex flex-col gap-3 pt-6 pb-2"
               >
                 <Link
-                  href="/login"
+                  href="/Auth"
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full text-center text-sm font-bold text-slate-700 dark:text-slate-200 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200/50 dark:border-slate-700/50 active:scale-95"
                 >
                   Sign In
                 </Link>
                 <Link
-                  href="/register"
+                  href="/Auth?mode=register"
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full text-center text-sm font-bold text-white py-3 rounded-xl bg-brand-primary hover:bg-brand-primary-dark transition-colors shadow-lg shadow-brand-primary/20 active:scale-95"
                 >

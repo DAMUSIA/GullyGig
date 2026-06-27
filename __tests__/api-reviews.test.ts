@@ -252,6 +252,7 @@ describe("POST /api/reviews", () => {
     mockPostReview.mockResolvedValueOnce({
       success: false,
       error: "Service listing not found.",
+      errorCode: "NOT_FOUND",
     });
     const req = makeAuthRequest(
       "http://localhost/api/reviews",

@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Globe,
-  Copy,
   ExternalLink,
   Sparkles,
   BarChart3,
@@ -15,9 +14,11 @@ import {
   MessageSquare,
   Star,
   FileImage,
+  CheckCircle,
+  X,
 } from "lucide-react";
 import { getCurrentUser, supabase } from "@/lib/supabase";
-import { getPortfolioUrl } from "@/lib/url";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ServiceItem {
   id: string;
@@ -39,13 +40,30 @@ interface ServiceItem {
   } | null;
 }
 
+/**
+ * Displays the user's portfolio dashboard with service selection, poster generation, performance metrics, and status messages.
+ */
 export default function DashboardPortfolioPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
-  const [copied, setCopied] = useState(false);
+  const [posterLoading, setPosterLoading] = useState(false);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+
+  const showToast = (
+    message: string,
+    type: "success" | "error" = "success",
+  ) => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast(null);
+    }, 4000);
+  };
 
   useEffect(() => {
     async function loadPortfolioServices() {
@@ -55,7 +73,7 @@ export default function DashboardPortfolioPage() {
           user: { id: string } | null;
         };
         if (!user) {
-          router.push("/login");
+          router.push("/Auth");
           return;
         }
 
@@ -102,28 +120,42 @@ export default function DashboardPortfolioPage() {
 
   const activeService = services.find((s) => s.id === selectedServiceId);
 
-  // Use the centralized URL utility
-  const portfolioUrl = activeService ? getPortfolioUrl(activeService.id) : "";
-
-  const handleCopyLink = async () => {
-    if (!portfolioUrl) return;
-    try {
-      await navigator.clipboard.writeText(portfolioUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy URL:", err);
-    }
-  };
-
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-10 w-10 animate-spin text-blue-600 mx-auto" />
-          <p className="text-sm font-semibold text-slate-500 mt-3">
-            Loading portfolio options...
-          </p>
+      <div className="space-y-6 pb-20 max-w-[1200px] mx-auto animate-pulse">
+        {/* Selector and Main Head Skeleton */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 border border-slate-200 rounded-3xl h-24 shadow-xs">
+          <div className="h-6 bg-slate-200 rounded-lg w-48" />
+          <div className="h-10 bg-slate-200 rounded-xl w-60" />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column Skeleton */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Shareable Link Box Skeleton */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 h-56 shadow-xs space-y-4">
+              <div className="h-5 bg-slate-200 rounded-lg w-32" />
+              <div className="h-4 bg-slate-200 rounded-lg w-full" />
+              <div className="h-4 bg-slate-200 rounded-lg w-2/3" />
+              <div className="h-12 bg-slate-200 rounded-2xl w-full" />
+            </div>
+            {/* Poster Launch Box Skeleton */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 h-36 shadow-xs flex items-center justify-between">
+              <div className="space-y-2">
+                <div className="h-5 bg-slate-200 rounded-lg w-40" />
+                <div className="h-4 bg-slate-200 rounded-lg w-64" />
+              </div>
+              <div className="h-12 bg-slate-200 rounded-2xl w-36" />
+            </div>
+          </div>
+
+          {/* Right Column Skeleton */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 h-[400px] shadow-xs space-y-4">
+            <div className="h-5 bg-slate-200 rounded-lg w-44" />
+            <div className="h-20 bg-slate-100 border border-slate-200/40 rounded-2xl" />
+            <div className="h-20 bg-slate-100 border border-slate-200/40 rounded-2xl" />
+            <div className="h-20 bg-slate-100 border border-slate-200/40 rounded-2xl" />
+          </div>
         </div>
       </div>
     );
@@ -216,48 +248,31 @@ export default function DashboardPortfolioPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column: Link sharing and poster generation */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Shareable Link Box */}
+            {/* Portfolio Link Card */}
             <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-4">
               <h3 className="text-sm font-extrabold text-slate-800 flex items-center gap-1.5">
                 <Globe className="h-4.5 w-4.5 text-blue-600" />
                 Portfolio Link
               </h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
+              <p className="text-xs text-slate-500 leading-relaxed font-medium">
                 This public, shareable URL displays your service details,
                 languages, pricing, contact buttons, reviews, and a scan-to-call
                 QR code. Perfect for sharing on WhatsApp status or social media.
               </p>
 
-              <div className="flex items-center gap-2.5 bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                <span className="text-xs font-bold text-slate-700 truncate flex-1 select-all px-1">
-                  {portfolioUrl}
-                </span>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleCopyLink}
-                    className="inline-flex items-center gap-1 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-650 text-xs font-bold rounded-xl border border-slate-200 transition cursor-pointer active:scale-95 shrink-0"
-                  >
-                    {copied ? (
-                      <span className="text-green-600">Copied!</span>
-                    ) : (
-                      <>
-                        <Copy className="h-3.5 w-3.5" />
-                        <span>Copy</span>
-                      </>
-                    )}
-                  </button>
-
-                  <a
-                    href={`/p/${activeService.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition cursor-pointer active:scale-95 shrink-0"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    <span>Open Portfolio</span>
-                  </a>
-                </div>
+              <div className="pt-2">
+                <button
+                  onClick={() =>
+                    showToast(
+                      "View Portfolio feature is currently under maintenance.",
+                      "error",
+                    )
+                  }
+                  className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-2xl transition cursor-pointer active:scale-95 shadow-md shadow-blue-500/10"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  <span>View Portfolio</span>
+                </button>
               </div>
             </div>
 
@@ -281,13 +296,23 @@ export default function DashboardPortfolioPage() {
               </div>
 
               <button
-                onClick={() =>
-                  router.push(`/dashboard/portfolio/poster/${activeService.id}`)
-                }
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold rounded-2xl transition cursor-pointer active:scale-95 shrink-0 shadow-md shadow-blue-500/10"
+                onClick={() => {
+                  setPosterLoading(true);
+                  router.push(
+                    `/dashboard/portfolio/poster/${activeService.id}`,
+                  );
+                }}
+                disabled={posterLoading}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-2xl transition cursor-pointer active:scale-95 shrink-0 shadow-md shadow-blue-500/10 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <FileImage className="h-4 w-4" />
-                <span>Generate Poster</span>
+                {posterLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <FileImage className="h-4 w-4" />
+                )}
+                <span>
+                  {posterLoading ? "Generating..." : "Generate Poster"}
+                </span>
               </button>
             </div>
           </div>
@@ -381,6 +406,36 @@ export default function DashboardPortfolioPage() {
           </div>
         </div>
       )}
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:right-6 md:translate-x-0 z-[9999] flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-white shadow-2xl text-xs font-bold whitespace-nowrap"
+          >
+            {toast.type === "success" ? (
+              <div className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
+                <CheckCircle className="w-4 h-4" />
+              </div>
+            ) : (
+              <div className="w-5 h-5 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center shrink-0">
+                <AlertCircle className="w-4 h-4" />
+              </div>
+            )}
+            <span>{toast.message}</span>
+            <button
+              type="button"
+              onClick={() => setToast(null)}
+              className="ml-2 hover:text-slate-350 text-slate-500 transition-colors cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

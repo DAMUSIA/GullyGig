@@ -755,18 +755,26 @@ export default function CreateServicePage() {
               >
                 About Your Service{" "}
                 <span className="text-slate-400 font-normal">(Optional)</span>
+                <span className="text-xs font-normal text-gray-400 ml-2">
+                  (Max 500 characters)
+                </span>
               </label>
               <textarea
                 id="teaching-description"
                 rows={4}
                 value={formData.description}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }))
-                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Limit to 500 characters
+                  if (value.length <= 100) {
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: value,
+                    }));
+                  }
+                }}
                 placeholder="Describe what you do and who you help."
+                maxLength={100}
                 className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 leading-relaxed font-sans resize-none"
               />
               <div className="flex items-center justify-between">
@@ -774,6 +782,9 @@ export default function CreateServicePage() {
                   Optional: Add details to help Customers/parents understand
                   your teaching style.
                 </p>
+                <span className="text-[10px] text-slate-400">
+                  {formData.description.length}/100
+                </span>
               </div>
             </div>
           </div>
@@ -1041,3 +1052,5 @@ export default function CreateServicePage() {
     </div>
   );
 }
+
+//

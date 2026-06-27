@@ -766,7 +766,7 @@ export default function CreateServicePage() {
                 onChange={(e) => {
                   const value = e.target.value;
                   // Limit to 500 characters
-                  if (value.length <=100) {
+                  if (value.length <= 100) {
                     setFormData((prev) => ({
                       ...prev,
                       description: value,

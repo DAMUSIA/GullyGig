@@ -180,11 +180,14 @@ export default function CreateServicePage() {
     });
   };
 
-  // Handle Title input change
+  // Handle Title input change - Limited to 80 characters
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    setIsTitleManuallyEdited(true);
-    setFormData((prev) => ({ ...prev, title: val }));
+    // Limit to 80 characters
+    if (val.length <= 80) {
+      setIsTitleManuallyEdited(true);
+      setFormData((prev) => ({ ...prev, title: val }));
+    }
   };
 
   // Toggle multi-select mode chips
@@ -226,8 +229,9 @@ export default function CreateServicePage() {
   // VALIDATION - Only essential fields required
   // ============================================
   const isFormValid = () => {
-    // ESSENTIAL: Title is required (min 3 chars)
-    if (formData.title.trim().length < 3) return false;
+    // ESSENTIAL: Title is required (min 3 chars, max 80 chars)
+    const titleLength = formData.title.trim().length;
+    if (titleLength < 3 || titleLength > 80) return false;
 
     // ESSENTIAL: Category is required
     if (formData.category === "") return false;
@@ -402,8 +406,10 @@ export default function CreateServicePage() {
         )
           return false;
         return true;
-      case 2:
-        return formData.title.trim().length >= 3;
+      case 2: {
+        const titleLength = formData.title.trim().length;
+        return titleLength >= 3 && titleLength <= 80;
+      }
       case 8: {
         const contacts = formData.contact_numbers || [];
         if (contacts.length === 0) return false;
@@ -451,7 +457,12 @@ export default function CreateServicePage() {
                   Service Title <span className="text-red-500">*</span>
                 </label>
                 <span
-                  className={`text-[10px] font-semibold ${formData.title.trim().length >= 3 ? "text-slate-400" : "text-amber-500"}`}
+                  className={`text-[10px] font-semibold ${
+                    formData.title.trim().length >= 3 &&
+                    formData.title.trim().length <= 80
+                      ? "text-slate-400"
+                      : "text-amber-500"
+                  }`}
                 >
                   {formData.title.trim().length} / 80
                 </span>
@@ -463,10 +474,12 @@ export default function CreateServicePage() {
                 value={formData.title}
                 onChange={handleTitleChange}
                 placeholder="e.g. Private Mathematics Tutor"
+                maxLength={80}
                 className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 font-medium"
               />
               <p className="text-[10px] text-slate-400">
-                Minimum 3 characters. Suggestive based on category.
+                Minimum 3 characters, maximum 80 characters. Suggestive based on
+                category.
               </p>
             </div>
           </div>

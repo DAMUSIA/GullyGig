@@ -149,6 +149,10 @@ export default function AuthPage({
         setError("Full name is required");
         return;
       }
+      if (fullName.length > 40) {
+        setError("Full name must be at most 40 characters");
+        return;
+      }
       const cleanPhone = phoneNo.replace(/\D/g, "");
       if (cleanPhone.length !== 10) {
         setError("Please enter a valid 10-digit phone number");
@@ -386,6 +390,7 @@ export default function AuthPage({
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         disabled={isLoading || isGoogleLoading}
+                        maxLength={40}
                         className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-all duration-200"
                         placeholder="Enter your full name"
                         required={mode === "register"}

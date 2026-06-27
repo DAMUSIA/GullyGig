@@ -150,7 +150,7 @@ export default function PortfolioPageClient({
     const systemPrefersDark = window.matchMedia(
       "(prefers-color-scheme: dark)",
     ).matches;
-     
+
     setDarkMode(savedTheme === "dark" || (!savedTheme && systemPrefersDark));
   }, []);
 

@@ -1,4 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+
+vi.mock("../lib/supabase-admin", () => ({
+  supabaseAdmin: {},
+}));
+
+vi.mock("../lib/rate-limit", () => ({
+  rateLimit: vi.fn(),
+  getIdentifier: vi.fn(),
+}));
 
 describe("signup route coverage bump", () => {
   it("imports signup route", async () => {

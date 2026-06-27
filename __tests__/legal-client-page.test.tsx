@@ -137,7 +137,9 @@ describe("LegalClientPage – activeTab logic", () => {
     );
 
     // Terms content heading should be rendered
-    expect(screen.getByText("Terms of Service")).toBeTruthy();
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Terms of Service" }),
+    ).toBeTruthy();
   });
 
   it("shows terms tab content when tab=terms", () => {
@@ -163,7 +165,9 @@ describe("LegalClientPage – activeTab logic", () => {
       />,
     );
 
-    expect(screen.getByText("Privacy Policy")).toBeTruthy();
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Privacy Policy" }),
+    ).toBeTruthy();
     expect(screen.getByText("1. Who We Are")).toBeTruthy();
   });
 

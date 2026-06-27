@@ -732,23 +732,31 @@ export default function ServicesPage() {
               return (
                 <div
                   key={service.id}
-                  className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl p-5 md:p-6 hover:shadow-lg dark:hover:shadow-blue-500/2 transition-all duration-300 flex flex-col justify-between gap-4 relative group"
+                  className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl p-4 sm:p-5 hover:shadow-lg dark:hover:shadow-blue-500/2 transition-all duration-300 flex flex-col justify-between gap-3.5 relative group"
                 >
                   {/* Top Header Row */}
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                    <div className="flex items-center gap-3.5">
+                    <div className="flex items-center gap-3 min-w-0">
                       {/* Initials Avatar */}
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-primary to-indigo-650 dark:from-brand-primary-dark dark:to-indigo-500 text-white flex items-center justify-center font-extrabold text-sm shadow-sm shrink-0">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-primary to-indigo-650 dark:from-brand-primary-dark dark:to-indigo-500 text-white flex items-center justify-center font-extrabold text-xs shadow-sm shrink-0">
                         {getInitials(service.users?.full_name)}
                       </div>
 
-                      <div className="space-y-0.5 text-left">
-                        <span className="text-[9px] font-extrabold text-brand-primary dark:text-blue-400 bg-brand-bg-light dark:bg-slate-950 px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-blue-100/30 dark:border-blue-900/30">
+                      <div className="space-y-0.5 text-left min-w-0">
+                        <span
+                          className="text-[9px] font-bold text-brand-primary dark:text-blue-400 bg-brand-bg-light dark:bg-slate-950 px-2.5 py-0.5 rounded uppercase tracking-wider border border-blue-100/30 dark:border-blue-900/30 truncate max-w-[120px] inline-block align-bottom"
+                          title={service.category}
+                        >
                           {service.category}
                         </span>
-                        <h4 className="text-[11px] font-bold text-slate-400 dark:text-slate-500 mt-1">
+                        <h4 className="text-[10px] font-medium text-slate-400 dark:text-slate-500 mt-0.5 truncate">
                           Made by{" "}
-                          <span className="font-extrabold text-slate-700 dark:text-slate-350">
+                          <span
+                            className="font-semibold text-slate-650 dark:text-slate-400 truncate max-w-[120px] sm:max-w-[180px] inline-block align-bottom"
+                            title={
+                              service.users?.full_name || "Verified Provider"
+                            }
+                          >
                             {service.users?.full_name || "Verified Provider"}
                           </span>
                         </h4>
@@ -756,10 +764,10 @@ export default function ServicesPage() {
                     </div>
 
                     {/* Likes & Rating Read-only Indicators */}
-                    <div className="flex items-center gap-2.5 self-start sm:self-center bg-slate-50 dark:bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-slate-850">
+                    <div className="flex items-center gap-2 self-start sm:self-center bg-slate-50/80 dark:bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-100 dark:border-slate-850 shrink-0">
                       <div className="flex items-center gap-1">
-                        <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 shrink-0" />
-                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        <Star className="h-3 w-3 fill-amber-400 text-amber-400 shrink-0" />
+                        <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
                           {service.rating_average
                             ? Number(service.rating_average).toFixed(1)
                             : "0.0"}
@@ -768,10 +776,10 @@ export default function ServicesPage() {
                           ({service.reviews_count || 0})
                         </span>
                       </div>
-                      <div className="h-2.5 w-[1px] bg-slate-200 dark:bg-slate-850" />
+                      <div className="h-2 w-[1px] bg-slate-200 dark:border-slate-850" />
                       <div className="flex items-center gap-1">
-                        <Heart className="h-3.5 w-3.5 fill-red-500 text-red-500 shrink-0" />
-                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        <Heart className="h-3 w-3 fill-red-500 text-red-500 shrink-0" />
+                        <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
                           {service.likes_count || 0}
                         </span>
                       </div>
@@ -779,28 +787,34 @@ export default function ServicesPage() {
                   </div>
 
                   {/* Middle Content */}
-                  <div className="space-y-3.5 text-left">
-                    <h3 className="text-lg font-extrabold text-slate-900 dark:text-white leading-snug group-hover:text-brand-primary dark:group-hover:text-blue-400 transition-colors">
+                  <div className="space-y-3 text-left">
+                    <h3
+                      className="text-lg font-extrabold text-slate-900 dark:text-white leading-snug group-hover:text-brand-primary dark:group-hover:text-blue-400 transition-colors break-words line-clamp-2"
+                      title={service.title}
+                    >
                       {service.title}
                     </h3>
 
-                    <p className="text-xs md:text-sm text-slate-650 dark:text-slate-355 leading-relaxed whitespace-pre-line bg-blue-50/10 dark:bg-slate-950/30 p-3.5 rounded-xl border border-blue-100/10 dark:border-blue-900/10">
+                    <p className="text-xs md:text-sm text-slate-650 dark:text-slate-355 leading-relaxed whitespace-pre-line bg-blue-50/10 dark:bg-slate-950/30 p-3 rounded-xl border border-blue-100/10 dark:border-blue-900/10 break-words">
                       {service.description}
                     </p>
 
-                    {/* Horizontal badges (More compact) */}
-                    <div className="flex flex-wrap gap-2 pt-0.5">
+                    {/* Horizontal badges (More compact, consistent height, padding, and spacing) */}
+                    <div className="flex flex-wrap gap-1.5 pt-0.5">
                       {service.service_modes &&
                         service.service_modes.length > 0 && (
-                          <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 px-2.5 py-1 rounded-lg">
+                          <div className="inline-flex items-center gap-1 h-6 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 px-2 rounded-md">
                             <Icon
                               name="home"
-                              className="text-[10px] text-slate-400"
+                              className="text-[10px] text-slate-400 shrink-0"
                             />
-                            <span className="text-[9px] font-bold text-slate-450 dark:text-slate-400 uppercase">
+                            <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                               Modes:
                             </span>
-                            <span className="text-[9px] font-extrabold text-slate-750 dark:text-slate-300">
+                            <span
+                              className="text-[9px] font-extrabold text-slate-750 dark:text-slate-300 truncate max-w-[80px] sm:max-w-[120px]"
+                              title={service.service_modes.join(", ")}
+                            >
                               {service.service_modes.join(", ")}
                             </span>
                           </div>
@@ -808,30 +822,36 @@ export default function ServicesPage() {
 
                       {service.availability &&
                         service.availability.length > 0 && (
-                          <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 px-2.5 py-1 rounded-lg">
+                          <div className="inline-flex items-center gap-1 h-6 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 px-2 rounded-md">
                             <Icon
                               name="calendar_today"
-                              className="text-[10px] text-slate-400"
+                              className="text-[10px] text-slate-400 shrink-0"
                             />
-                            <span className="text-[9px] font-bold text-slate-450 dark:text-slate-400 uppercase">
+                            <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                               Availability:
                             </span>
-                            <span className="text-[9px] font-extrabold text-slate-750 dark:text-slate-300">
+                            <span
+                              className="text-[9px] font-extrabold text-slate-750 dark:text-slate-300 truncate max-w-[80px] sm:max-w-[120px]"
+                              title={service.availability.join(", ")}
+                            >
                               {service.availability.join(", ")}
                             </span>
                           </div>
                         )}
 
                       {service.languages && service.languages.length > 0 && (
-                        <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 px-2.5 py-1 rounded-lg">
+                        <div className="inline-flex items-center gap-1 h-6 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 px-2 rounded-md">
                           <Icon
                             name="language"
-                            className="text-[10px] text-slate-400"
+                            className="text-[10px] text-slate-400 shrink-0"
                           />
-                          <span className="text-[9px] font-bold text-slate-450 dark:text-slate-400 uppercase">
+                          <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                             Languages:
                           </span>
-                          <span className="text-[9px] font-extrabold text-slate-750 dark:text-slate-300">
+                          <span
+                            className="text-[9px] font-extrabold text-slate-750 dark:text-slate-300 truncate max-w-[80px] sm:max-w-[120px]"
+                            title={service.languages.join(", ")}
+                          >
                             {service.languages.join(", ")}
                           </span>
                         </div>
@@ -840,72 +860,99 @@ export default function ServicesPage() {
                   </div>
 
                   {/* Info Row: Location & Price */}
-                  <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-850 pt-3">
-                    <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400 font-semibold text-xs max-w-[60%]">
+                  <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-850 pt-3 gap-2">
+                    <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400 font-semibold text-xs min-w-0 flex-1">
                       <MapPin className="h-3.5 w-3.5 text-slate-450 shrink-0" />
-                      <span className="truncate">
+                      <span
+                        className="truncate block"
+                        title={[service.area, service.city]
+                          .filter(Boolean)
+                          .join(", ")}
+                      >
                         {[service.area, service.city]
                           .filter(Boolean)
                           .join(", ")}
                       </span>
                     </div>
 
-                    <span className="text-xs font-black text-brand-primary dark:text-blue-450 shrink-0">
-                      {priceLabel}
-                    </span>
+                    {/* Noticeable Price Tag */}
+                    {service.starting_price ? (
+                      <div className="flex items-baseline gap-1 bg-blue-50/50 dark:bg-blue-950/30 px-2.5 py-1 rounded-lg border border-blue-100/20 dark:border-blue-900/10 shrink-0">
+                        <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">
+                          Starts at
+                        </span>
+                        <span className="text-xs font-black text-brand-primary dark:text-blue-400">
+                          ₹{service.starting_price}
+                        </span>
+                        <span className="text-[9px] text-slate-400 dark:text-slate-500 font-normal">
+                          /
+                          {(service.price_unit || "hour")
+                            .toLowerCase()
+                            .replace("per ", "")}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-50/80 dark:bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-150/60 dark:border-slate-850 shrink-0 uppercase tracking-wider">
+                        Price on Enquiry
+                      </span>
+                    )}
                   </div>
 
-                  {/* Actions Row: Green Direct Call Button alongside Share/Portfolio (UI Improved) */}
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
+                  {/* Actions Row: Phone field and action buttons visually grouped (UI Improved) */}
+                  <div className="bg-slate-50/50 dark:bg-slate-950/40 border border-slate-150/60 dark:border-slate-850/60 rounded-xl p-2.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                     {/* Left: Contact Info (always visible) */}
-                    <div className="flex-1 flex flex-col items-start gap-2">
+                    <div className="flex-1 flex flex-col items-start gap-1.5 min-w-0">
                       {hasContacts ? (
-                        <div className="w-full space-y-1.5">
-                          <div className="overflow-hidden bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl p-2.5 flex flex-col gap-1.5 max-w-none">
-                            {contacts.length > 0 ? (
-                              contacts.map((num, i) => (
-                                <a
-                                  key={i}
-                                  href={`tel:${num}`}
-                                  className="flex items-center gap-1.5 text-xs font-bold text-slate-850 dark:text-slate-200 hover:text-brand-primary dark:hover:text-blue-400 hover:underline"
-                                >
-                                  <Icon
-                                    name="call"
-                                    className="text-xs text-emerald-500"
-                                    fill
-                                  />
-                                  <span>{num}</span>
-                                </a>
-                              ))
-                            ) : (
-                              <a
-                                href={`tel:${phoneFallback}`}
-                                className="flex items-center gap-1.5 text-xs font-bold text-slate-850 dark:text-slate-200 hover:text-brand-primary dark:hover:text-blue-400 hover:underline"
-                              >
-                                <Icon
-                                  name="call"
-                                  className="text-xs text-emerald-500"
-                                  fill
-                                />
-                                <span>{phoneFallback}</span>
-                              </a>
-                            )}
-                          </div>
-                        </div>
+                        contacts.length > 0 ? (
+                          contacts.map((num, i) => (
+                            <a
+                              key={i}
+                              href={`tel:${num}`}
+                              className="flex items-center gap-1.5 text-xs font-bold text-slate-850 dark:text-slate-205 hover:text-brand-primary dark:hover:text-blue-400 hover:underline min-w-0 max-w-full focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none rounded-md px-1 py-0.5"
+                            >
+                              <Icon
+                                name="call"
+                                className="text-xs text-emerald-500 shrink-0"
+                                fill
+                              />
+                              <span className="font-mono truncate" title={num}>
+                                {num}
+                              </span>
+                            </a>
+                          ))
+                        ) : (
+                          <a
+                            href={`tel:${phoneFallback}`}
+                            className="flex items-center gap-1.5 text-xs font-bold text-slate-850 dark:text-slate-205 hover:text-brand-primary dark:hover:text-blue-400 hover:underline min-w-0 max-w-full focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none rounded-md px-1 py-0.5"
+                          >
+                            <Icon
+                              name="call"
+                              className="text-xs text-emerald-500 shrink-0"
+                              fill
+                            />
+                            <span
+                              className="font-mono truncate"
+                              title={phoneFallback || undefined}
+                            >
+                              {phoneFallback}
+                            </span>
+                          </a>
+                        )
                       ) : (
-                        <span className="text-[10px] text-slate-400 font-bold italic">
-                          No direct contact numbers attached.
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold italic">
+                          No direct contact numbers.
                         </span>
                       )}
                     </div>
 
-                    {/* Right: Actions (direct Call green button, Share, Portfolio) */}
+                    {/* Right: Actions (direct Call green button, Share) */}
                     <div className="flex items-center justify-end gap-2 shrink-0">
                       {/* Share Button */}
                       <button
+                        id={`service-share-${service.id}`}
                         onClick={(e) => handleShare(e, service.id)}
                         title="Share Service Link"
-                        className="p-2 rounded-xl border border-slate-205 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-450 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-slate-700 transition-all cursor-pointer shadow-2xs active:scale-95 flex items-center justify-center"
+                        className="h-8 w-8 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-slate-700 dark:hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
                       >
                         <Share2 className="h-3.5 w-3.5" />
                       </button>
@@ -913,9 +960,10 @@ export default function ServicesPage() {
                       {/* DIRECT GREEN CALL BUTTON */}
                       {hasContacts && directPhone && (
                         <a
+                          id={`service-call-${service.id}`}
                           href={`tel:${directPhone}`}
                           title={`Call direct at ${directPhone}`}
-                          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs rounded-xl shadow-sm shadow-emerald-500/20 hover:shadow-md transition active:scale-95 cursor-pointer"
+                          className="h-8 inline-flex items-center justify-center gap-1.5 px-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs rounded-lg shadow-sm shadow-emerald-500/20 hover:shadow-md transition active:scale-95 cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
                         >
                           <Icon
                             name="call"

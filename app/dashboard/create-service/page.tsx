@@ -577,13 +577,17 @@ export default function CreateServicePage() {
                     id="starting-price"
                     type="number"
                     min="0"
+                    max="9999"
                     value={formData.starting_price || ""}
                     onChange={(e) => {
                       const val = e.target.value;
-                      setFormData((prev) => ({
-                        ...prev,
-                        starting_price: val === "" ? null : Number(val),
-                      }));
+                      // Limit to 4 digits
+                      if (val.length <= 4) {
+                        setFormData((prev) => ({
+                          ...prev,
+                          starting_price: val === "" ? null : Number(val),
+                        }));
+                      }
                     }}
                     placeholder="e.g. 500"
                     className="w-full pl-9 pr-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 font-medium"
@@ -594,6 +598,9 @@ export default function CreateServicePage() {
                     </span>
                   </div>
                 </div>
+                <p className="text-[10px] text-slate-400">
+                  Maximum 4 digits (e.g., 500, 1500, 9999)
+                </p>
               </div>
 
               <div className="space-y-1.5">

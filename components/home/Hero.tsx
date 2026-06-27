@@ -172,6 +172,10 @@ export default function Hero(props: HeroProps = {}) {
           >
             Discover verified tutors, cooks, babysitters, tailors, and skilled
             professionals right in your neighborhood.
+            <br />
+            <span className="text-xl font-bold text-brand-primary relative inline-block mt-1 sm:mt-2">
+              Opportunity Starts Here
+            </span>
           </motion.p>
 
           {/* CTAs */}

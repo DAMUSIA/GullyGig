@@ -143,10 +143,10 @@ export async function generateMetadata({
       type: "profile",
       images: [
         {
-          url: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pageUrl)}`,
+          url: "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https%3A%2F%2Fwww.gullygig.in",
           width: 250,
           height: 250,
-          alt: `${service.title} Portfolio QR Code`,
+          alt: `${service.title} Website QR Code`,
         },
       ],
     },

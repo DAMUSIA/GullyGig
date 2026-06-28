@@ -200,7 +200,7 @@ export default function PortfolioPageClient({
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setQrCodeUrl(
-      `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(portfolioUrl)}`,
+      "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Fwww.gullygig.in",
     );
 
     // Generate share text
@@ -1171,14 +1171,14 @@ ${fullPortfolioUrl}
                 <div className="flex items-center justify-center gap-1.5 text-blue-600 dark:text-blue-400">
                   <QrCode className="h-5 w-5" />
                   <span className="text-xs font-extrabold uppercase tracking-widest">
-                    Portfolio QR
+                    GullyGig QR
                   </span>
                 </div>
                 <h4 className="text-base font-extrabold">
-                  Scan to View Portfolio
+                  Scan to Visit GullyGig
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                  Scan to load this portfolio instantly on mobile devices.
+                  Scan to visit the GullyGig platform instantly on mobile devices.
                 </p>
               </div>
 

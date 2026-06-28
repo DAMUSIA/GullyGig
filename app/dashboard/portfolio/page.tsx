@@ -16,6 +16,7 @@ import {
   FileImage,
   CheckCircle,
   X,
+  Copy,
 } from "lucide-react";
 import { getCurrentUser, supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
@@ -219,21 +220,23 @@ export default function DashboardPortfolioPage() {
   return (
     <div className="space-y-6 pb-20 max-w-[1200px] mx-auto">
       {/* Selector and Main Head */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 border border-slate-200 rounded-3xl shadow-xs">
-        <div>
-          <h2 className="text-lg font-extrabold text-slate-800">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200/80 rounded-3xl p-6 shadow-xs relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10">
+          <h2 className="text-lg font-extrabold text-slate-800 flex items-center gap-2">
+            <Globe className="h-5 w-5 text-blue-600" />
             My Public Portfolios
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Select a service to manage sharing and posters
+            Select a service to manage sharing, copy portfolio links, and generate ad posters
           </p>
         </div>
 
-        <div className="min-w-[240px]">
+        <div className="min-w-[260px] relative z-10">
           <select
             value={selectedServiceId}
             onChange={(e) => setSelectedServiceId(e.target.value)}
-            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-800 cursor-pointer"
+            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-2xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-700 cursor-pointer shadow-xs transition"
           >
             {services.map((s) => (
               <option key={s.id} value={s.id}>
@@ -249,49 +252,70 @@ export default function DashboardPortfolioPage() {
           {/* Left Column: Link sharing and poster generation */}
           <div className="lg:col-span-2 space-y-6">
             {/* Portfolio Link Card */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-4">
-              <h3 className="text-sm font-extrabold text-slate-800 flex items-center gap-1.5">
-                <Globe className="h-4.5 w-4.5 text-blue-600" />
-                Portfolio Link
-              </h3>
-              <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                This public, shareable URL displays your service details,
-                languages, pricing, contact buttons, reviews, and a scan-to-call
-                QR code. Perfect for sharing on WhatsApp status or social media.
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
+              
+              <div className="flex items-center justify-between relative z-10">
+                <h3 className="text-sm font-extrabold text-slate-800 flex items-center gap-1.5">
+                  <Globe className="h-4.5 w-4.5 text-blue-600" />
+                  Portfolio Link
+                </h3>
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                  ● Live Online
+                </span>
+              </div>
+              
+              <p className="text-xs text-slate-500 leading-relaxed font-medium relative z-10">
+                Your portfolio is live! It showcases your tutoring details, languages, location, contact details, reviews, and a website-pointing QR code. Perfect for sharing on WhatsApp status or social media bios.
               </p>
 
-              <div className="pt-2">
+              {/* Copyable Short Link Bar */}
+              <div className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-2xl p-2.5 pl-3.5 transition group relative z-10">
+                <Globe className="h-4 w-4 text-slate-400 shrink-0" />
+                <span className="text-xs font-bold text-slate-700 select-all truncate">
+                  gullygig.in/p/{activeService.id}
+                </span>
                 <button
-                  onClick={() =>
-                    showToast(
-                      "View Portfolio feature is currently under maintenance.",
-                      "error",
-                    )
-                  }
-                  className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-2xl transition cursor-pointer active:scale-95 shadow-md shadow-blue-500/10"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`https://www.gullygig.in/p/${activeService.id}`);
+                    showToast("Portfolio link copied to clipboard!", "success");
+                  }}
+                  className="ml-auto flex items-center gap-1 py-1.5 px-3 bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-650 rounded-xl text-[10px] font-bold text-slate-650 shadow-xs transition cursor-pointer active:scale-95"
+                >
+                  <Copy className="h-3 w-3" />
+                  <span>Copy Link</span>
+                </button>
+              </div>
+
+              <div className="pt-1 relative z-10">
+                <a
+                  href={`/p/${activeService.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-5 bg-blue-650 hover:bg-blue-700 text-white text-xs font-bold rounded-2xl transition cursor-pointer active:scale-95 shadow-md shadow-blue-500/10"
                 >
                   <ExternalLink className="h-4 w-4" />
-                  <span>View Portfolio</span>
-                </button>
+                  <span>View Live Portfolio</span>
+                </a>
               </div>
             </div>
 
             {/* Poster Launch Box */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row items-center gap-5 justify-between">
-              <div className="space-y-1.5 text-center sm:text-left">
-                <div className="flex items-center justify-center sm:justify-start gap-1.5 text-blue-600">
-                  <Sparkles className="h-4.5 w-4.5" />
-                  <span className="text-xs font-extrabold uppercase tracking-wider">
-                    Ad Poster Generator
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row items-center gap-5 justify-between relative overflow-hidden">
+              <div className="absolute -bottom-10 -left-10 w-28 h-28 bg-purple-500/5 rounded-full blur-2xl pointer-events-none" />
+              
+              <div className="space-y-2 text-center sm:text-left relative z-10">
+                <div className="flex items-center justify-center sm:justify-start gap-1.5 text-blue-650 font-bold">
+                  <Sparkles className="h-4.5 w-4.5 text-blue-500" />
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider">
+                    Marketing Kit
                   </span>
                 </div>
                 <h3 className="text-base font-extrabold text-slate-800">
-                  Generate Service Poster
+                  Generate Service Flyer
                 </h3>
                 <p className="text-xs text-slate-500 max-w leading-relaxed font-medium">
-                  Create a beautifully styled marketing poster of your listing
-                  containing a QR code, contact information, pricing tags, and
-                  operations structure. Save as PNG.
+                  Create a beautifully styled advertising poster of your listing containing a platform QR code, contact information, price tag, and operations structure.
                 </p>
               </div>
 
@@ -303,7 +327,7 @@ export default function DashboardPortfolioPage() {
                   );
                 }}
                 disabled={posterLoading}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-2xl transition cursor-pointer active:scale-95 shrink-0 shadow-md shadow-blue-500/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3.5 px-6 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-2xl transition cursor-pointer active:scale-95 shrink-0 shadow-md shadow-blue-500/10 disabled:opacity-50 disabled:cursor-not-allowed z-10"
               >
                 {posterLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -318,88 +342,90 @@ export default function DashboardPortfolioPage() {
           </div>
 
           {/* Right Column: Analytics Metrics summary */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-6">
-            <h3 className="text-sm font-extrabold text-slate-800 flex items-center gap-1.5">
-              <BarChart3 className="h-4.5 w-4.5 text-blue-600" />
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-28 h-28 bg-purple-500/5 rounded-full blur-2xl pointer-events-none" />
+            
+            <h3 className="text-sm font-extrabold text-slate-800 flex items-center gap-1.5 relative z-10">
+              <BarChart3 className="h-4.5 w-4.5 text-blue-650" />
               Portfolio Performance
             </h3>
 
-            <div className="space-y-4">
+            <div className="space-y-4 relative z-10">
               {/* Portfolio views */}
-              <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-between">
+              <div className="p-4 bg-slate-50 border border-slate-200/55 rounded-2xl flex items-center justify-between hover:bg-slate-100/50 transition">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
                     Portfolio Views
                   </span>
-                  <span className="text-lg font-black text-slate-850 mt-0.5">
+                  <span className="text-lg font-black text-slate-800 mt-0.5">
                     {stats.portfolio_views || 0}
                   </span>
                 </div>
-                <div className="w-10 h-10 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-purple-500/10 text-purple-600 rounded-xl flex items-center justify-center border border-purple-500/15">
                   <Eye className="h-5 w-5" />
                 </div>
               </div>
 
               {/* App Views */}
-              <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-between">
+              <div className="p-4 bg-slate-50 border border-slate-200/55 rounded-2xl flex items-center justify-between hover:bg-slate-100/50 transition">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                    App/Marketplace Views
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
+                    Marketplace Views
                   </span>
-                  <span className="text-lg font-black text-slate-850 mt-0.5">
+                  <span className="text-lg font-black text-slate-800 mt-0.5">
                     {stats.total_views || 0}
                   </span>
                 </div>
-                <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-blue-500/10 text-blue-600 rounded-xl flex items-center justify-center border border-blue-500/15">
                   <Eye className="h-5 w-5" />
                 </div>
               </div>
 
               {/* Likes */}
-              <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-between">
+              <div className="p-4 bg-slate-50 border border-slate-200/55 rounded-2xl flex items-center justify-between hover:bg-slate-100/50 transition">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
                     Likes / Saves
                   </span>
-                  <span className="text-lg font-black text-slate-850 mt-0.5">
+                  <span className="text-lg font-black text-slate-800 mt-0.5">
                     {stats.total_likes || 0}
                   </span>
                 </div>
-                <div className="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-red-500/10 text-red-500 rounded-xl flex items-center justify-center border border-red-500/15">
                   <Heart className="h-5 w-5 fill-red-500/10" />
                 </div>
               </div>
 
               {/* Reviews */}
-              <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-between">
+              <div className="p-4 bg-slate-50 border border-slate-200/55 rounded-2xl flex items-center justify-between hover:bg-slate-100/50 transition">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
                     Total Reviews
                   </span>
-                  <span className="text-lg font-black text-slate-850 mt-0.5">
+                  <span className="text-lg font-black text-slate-800 mt-0.5">
                     {stats.total_reviews || 0}
                   </span>
                 </div>
-                <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-emerald-500/10 text-emerald-600 rounded-xl flex items-center justify-center border border-emerald-500/15">
                   <MessageSquare className="h-5 w-5" />
                 </div>
               </div>
 
               {/* Rating */}
-              <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-between">
+              <div className="p-4 bg-slate-50 border border-slate-200/55 rounded-2xl flex items-center justify-between hover:bg-slate-100/50 transition">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
                     Average Rating
                   </span>
-                  <span className="text-lg font-black text-slate-850 mt-0.5 flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-amber-400 text-amber-400 inline" />
+                  <span className="text-lg font-black text-slate-800 mt-0.5 flex items-center gap-1">
+                    <Star className="h-4.5 w-4.5 fill-amber-400 text-amber-400 inline" />
                     {stats.average_rating
                       ? stats.average_rating.toFixed(1)
                       : "0.0"}
                   </span>
                 </div>
-                <div className="w-10 h-10 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center">
-                  <Star className="h-5 w-5 fill-amber-55/10" />
+                <div className="w-10 h-10 bg-amber-500/10 text-amber-600 rounded-xl flex items-center justify-center border border-amber-500/15">
+                  <Star className="h-5 w-5 fill-amber-500/10" />
                 </div>
               </div>
             </div>

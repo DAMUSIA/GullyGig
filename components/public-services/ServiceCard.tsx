@@ -36,11 +36,14 @@ export default function ServiceCard({
         ? `${window.location.origin}/services`
         : "https://gullygig.in/services";
 
-    const contactNumbers = contacts.length > 0 ? contacts.join(", ") : phoneFallback;
+    const contactNumbers =
+      contacts.length > 0 ? contacts.join(", ") : phoneFallback;
     const priceText = service.starting_price
       ? `Starts at ₹${service.starting_price}/${service.price_unit ? service.price_unit.toLowerCase().replace("per ", "") : "hr"}`
       : "Price on Enquiry";
-    const locationText = [service.area, service.city].filter(Boolean).join(", ");
+    const locationText = [service.area, service.city]
+      .filter(Boolean)
+      .join(", ");
 
     const shareDetails = [
       `Service: ${service.title}`,

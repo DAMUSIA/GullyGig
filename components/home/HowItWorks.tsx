@@ -218,7 +218,7 @@ export default function HowItWorks() {
 
             <div className="mt-8 pt-4">
               <Link
-                href="/Auth?mode=register"
+                href="/services"
                 className="inline-block text-center text-sm font-bold text-white bg-brand-primary rounded-full px-8 py-3.5 hover:opacity-95 transition-all active:scale-95 shadow-md shadow-blue-500/10"
               >
                 Find a Service

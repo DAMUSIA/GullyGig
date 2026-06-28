@@ -29,28 +29,46 @@ export default function ServiceCard({
   };
 
   // Handle Share Button click (Copy URL to Clipboard)
-  const handleShare = async (e: React.MouseEvent, serviceId: string) => {
+  const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const url =
+    const websiteLink =
       typeof window !== "undefined"
-        ? `${window.location.origin}/p/${serviceId}`
-        : `https://gullygig.in/p/${serviceId}`;
+        ? `${window.location.origin}/services`
+        : "https://gullygig.in/services";
+
+    const contactNumbers = contacts.length > 0 ? contacts.join(", ") : phoneFallback;
+    const priceText = service.starting_price
+      ? `Starts at ₹${service.starting_price}/${service.price_unit ? service.price_unit.toLowerCase().replace("per ", "") : "hr"}`
+      : "Price on Enquiry";
+    const locationText = [service.area, service.city].filter(Boolean).join(", ");
+
+    const shareDetails = [
+      `Service: ${service.title}`,
+      service.users?.full_name ? `Provider: ${service.users.full_name}` : null,
+      hasContacts && contactNumbers ? `Contact: ${contactNumbers}` : null,
+      `Price: ${priceText}`,
+      locationText ? `Location: ${locationText}` : null,
+      `Link: ${websiteLink}`,
+    ]
+      .filter(Boolean)
+      .join("\n");
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Verify this Service Portfolio on GullyGig",
-          url: url,
+          title: `GullyGig Service - ${service.title}`,
+          text: shareDetails,
+          url: websiteLink,
         });
       } catch {
         // Ignored or cancelled
       }
     } else {
       try {
-        await navigator.clipboard.writeText(url);
-        onShowToast("Portfolio link copied to clipboard!");
+        await navigator.clipboard.writeText(shareDetails);
+        onShowToast("Service details copied to clipboard!");
       } catch {
-        onShowToast("Failed to copy link. Please manually copy URL.");
+        onShowToast("Failed to copy details. Please manually copy URL.");
       }
     }
   };
@@ -228,7 +246,7 @@ export default function ServiceCard({
         {/* Right side: Share & Call Buttons */}
         <div className="flex items-center gap-2 w-full sm:w-auto justify-start sm:justify-end shrink-0">
           <button
-            onClick={(e) => handleShare(e, service.id)}
+            onClick={handleShare}
             title="Share Service Link"
             className="h-10 w-10 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center focus:ring-2 focus:ring-blue-500 focus:outline-none active:scale-95 shrink-0"
           >

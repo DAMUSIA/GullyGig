@@ -117,7 +117,7 @@ export default function Home() {
 
         {/* TRUST SECTION */}
         <section id="trust">
-          <TrustSection onShowToast={showToast} />
+          <TrustSection />
         </section>
 
         {/* CTA BANNER */}

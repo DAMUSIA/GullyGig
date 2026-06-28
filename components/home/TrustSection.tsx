@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import Icon from "../Icon";
 
 const TRUST_CHECKS = [
@@ -11,11 +12,9 @@ const TRUST_CHECKS = [
   "Localized Skill Categorization",
 ];
 
-export default function TrustSection({
-  onShowToast,
-}: {
-  onShowToast: (msg: string) => void;
-}) {
+export default function TrustSection() {
+  const router = useRouter();
+
   return (
     <section className="py-24 bg-white dark:bg-slate-950 transition-colors duration-300 relative overflow-hidden">
       <div className="mx-auto max-w-[1140px] px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -112,7 +111,7 @@ export default function TrustSection({
           </ul>
 
           <button
-            onClick={() => onShowToast("Safety guidelines coming soon...")}
+            onClick={() => router.push("/legal?tab=terms")}
             className="text-sm font-bold text-brand-primary border border-brand-primary-light bg-brand-bg-light hover:bg-brand-bg-hover rounded-xl px-7 py-3.5 transition-all active:scale-95 cursor-pointer hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:text-blue-400 dark:hover:bg-slate-750"
             suppressHydrationWarning
           >

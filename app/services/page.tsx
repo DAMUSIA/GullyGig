@@ -1,21 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Search,
-  MapPin,
-  ExternalLink,
-  Share2,
-  Heart,
-  Star,
   ArrowRight,
   ArrowLeft,
-  Loader2,
   AlertCircle,
-  Navigation,
   Inbox,
   Sparkles,
   Users,
@@ -24,54 +14,12 @@ import { supabase } from "@/lib/supabase";
 
 // Components
 import Footer from "@/components/layout/Footer";
-import Icon from "@/components/Icon";
+import Header from "@/components/public-services/Header";
+import SearchFilters from "@/components/public-services/SearchFilters";
+import ServiceCard from "@/components/public-services/ServiceCard";
+import { ServiceItem } from "@/components/public-services/types";
 
-interface UserProfile {
-  id: string;
-  full_name: string;
-  location: string | null;
-  about: string | null;
-  phone_no: string | null;
-  social_links: Record<string, string> | null;
-}
-
-interface ServiceItem {
-  id: string;
-  user_id: string;
-  title: string;
-  category: string;
-  description: string;
-  city: string;
-  area: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  service_modes: string[];
-  availability: string[];
-  languages: string[];
-  starting_price: number | null;
-  price_unit: string | null;
-  views_count: number;
-  likes_count: number;
-  reviews_count: number;
-  rating_average: number;
-  created_at: string;
-  contact_numbers: string[] | null;
-  users?: UserProfile;
-}
-
-const CATEGORY_CHIPS = [
-  "All",
-  "Yoga",
-  "Dance",
-  "Guitar",
-  "Gym",
-  "Tuition",
-  "Fitness",
-  "Music",
-  "Other",
-];
-
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 /**
  * Displays the services directory with search, filters, sorting, pagination, and live viewer presence.
@@ -98,7 +46,7 @@ export default function ServicesPage() {
   const [liveViewers, setLiveViewers] = useState(0);
 
   // Auto-scroll to first service when page changes
-  const isFirstRender = React.useRef(true);
+  const isFirstRender = useRef(true);
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
@@ -315,16 +263,6 @@ export default function ServicesPage() {
     }
   };
 
-  // Utility to generate Initials for User Profile Image
-  const getInitials = (name?: string) => {
-    if (!name) return "SP";
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    return name.slice(0, 2).toUpperCase();
-  };
-
   // Helper matching logic for category chips
   const matchesCategoryFilter = (category: string, filter: string) => {
     if (filter === "All") return true;
@@ -445,33 +383,6 @@ export default function ServicesPage() {
       return 0;
     });
 
-  // Handle Share Button click (Copy URL to Clipboard)
-  const handleShare = async (e: React.MouseEvent, serviceId: string) => {
-    e.stopPropagation();
-    const url =
-      typeof window !== "undefined"
-        ? `${window.location.origin}/p/${serviceId}`
-        : `https://gullygig.in/p/${serviceId}`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: "Verify this Service Portfolio on GullyGig",
-          url: url,
-        });
-      } catch {
-        // Ignored or cancelled
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(url);
-        showToast("Portfolio link copied to clipboard!");
-      } catch {
-        showToast("Failed to copy link. Please manually copy URL.");
-      }
-    }
-  };
-
   // Pagination Logic
   const totalPages = Math.max(
     1,
@@ -488,48 +399,8 @@ export default function ServicesPage() {
         isDark ? "dark" : ""
       }`}
     >
-      <header className="fixed inset-x-0 top-0 z-50 bg-white/85 dark:bg-slate-950/85 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 transition-all duration-300 py-1">
-        <div className="mx-auto flex h-[72px] max-w-[1140px] items-center justify-between px-6 lg:px-8">
-          <Link href="/" className="flex items-center group z-50">
-            {/* 
-               LOGO SIZE CONFIGURATION (Mobile Responsive):
-               - Mobile: h-8 w-28 (32px height, 112px width)
-               - Tablet/Desktop (sm and up): h-10 w-36 (40px height, 144px width)
-               You can adjust these classes (e.g. h-8, w-28, sm:h-10, sm:w-36) to fit your logo's dimensions.
-            */}
-            <div className="relative h-22 w-32 sm:h-22 sm:w-48 flex-shrink-0">
-              <Image
-                src={isDark ? "/logo_light.png" : "/logo_dark.png"}
-                alt="Logo"
-                fill
-                className="object-contain object-left"
-                priority
-              />
-            </div>
-          </Link>
-
-          <div className="flex items-center gap-3 md:gap-4 z-50">
-            <button
-              onClick={toggleDarkMode}
-              className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-350 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-brand-primary border border-slate-200/50 dark:border-slate-750/50 transition-colors flex items-center justify-center cursor-pointer shadow-2xs active:scale-95"
-              aria-label="Toggle Theme"
-            >
-              <Icon
-                name={isDark ? "light_mode" : "dark_mode"}
-                className="text-lg"
-              />
-            </button>
-
-            <Link
-              href="/"
-              className="inline-flex items-center gap-1.5 px-4.5 py-2.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-850 dark:hover:bg-slate-700 text-white font-extrabold text-xs rounded-xl shadow-md transition cursor-pointer active:scale-95"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              <span>Back to Home</span>
-            </Link>
-          </div>
-        </div>
-      </header>
+      {/* Extracted Header */}
+      <Header isDark={isDark} toggleDarkMode={toggleDarkMode} />
 
       <main className="flex-1 max-w-[1140px] w-full mx-auto px-6 pt-28 pb-20">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-8 gap-3">
@@ -559,104 +430,20 @@ export default function ServicesPage() {
           )}
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-3xl p-5 md:p-6 shadow-md shadow-blue-500/5 mb-8 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-            <div className="relative md:col-span-5">
-              <Search className="absolute left-3.5 top-3.5 h-4.5 w-4.5 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1);
-                }}
-                placeholder="Search keywords, title, or provider name..."
-                className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-500 text-slate-800 dark:text-slate-100 placeholder:text-slate-400"
-              />
-            </div>
-
-            <div className="relative md:col-span-4 flex items-center">
-              <div className="relative w-full">
-                <MapPin className="absolute left-3.5 top-3.5 h-4.5 w-4.5 text-slate-400" />
-                <input
-                  type="text"
-                  value={locationQuery}
-                  onChange={(e) => {
-                    setLocationQuery(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  placeholder="Filter by city or locality..."
-                  className="w-full pl-11 pr-12 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-500 text-slate-800 dark:text-slate-100 placeholder:text-slate-400"
-                />
-
-                <button
-                  type="button"
-                  onClick={handleAutoDetectLocation}
-                  disabled={detectingLoc}
-                  title="Auto Detect Location"
-                  className="absolute right-2 top-2 p-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:text-brand-primary dark:hover:text-blue-450 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 transition-colors cursor-pointer active:scale-95 disabled:opacity-50 flex items-center justify-center"
-                >
-                  {detectingLoc ? (
-                    <Loader2 className="h-4 w-4 animate-spin text-brand-primary" />
-                  ) : (
-                    <Navigation className="h-4 w-4 fill-brand-primary/10" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 md:col-span-3">
-              <label
-                htmlFor="service-sort"
-                className="text-[10px] md:text-xs font-bold text-slate-450 uppercase tracking-wider shrink-0"
-              >
-                Sort:
-              </label>
-              <select
-                id="service-sort"
-                value={sortBy}
-                onChange={(e) => {
-                  setSortBy(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer"
-              >
-                <option value="Newest">Newest Listed</option>
-                <option value="Highest Rated">Highest Rated ⭐</option>
-                <option value="Lowest Price">Price: Low to High</option>
-                <option value="Highest Price">Price: High to Low</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Category Chips Scroll */}
-          <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 dark:border-slate-800/80 pt-3">
-            <span className="text-[10px] font-bold text-slate-455 uppercase tracking-widest mr-2">
-              Category:
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {CATEGORY_CHIPS.map((chip) => {
-                const isSelected = selectedCategory === chip;
-                return (
-                  <button
-                    key={chip}
-                    onClick={() => {
-                      setSelectedCategory(chip);
-                      setCurrentPage(1);
-                    }}
-                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs ${
-                      isSelected
-                        ? "bg-brand-primary text-white border border-transparent shadow-md shadow-blue-500/15"
-                        : "bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-900"
-                    }`}
-                  >
-                    {chip}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        {/* Extracted Search & Filters */}
+        <SearchFilters
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          locationQuery={locationQuery}
+          setLocationQuery={setLocationQuery}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          detectingLoc={detectingLoc}
+          handleAutoDetectLocation={handleAutoDetectLocation}
+          setCurrentPage={setCurrentPage}
+        />
 
         {/* Loading State */}
         {loading && (
@@ -713,271 +500,19 @@ export default function ServicesPage() {
           </div>
         )}
 
-        {/* 1-Column Service Listing (UI Improved & Height Slightly Decreased) */}
+        {/* 1-Column Service Listing */}
         {!loading && !error && currentServicesList.length > 0 && (
           <div
             id="services-list"
             className="flex flex-col gap-5 max-w-4xl mx-auto"
           >
-            {currentServicesList.map((service) => {
-              const contacts = service.contact_numbers || [];
-              const phoneFallback = service.users?.phone_no;
-              const directPhone = contacts[0] || phoneFallback;
-              const hasContacts = contacts.length > 0 || !!phoneFallback;
-
-              const priceLabel = service.starting_price
-                ? `Starts at ₹${service.starting_price}/${(service.price_unit || "hour").toLowerCase().replace("per ", "")}`
-                : "Price on Enquiry";
-
-              return (
-                <div
-                  key={service.id}
-                  className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl p-4 sm:p-5 hover:shadow-lg dark:hover:shadow-blue-500/2 transition-all duration-300 flex flex-col justify-between gap-3.5 relative group"
-                >
-                  {/* Top Header Row */}
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      {/* Initials Avatar */}
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-primary to-indigo-650 dark:from-brand-primary-dark dark:to-indigo-500 text-white flex items-center justify-center font-extrabold text-xs shadow-sm shrink-0">
-                        {getInitials(service.users?.full_name)}
-                      </div>
-
-                      <div className="space-y-0.5 text-left min-w-0">
-                        <span
-                          className="text-[9px] font-bold text-brand-primary dark:text-blue-400 bg-brand-bg-light dark:bg-slate-950 px-2.5 py-0.5 rounded uppercase tracking-wider border border-blue-100/30 dark:border-blue-900/30 truncate max-w-[120px] inline-block align-bottom"
-                          title={service.category}
-                        >
-                          {service.category}
-                        </span>
-                        <h4 className="text-[10px] font-medium text-slate-400 dark:text-slate-500 mt-0.5 truncate">
-                          Made by{" "}
-                          <span
-                            className="font-semibold text-slate-650 dark:text-slate-400 truncate max-w-[120px] sm:max-w-[180px] inline-block align-bottom"
-                            title={
-                              service.users?.full_name || "Verified Provider"
-                            }
-                          >
-                            {service.users?.full_name || "Verified Provider"}
-                          </span>
-                        </h4>
-                      </div>
-                    </div>
-
-                    {/* Likes & Rating Read-only Indicators */}
-                    <div className="flex items-center gap-2 self-start sm:self-center bg-slate-50/80 dark:bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-100 dark:border-slate-850 shrink-0">
-                      <div className="flex items-center gap-1">
-                        <Star className="h-3 w-3 fill-amber-400 text-amber-400 shrink-0" />
-                        <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                          {service.rating_average
-                            ? Number(service.rating_average).toFixed(1)
-                            : "0.0"}
-                        </span>
-                        <span className="text-[9px] text-slate-400 font-semibold">
-                          ({service.reviews_count || 0})
-                        </span>
-                      </div>
-                      <div className="h-2 w-[1px] bg-slate-200 dark:border-slate-850" />
-                      <div className="flex items-center gap-1">
-                        <Heart className="h-3 w-3 fill-red-500 text-red-500 shrink-0" />
-                        <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                          {service.likes_count || 0}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Middle Content */}
-                  <div className="space-y-3 text-left">
-                    <h3
-                      className="text-lg font-extrabold text-slate-900 dark:text-white leading-snug group-hover:text-brand-primary dark:group-hover:text-blue-400 transition-colors break-words line-clamp-2"
-                      title={service.title}
-                    >
-                      {service.title}
-                    </h3>
-
-                    <p className="text-xs md:text-sm text-slate-650 dark:text-slate-355 leading-relaxed whitespace-pre-line bg-blue-50/10 dark:bg-slate-950/30 p-3 rounded-xl border border-blue-100/10 dark:border-blue-900/10 break-words">
-                      {service.description}
-                    </p>
-
-                    {/* Horizontal badges (More compact, consistent height, padding, and spacing) */}
-                    <div className="flex flex-wrap gap-1.5 pt-0.5">
-                      {service.service_modes &&
-                        service.service_modes.length > 0 && (
-                          <div className="inline-flex items-center gap-1 h-6 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 px-2 rounded-md">
-                            <Icon
-                              name="home"
-                              className="text-[10px] text-slate-400 shrink-0"
-                            />
-                            <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                              Modes:
-                            </span>
-                            <span
-                              className="text-[9px] font-extrabold text-slate-750 dark:text-slate-300 truncate max-w-[80px] sm:max-w-[120px]"
-                              title={service.service_modes.join(", ")}
-                            >
-                              {service.service_modes.join(", ")}
-                            </span>
-                          </div>
-                        )}
-
-                      {service.availability &&
-                        service.availability.length > 0 && (
-                          <div className="inline-flex items-center gap-1 h-6 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 px-2 rounded-md">
-                            <Icon
-                              name="calendar_today"
-                              className="text-[10px] text-slate-400 shrink-0"
-                            />
-                            <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                              Availability:
-                            </span>
-                            <span
-                              className="text-[9px] font-extrabold text-slate-750 dark:text-slate-300 truncate max-w-[80px] sm:max-w-[120px]"
-                              title={service.availability.join(", ")}
-                            >
-                              {service.availability.join(", ")}
-                            </span>
-                          </div>
-                        )}
-
-                      {service.languages && service.languages.length > 0 && (
-                        <div className="inline-flex items-center gap-1 h-6 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 px-2 rounded-md">
-                          <Icon
-                            name="language"
-                            className="text-[10px] text-slate-400 shrink-0"
-                          />
-                          <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                            Languages:
-                          </span>
-                          <span
-                            className="text-[9px] font-extrabold text-slate-750 dark:text-slate-300 truncate max-w-[80px] sm:max-w-[120px]"
-                            title={service.languages.join(", ")}
-                          >
-                            {service.languages.join(", ")}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Info Row: Location & Price */}
-                  <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-850 pt-3 gap-2">
-                    <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400 font-semibold text-xs min-w-0 flex-1">
-                      <MapPin className="h-3.5 w-3.5 text-slate-450 shrink-0" />
-                      <span
-                        className="truncate block"
-                        title={[service.area, service.city]
-                          .filter(Boolean)
-                          .join(", ")}
-                      >
-                        {[service.area, service.city]
-                          .filter(Boolean)
-                          .join(", ")}
-                      </span>
-                    </div>
-
-                    {/* Noticeable Price Tag */}
-                    {service.starting_price ? (
-                      <div className="flex items-baseline gap-1 bg-blue-50/50 dark:bg-blue-950/30 px-2.5 py-1 rounded-lg border border-blue-100/20 dark:border-blue-900/10 shrink-0">
-                        <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">
-                          Starts at
-                        </span>
-                        <span className="text-xs font-black text-brand-primary dark:text-blue-400">
-                          ₹{service.starting_price}
-                        </span>
-                        <span className="text-[9px] text-slate-400 dark:text-slate-500 font-normal">
-                          /
-                          {(service.price_unit || "hour")
-                            .toLowerCase()
-                            .replace("per ", "")}
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-50/80 dark:bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-150/60 dark:border-slate-850 shrink-0 uppercase tracking-wider">
-                        Price on Enquiry
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Actions Row: Phone field and action buttons visually grouped (UI Improved) */}
-                  <div className="bg-slate-50/50 dark:bg-slate-950/40 border border-slate-150/60 dark:border-slate-850/60 rounded-xl p-2.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-                    {/* Left: Contact Info (always visible) */}
-                    <div className="flex-1 flex flex-col items-start gap-1.5 min-w-0">
-                      {hasContacts ? (
-                        contacts.length > 0 ? (
-                          contacts.map((num, i) => (
-                            <a
-                              key={i}
-                              href={`tel:${num}`}
-                              className="flex items-center gap-1.5 text-xs font-bold text-slate-850 dark:text-slate-205 hover:text-brand-primary dark:hover:text-blue-400 hover:underline min-w-0 max-w-full focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none rounded-md px-1 py-0.5"
-                            >
-                              <Icon
-                                name="call"
-                                className="text-xs text-emerald-500 shrink-0"
-                                fill
-                              />
-                              <span className="font-mono truncate" title={num}>
-                                {num}
-                              </span>
-                            </a>
-                          ))
-                        ) : (
-                          <a
-                            href={`tel:${phoneFallback}`}
-                            className="flex items-center gap-1.5 text-xs font-bold text-slate-850 dark:text-slate-205 hover:text-brand-primary dark:hover:text-blue-400 hover:underline min-w-0 max-w-full focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none rounded-md px-1 py-0.5"
-                          >
-                            <Icon
-                              name="call"
-                              className="text-xs text-emerald-500 shrink-0"
-                              fill
-                            />
-                            <span
-                              className="font-mono truncate"
-                              title={phoneFallback || undefined}
-                            >
-                              {phoneFallback}
-                            </span>
-                          </a>
-                        )
-                      ) : (
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold italic">
-                          No direct contact numbers.
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Right: Actions (direct Call green button, Share) */}
-                    <div className="flex items-center justify-end gap-2 shrink-0">
-                      {/* Share Button */}
-                      <button
-                        id={`service-share-${service.id}`}
-                        onClick={(e) => handleShare(e, service.id)}
-                        title="Share Service Link"
-                        className="h-8 w-8 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-slate-700 dark:hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
-                      >
-                        <Share2 className="h-3.5 w-3.5" />
-                      </button>
-
-                      {/* DIRECT GREEN CALL BUTTON */}
-                      {hasContacts && directPhone && (
-                        <a
-                          id={`service-call-${service.id}`}
-                          href={`tel:${directPhone}`}
-                          title={`Call direct at ${directPhone}`}
-                          className="h-8 inline-flex items-center justify-center gap-1.5 px-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs rounded-lg shadow-sm shadow-emerald-500/20 hover:shadow-md transition active:scale-95 cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
-                        >
-                          <Icon
-                            name="call"
-                            className="text-xs text-white"
-                            fill
-                          />
-                          <span>Call</span>
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {currentServicesList.map((service) => (
+              <ServiceCard
+                key={service.id}
+                service={service}
+                onShowToast={showToast}
+              />
+            ))}
           </div>
         )}
 

@@ -233,7 +233,7 @@ export default function AnalyticsPage() {
   if (services.length === 0) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center py-10 px-4">
-        <div className="text-center max-w-md">
+        <div className="text-center max-w-none">
           <h2 className="text-xl sm:text-2xl font-extrabold text-slate-800 mt-6">
             No Services Found
           </h2>

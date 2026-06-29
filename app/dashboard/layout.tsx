@@ -19,6 +19,7 @@ import {
   Globe,
 } from "lucide-react";
 import { signOut, onAuthStateChange, getCurrentUser } from "@/lib/supabase";
+import { FaWhatsapp } from "react-icons/fa6";
 
 // ============================================
 // Types
@@ -499,6 +500,10 @@ export default function DashboardLayout({
   const [profileName, setProfileName] = useState("User");
   const [profileEmail, setProfileEmail] = useState("");
 
+  // WhatsApp Community states
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
+  const [isWhatsAppJoined, setIsWhatsAppJoined] = useState(false);
+
   const isMobile = useMediaQuery("(max-width: 767px)");
 
   // ============================================
@@ -551,6 +556,56 @@ export default function DashboardLayout({
       if (unsubscribe) unsubscribe();
     };
   }, [checkAuth, router]);
+
+  // ============================================
+  // WhatsApp Community Modal Trigger
+  // ============================================
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const joined = localStorage.getItem("gullygig_whatsapp_joined");
+      const remindAt = localStorage.getItem("gullygig_whatsapp_remind_at");
+      const sessionDismiss = sessionStorage.getItem("gullygig_whatsapp_dismissed_session");
+
+      setIsWhatsAppJoined(joined === "true");
+
+      let shouldShow = false;
+
+      if (joined !== "true" && sessionDismiss !== "true") {
+        if (remindAt) {
+          if (Date.now() >= new Date(remindAt).getTime()) {
+            shouldShow = true;
+          }
+        } else {
+          shouldShow = true;
+        }
+      }
+
+      if (shouldShow) {
+        const timer = setTimeout(() => {
+          setShowWhatsAppModal(true);
+        }, 1500);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, []);
+
+  const handleJoinNow = () => {
+    localStorage.setItem("gullygig_whatsapp_joined", "true");
+    setIsWhatsAppJoined(true);
+    setShowWhatsAppModal(false);
+    window.open("https://chat.whatsapp.com/HG3U2hP7IEu0EHAiftscCq", "_blank", "noopener,noreferrer");
+  };
+
+  const handleJoinLater = () => {
+    setShowWhatsAppModal(false);
+    const oneWeekFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    localStorage.setItem("gullygig_whatsapp_remind_at", oneWeekFromNow);
+  };
+
+  const handleCloseModal = () => {
+    setShowWhatsAppModal(false);
+    sessionStorage.setItem("gullygig_whatsapp_dismissed_session", "true");
+  };
 
   // ============================================
   // ULTRA FAST: Instant Logout Handler (No delays)
@@ -706,6 +761,77 @@ export default function DashboardLayout({
         {/* Page Content */}
         <div className="p-4 sm:p-6 lg:p-8">{children}</div>
       </motion.main>
+
+      {/* WhatsApp Community Popup Modal */}
+      {showWhatsAppModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-300">
+          <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 max-w-2xl w-full overflow-hidden p-6 sm:p-8 relative transform transition-all scale-100 duration-300 mx-2">
+            
+            {/* Close Button */}
+            <button
+              onClick={handleCloseModal}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+              aria-label="Close modal"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Modal Icon and Badges */}
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg mb-4">
+                <FaWhatsapp className="w-10 h-10 text-white" />
+              </div>
+
+              <span className="bg-emerald-50 text-emerald-800 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-100 mb-2 flex items-center gap-1">
+                <FaWhatsapp className="w-3.5 h-3.5 text-[#25D366]" />
+                Official Community
+              </span>
+
+              <h3 className="text-2xl font-bold text-gray-900 mt-2 sm:text-3xl">
+                Join our WhatsApp Community!
+              </h3>
+              
+              <p className="text-sm text-gray-600 mt-3 max-w-none leading-relaxed sm:text-base">
+                Get instant hyper-local service orders, part-time job alerts, and direct support from the GullyGig team.
+              </p>
+
+              {/* Message Box */}
+              <div className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 sm:p-5 text-left my-5">
+                <p className="text-xs text-gray-500 font-medium sm:text-sm">Message from website:</p>
+                <p className="text-sm text-gray-700 font-semibold mt-1 leading-relaxed sm:text-base">
+                  Follow this link to join my WhatsApp community:{" "}
+                  <a
+                    href="https://chat.whatsapp.com/HG3U2hP7IEu0EHAiftscCq"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline text-blue-600 hover:text-blue-800 break-all"
+                  >
+                    https://chat.whatsapp.com/HG3U2hP7IEu0EHAiftscCq
+                  </a>
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="w-full flex flex-col sm:flex-row gap-3 mt-2">
+                <button
+                  onClick={handleJoinNow}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 px-6 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 text-sm sm:text-base cursor-pointer"
+                >
+                  <FaWhatsapp className="w-5 h-5" />
+                  Join Now
+                </button>
+
+                <button
+                  onClick={handleJoinLater}
+                  className="flex-1 py-3 px-6 border border-gray-200 hover:bg-gray-50 active:bg-gray-100 text-gray-750 font-semibold rounded-xl text-sm sm:text-base transition-all cursor-pointer"
+                >
+                  Join Later
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

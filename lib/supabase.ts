@@ -285,9 +285,13 @@ export async function signOut(): Promise<{ success: boolean; error?: string }> {
     // Clear local storage on client side
     if (typeof window !== "undefined") {
       try {
-        localStorage.removeItem("sb-auth-token");
-        localStorage.removeItem("supabase.auth.token");
-        localStorage.clear();
+        // Only clear Supabase auth tokens specifically
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith("sb-") || key.includes("supabase") || key.includes("auth"))) {
+            localStorage.removeItem(key);
+          }
+        }
         sessionStorage.clear();
 
         document.cookie.split(";").forEach((c) => {

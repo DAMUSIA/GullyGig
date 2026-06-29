@@ -564,7 +564,9 @@ export default function DashboardLayout({
     if (typeof window !== "undefined") {
       const joined = localStorage.getItem("gullygig_whatsapp_joined");
       const remindAt = localStorage.getItem("gullygig_whatsapp_remind_at");
-      const sessionDismiss = sessionStorage.getItem("gullygig_whatsapp_dismissed_session");
+      const sessionDismiss = sessionStorage.getItem(
+        "gullygig_whatsapp_dismissed_session",
+      );
 
       setIsWhatsAppJoined(joined === "true");
 
@@ -593,12 +595,18 @@ export default function DashboardLayout({
     localStorage.setItem("gullygig_whatsapp_joined", "true");
     setIsWhatsAppJoined(true);
     setShowWhatsAppModal(false);
-    window.open("https://chat.whatsapp.com/HG3U2hP7IEu0EHAiftscCq", "_blank", "noopener,noreferrer");
+    window.open(
+      "https://chat.whatsapp.com/HG3U2hP7IEu0EHAiftscCq",
+      "_blank",
+      "noopener,noreferrer",
+    );
   };
 
   const handleJoinLater = () => {
     setShowWhatsAppModal(false);
-    const oneWeekFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const oneWeekFromNow = new Date(
+      Date.now() + 7 * 24 * 60 * 60 * 1000,
+    ).toISOString();
     localStorage.setItem("gullygig_whatsapp_remind_at", oneWeekFromNow);
   };
 
@@ -766,7 +774,6 @@ export default function DashboardLayout({
       {showWhatsAppModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-300">
           <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 max-w-2xl w-full overflow-hidden p-6 sm:p-8 relative transform transition-all scale-100 duration-300 mx-2">
-            
             {/* Close Button */}
             <button
               onClick={handleCloseModal}
@@ -790,14 +797,17 @@ export default function DashboardLayout({
               <h3 className="text-2xl font-bold text-gray-900 mt-2 sm:text-3xl">
                 Join our WhatsApp Community!
               </h3>
-              
+
               <p className="text-sm text-gray-600 mt-3 max-w-none leading-relaxed sm:text-base">
-                Get instant hyper-local service orders, part-time job alerts, and direct support from the GullyGig team.
+                Get instant hyper-local service orders, part-time job alerts,
+                and direct support from the GullyGig team.
               </p>
 
               {/* Message Box */}
               <div className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 sm:p-5 text-left my-5">
-                <p className="text-xs text-gray-500 font-medium sm:text-sm">Message from website:</p>
+                <p className="text-xs text-gray-500 font-medium sm:text-sm">
+                  Message from website:
+                </p>
                 <p className="text-sm text-gray-700 font-semibold mt-1 leading-relaxed sm:text-base">
                   Follow this link to join my WhatsApp community:{" "}
                   <a

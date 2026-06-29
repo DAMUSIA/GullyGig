@@ -367,12 +367,17 @@ export default function AuthPage({
 
                 <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 text-left space-y-4 shadow-sm">
                   <p className="text-sm text-gray-700 leading-relaxed font-medium">
-                    To get instant hyper-local service orders, part-time job alerts, and connect with other community members:
+                    To get instant hyper-local service orders, part-time job
+                    alerts, and connect with other community members:
                   </p>
-                  
+
                   <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-4 flex items-start gap-3">
                     <div className="bg-emerald-500 text-white p-2.5 rounded-lg mt-0.5 shadow-sm flex-shrink-0">
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className="w-5 h-5"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.731-1.456L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.725 1.45 5.589 0 10.137-4.542 10.14-10.136.002-2.71-1.051-5.257-2.96-7.17C16.64 1.385 14.1 1.328 11.39 1.328c-5.59 0-10.143 4.542-10.146 10.138-.002 1.895.498 3.754 1.448 5.372l-.995 3.64 3.742-.981zm12.39-7.234c-.308-.154-1.82-.9-2.1-.1s-.14.4-.14.54-.11.23-.27.15c-.16-.08-.68-.25-1.3-.8-.48-.43-.8-.95-.9-1.11-.08-.16-.01-.24.07-.32.07-.07.15-.18.23-.27.08-.1.1-.16.15-.27.05-.1.02-.2-.01-.27-.03-.08-.3-.72-.41-.98-.11-.27-.22-.23-.3-.23-.08 0-.17 0-.27 0s-.27.04-.4.18c-.14.15-.54.53-.54 1.3s.56 1.5.64 1.6c.08.1 1.1 1.68 2.66 2.35.37.16.66.26.89.33.37.12.7.1.97.06.3-.04.9-.37 1.03-.73.13-.36.13-.67.09-.73-.04-.06-.15-.1-.46-.25z" />
                       </svg>
                     </div>
@@ -405,7 +410,11 @@ export default function AuthPage({
                     }}
                     className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 text-sm cursor-pointer"
                   >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className="w-5 h-5"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.731-1.456L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.725 1.45 5.589 0 10.137-4.542 10.14-10.136.002-2.71-1.051-5.257-2.96-7.17C16.64 1.385 14.1 1.328 11.39 1.328c-5.59 0-10.143 4.542-10.146 10.138-.002 1.895.498 3.754 1.448 5.372l-.995 3.64 3.742-.981zm12.39-7.234c-.308-.154-1.82-.9-2.1-.1s-.14.4-.14.54-.11.23-.27.15c-.16-.08-.68-.25-1.3-.8-.48-.43-.8-.95-.9-1.11-.08-.16-.01-.24.07-.32.07-.07.15-.18.23-.27.08-.1.1-.16.15-.27.05-.1.02-.2-.01-.27-.03-.08-.3-.72-.41-.98-.11-.27-.22-.23-.3-.23-.08 0-.17 0-.27 0s-.27.04-.4.18c-.14.15-.54.53-.54 1.3s.56 1.5.64 1.6c.08.1 1.1 1.68 2.66 2.35.37.16.66.26.89.33.37.12.7.1.97.06.3-.04.9-.37 1.03-.73.13-.36.13-.67.09-.73-.04-.06-.15-.1-.46-.25z" />
                     </svg>
                     Join WhatsApp Community
@@ -465,7 +474,11 @@ export default function AuthPage({
                     {mode === "register" && (
                       <motion.div
                         initial={{ opacity: 0, height: 0, marginBottom: 0 }}
-                        animate={{ opacity: 1, height: "auto", marginBottom: 16 }}
+                        animate={{
+                          opacity: 1,
+                          height: "auto",
+                          marginBottom: 16,
+                        }}
                         exit={{ opacity: 0, height: 0, marginBottom: 0 }}
                         transition={{ duration: 0.25, ease: "easeInOut" }}
                         // Remove overflow-hidden to prevent focus ring clipping
@@ -648,7 +661,9 @@ export default function AuthPage({
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                           />
                         </svg>
-                        {mode === "login" ? "Logging in..." : "Creating Account..."}
+                        {mode === "login"
+                          ? "Logging in..."
+                          : "Creating Account..."}
                       </div>
                     ) : mode === "login" ? (
                       "Login"
@@ -716,7 +731,9 @@ export default function AuthPage({
                     </svg>
                   )}
                   <span className="text-gray-700 text-sm">
-                    {mode === "login" ? "Login with Google" : "Sign up with Google"}
+                    {mode === "login"
+                      ? "Login with Google"
+                      : "Sign up with Google"}
                   </span>
                 </button>
 

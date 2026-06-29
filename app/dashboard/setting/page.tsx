@@ -226,23 +226,23 @@ export default function SettingsPage() {
           {/* WhatsApp Community Section */}
           <div className="p-4 sm:p-6 border-b border-gray-100 bg-emerald-50/15">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-3 min-w-0 flex-1">
                 <div className="p-2.5 bg-[#25D366] rounded-full text-white mt-0.5 flex-shrink-0 shadow-sm flex items-center justify-center">
                   <FaWhatsapp className="w-5 h-5 text-white" />
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
+                <div className="min-w-0 flex-1 text-left">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="text-lg font-semibold text-gray-900">
                       WhatsApp Community
                     </h2>
                     {isWhatsAppJoined && (
-                      <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5">
+                      <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5 flex-shrink-0">
                         <FaWhatsapp className="w-3.5 h-3.5 text-[#25D366]" />
                         Joined
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-500 mt-0.5">
+                  <p className="text-sm text-gray-550 mt-1 leading-relaxed">
                     {isWhatsAppJoined
                       ? "You are part of our official WhatsApp community."
                       : "Join our official community to get local job alerts, service orders and updates."}
@@ -260,7 +260,7 @@ export default function SettingsPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex-shrink-0 self-start md:self-center">
+              <div className="flex-shrink-0 w-full md:w-auto self-start md:self-center mt-2 md:mt-0">
                 <a
                   href="https://chat.whatsapp.com/HG3U2hP7IEu0EHAiftscCq"
                   target="_blank"
@@ -269,7 +269,7 @@ export default function SettingsPage() {
                     localStorage.setItem("gullygig_whatsapp_joined", "true");
                     setIsWhatsAppJoined(true);
                   }}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all shadow-xs hover:shadow-md cursor-pointer"
+                  className="w-full md:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all shadow-xs hover:shadow-md cursor-pointer"
                 >
                   {isWhatsAppJoined ? "Visit Community" : "Join Now"}
                 </a>

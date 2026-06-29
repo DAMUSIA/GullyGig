@@ -288,7 +288,12 @@ export async function signOut(): Promise<{ success: boolean; error?: string }> {
         // Only clear Supabase auth tokens specifically
         for (let i = localStorage.length - 1; i >= 0; i--) {
           const key = localStorage.key(i);
-          if (key && (key.startsWith("sb-") || key.includes("supabase") || key.includes("auth"))) {
+          if (
+            key &&
+            (key.startsWith("sb-") ||
+              key.includes("supabase") ||
+              key.includes("auth"))
+          ) {
             localStorage.removeItem(key);
           }
         }

@@ -16,7 +16,7 @@ import Icon from "@/components/Icon";
 const TEAM_MEMBERS = [
   {
     name: "Sabnis Akshat Shailesh",
-    role: "CEO & Co-Founder",
+    role: "Founding Team",
     initials: "AS",
     image: "/assets/teams/Akshat.png",
     socials: {
@@ -27,7 +27,7 @@ const TEAM_MEMBERS = [
   },
   {
     name: "Pathinenchil Indresh Suresh",
-    role: "Co-Founder & CTO",
+    role: "Founding Team",
     initials: "IS",
     image: "/assets/teams/indresh.jpeg",
     socials: {
@@ -38,7 +38,7 @@ const TEAM_MEMBERS = [
   },
   {
     name: "Sharma Divya Gurudev",
-    role: "Co-Founder & CMO",
+    role: "Founding Team",
     initials: "DS",
     image: "/assets/teams/divya.png",
     socials: {
@@ -49,7 +49,7 @@ const TEAM_MEMBERS = [
   },
   {
     name: "Sharma Shashank Rajesh",
-    role: "Marketing & Operations",
+    role: "Founding Team",
     initials: "SS",
     image: "/assets/teams/Shashank.png",
     socials: {
@@ -60,7 +60,7 @@ const TEAM_MEMBERS = [
   },
   {
     name: "Sharma Monish Mukesh",
-    role: "Operating Lead & Developer",
+    role: "Founding Team",
     initials: "MS",
     image: "/assets/teams/Monish.png",
     socials: {
@@ -71,7 +71,7 @@ const TEAM_MEMBERS = [
   },
   {
     name: "Rajbhar Ankita Ganesh",
-    role: "Software Developer",
+    role: "Founding Team",
     initials: "AR",
     image: "/assets/teams/Ankita.png",
     socials: {
@@ -82,7 +82,7 @@ const TEAM_MEMBERS = [
   },
   {
     name: "Pandey Utkarsh Ramesh",
-    role: "Marketing Advisor & Developer",
+    role: "Founding Team",
     initials: "UP",
     image: "/assets/teams/Utkarsh.png",
     socials: {

@@ -1178,7 +1178,8 @@ ${fullPortfolioUrl}
                   Scan to Visit GullyGig
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                  Scan to visit the GullyGig platform instantly on mobile devices.
+                  Scan to visit the GullyGig platform instantly on mobile
+                  devices.
                 </p>
               </div>
 

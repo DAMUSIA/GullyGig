@@ -228,7 +228,8 @@ export default function DashboardPortfolioPage() {
             My Public Portfolios
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Select a service to manage sharing, copy portfolio links, and generate ad posters
+            Select a service to manage sharing, copy portfolio links, and
+            generate ad posters
           </p>
         </div>
 
@@ -254,7 +255,7 @@ export default function DashboardPortfolioPage() {
             {/* Portfolio Link Card */}
             <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-5 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
-              
+
               <div className="flex items-center justify-between relative z-10">
                 <h3 className="text-sm font-extrabold text-slate-800 flex items-center gap-1.5">
                   <Globe className="h-4.5 w-4.5 text-blue-600" />
@@ -264,9 +265,12 @@ export default function DashboardPortfolioPage() {
                   ● Live Online
                 </span>
               </div>
-              
+
               <p className="text-xs text-slate-500 leading-relaxed font-medium relative z-10">
-                Your portfolio is live! It showcases your tutoring details, languages, location, contact details, reviews, and a website-pointing QR code. Perfect for sharing on WhatsApp status or social media bios.
+                Your portfolio is live! It showcases your tutoring details,
+                languages, location, contact details, reviews, and a
+                website-pointing QR code. Perfect for sharing on WhatsApp status
+                or social media bios.
               </p>
 
               {/* Copyable Short Link Bar */}
@@ -277,7 +281,9 @@ export default function DashboardPortfolioPage() {
                 </span>
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(`https://www.gullygig.in/p/${activeService.id}`);
+                    navigator.clipboard.writeText(
+                      `https://www.gullygig.in/p/${activeService.id}`,
+                    );
                     showToast("Portfolio link copied to clipboard!", "success");
                   }}
                   className="ml-auto flex items-center gap-1 py-1.5 px-3 bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-650 rounded-xl text-[10px] font-bold text-slate-650 shadow-xs transition cursor-pointer active:scale-95"
@@ -303,7 +309,7 @@ export default function DashboardPortfolioPage() {
             {/* Poster Launch Box */}
             <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row items-center gap-5 justify-between relative overflow-hidden">
               <div className="absolute -bottom-10 -left-10 w-28 h-28 bg-purple-500/5 rounded-full blur-2xl pointer-events-none" />
-              
+
               <div className="space-y-2 text-center sm:text-left relative z-10">
                 <div className="flex items-center justify-center sm:justify-start gap-1.5 text-blue-650 font-bold">
                   <Sparkles className="h-4.5 w-4.5 text-blue-500" />
@@ -315,7 +321,9 @@ export default function DashboardPortfolioPage() {
                   Generate Service Flyer
                 </h3>
                 <p className="text-xs text-slate-500 max-w leading-relaxed font-medium">
-                  Create a beautifully styled advertising poster of your listing containing a platform QR code, contact information, price tag, and operations structure.
+                  Create a beautifully styled advertising poster of your listing
+                  containing a platform QR code, contact information, price tag,
+                  and operations structure.
                 </p>
               </div>
 
@@ -344,7 +352,7 @@ export default function DashboardPortfolioPage() {
           {/* Right Column: Analytics Metrics summary */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-28 h-28 bg-purple-500/5 rounded-full blur-2xl pointer-events-none" />
-            
+
             <h3 className="text-sm font-extrabold text-slate-800 flex items-center gap-1.5 relative z-10">
               <BarChart3 className="h-4.5 w-4.5 text-blue-650" />
               Portfolio Performance

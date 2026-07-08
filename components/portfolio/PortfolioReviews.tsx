@@ -27,12 +27,27 @@ export default function PortfolioReviews({
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return "";
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
   };
 
   const ratingDistribution = [5, 4, 3, 2, 1].map((stars) => {
-    const matchCount = reviews.filter((r) => Math.round(r.rating) === stars).length;
+    const matchCount = reviews.filter(
+      (r) => Math.round(r.rating) === stars,
+    ).length;
     const percentage = reviewsCount > 0 ? (matchCount / reviewsCount) * 100 : 0;
     return { stars, percentage, count: matchCount };
   });
@@ -100,7 +115,10 @@ export default function PortfolioReviews({
             {/* Rating Distribution */}
             <div className="w-full mt-4 pt-4 border-t border-[#D4AF37]/10 space-y-1.5">
               {ratingDistribution.map((row) => (
-                <div key={row.stars} className="flex items-center gap-2 text-xs font-['Inter'] font-semibold text-[#6B7280]">
+                <div
+                  key={row.stars}
+                  className="flex items-center gap-2 text-xs font-['Inter'] font-semibold text-[#6B7280]"
+                >
                   <span className="w-3 text-right">{row.stars}</span>
                   <Star className="h-3 w-3 fill-[#D4AF37] text-[#D4AF37]" />
                   <div className="flex-1 h-2 bg-[#F1F5F9] rounded-full overflow-hidden">
@@ -109,7 +127,9 @@ export default function PortfolioReviews({
                       style={{ width: `${row.percentage}%` }}
                     />
                   </div>
-                  <span className="w-6 text-right font-medium">{row.count}</span>
+                  <span className="w-6 text-right font-medium">
+                    {row.count}
+                  </span>
                 </div>
               ))}
             </div>
@@ -125,7 +145,9 @@ export default function PortfolioReviews({
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-[#D4AF37]/20 flex items-center justify-center font-['Poppins'] font-bold text-[#D4AF37] text-sm border border-[#D4AF37]/20">
-                      {(rev.users?.full_name || "Anonymous").charAt(0).toUpperCase()}
+                      {(rev.users?.full_name || "Anonymous")
+                        .charAt(0)
+                        .toUpperCase()}
                     </div>
                     <div>
                       <span className="text-sm font-['Poppins'] font-semibold text-[#111827] block">
@@ -136,7 +158,9 @@ export default function PortfolioReviews({
                           <Star
                             key={i}
                             className={`h-3.5 w-3.5 ${
-                              i < rev.rating ? "fill-[#D4AF37] text-[#D4AF37]" : "opacity-20"
+                              i < rev.rating
+                                ? "fill-[#D4AF37] text-[#D4AF37]"
+                                : "opacity-20"
                             }`}
                           />
                         ))}

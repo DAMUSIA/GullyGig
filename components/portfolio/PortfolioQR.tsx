@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { QrCode, Copy, Check, Download, Share2 } from "lucide-react";
 
 interface PortfolioQRProps {
@@ -8,14 +8,17 @@ interface PortfolioQRProps {
   serviceTitle?: string;
 }
 
-export default function PortfolioQR({ portfolioUrl, serviceTitle = "Portfolio" }: PortfolioQRProps) {
+export default function PortfolioQR({
+  portfolioUrl,
+  serviceTitle = "Portfolio",
+}: PortfolioQRProps) {
   const [copied, setCopied] = useState(false);
-  const [qrCodeUrl, setQrCodeUrl] = useState("");
 
-  useEffect(() => {
-    setQrCodeUrl(
-      `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(portfolioUrl)}`
-    );
+  // Use useMemo instead of useState + useEffect
+  const qrCodeUrl = useMemo(() => {
+    return `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
+      portfolioUrl,
+    )}`;
   }, [portfolioUrl]);
 
   const handleCopy = async () => {
@@ -33,7 +36,9 @@ export default function PortfolioQR({ portfolioUrl, serviceTitle = "Portfolio" }
     const ctx = canvas.getContext("2d");
     const img = new Image();
     img.crossOrigin = "anonymous";
-    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(portfolioUrl)}`;
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
+      portfolioUrl,
+    )}`;
 
     img.onload = () => {
       canvas.width = 340;
@@ -77,7 +82,7 @@ export default function PortfolioQR({ portfolioUrl, serviceTitle = "Portfolio" }
       {/* Background decorative elements */}
       <div className="absolute -top-20 -right-20 w-48 h-48 bg-[#5BE7FF]/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-[#D6B36A]/5 rounded-full blur-3xl pointer-events-none" />
-      
+
       {/* Thin glowing lines */}
       <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#D6B36A]/20 to-transparent" />
       <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#5BE7FF]/10 to-transparent" />
@@ -91,14 +96,14 @@ export default function PortfolioQR({ portfolioUrl, serviceTitle = "Portfolio" }
               Premium Digital Presence
             </span>
           </div>
-          
+
           <h4 className="text-2xl font-['Poppins'] font-semibold text-white">
             Share Your Portfolio
           </h4>
-          
+
           <p className="text-sm font-['Inter'] text-white/60 leading-relaxed max-w-md">
-            Scan the QR code to instantly view this professional portfolio on any device. 
-            Perfect for sharing with clients and colleagues.
+            Scan the QR code to instantly view this professional portfolio on
+            any device. Perfect for sharing with clients and colleagues.
           </p>
 
           {/* Clickable URL */}

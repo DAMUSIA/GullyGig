@@ -93,7 +93,7 @@ export default function PortfolioContact({
 
                   <a
                     href={`https://wa.me/${cleaned}?text=${encodeURIComponent(
-                      `Hello! I saw your service "${serviceTitle}" on GullyGig and want to enquire.`
+                      `Hello! I saw your service "${serviceTitle}" on GullyGig and want to enquire.`,
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"

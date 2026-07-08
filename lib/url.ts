@@ -3,6 +3,9 @@
  * Never hardcode domains. Always use the current origin.
  */
 
+const UUID_REGEX =
+  /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+
 /**
  * Get the base URL of the current deployment
  * Works in both client and server components
@@ -44,6 +47,38 @@ export function getPortfolioUrl(serviceId: string, title?: string): string {
     return `${getBaseUrl()}/p/${slug}`;
   }
   return `${getBaseUrl()}/p/${serviceId}`;
+}
+
+/**
+ * Resolves a portfolio identifier from a route param, slug, or full URL.
+ * This keeps QR scans and shared links working even when the scanner opens
+ * a slugged path such as /p/photography-<service-id>.
+ */
+export function resolvePortfolioIdFromParam(value: string): string | null {
+  if (!value) return null;
+
+  const trimmed = value.trim();
+  let path = trimmed;
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    try {
+      path = new URL(trimmed).pathname;
+    } catch {
+      path = trimmed;
+    }
+  }
+
+  const segments = path.split("/").filter(Boolean);
+  const candidate =
+    segments[0] === "p" ? segments.slice(1).join("/") : segments.join("/");
+  const normalized = candidate.split("?")[0].split("#")[0];
+
+  const uuidMatch = normalized.match(UUID_REGEX);
+  if (uuidMatch?.[0]) {
+    return uuidMatch[0];
+  }
+
+  return null;
 }
 
 /**

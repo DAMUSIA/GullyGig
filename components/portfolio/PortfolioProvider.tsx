@@ -1,7 +1,16 @@
 "use client";
 
 import React from "react";
-import { User, MapPin, Calendar, Award, ShieldCheck, Globe, Clock, Star, Briefcase } from "lucide-react";
+import {
+  User,
+  MapPin,
+  Calendar,
+  ShieldCheck,
+  Globe,
+  Clock,
+  Star,
+  Briefcase,
+} from "lucide-react";
 
 interface PortfolioProviderProps {
   fullName: string;
@@ -29,10 +38,10 @@ export default function PortfolioProvider({
   totalServices = 1,
 }: PortfolioProviderProps) {
   return (
-    <div className="bg-[#FFFFFF] rounded-[26px] p-8 shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.12)] transition-all duration-250 space-y-6 border border-[#E5E7EB]">
+    <div className="bg-[#FFFFFF] rounded-[26px] p-8 shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] transition-all duration-300 space-y-6 border border-[#E5E7EB] hover:border-[#2563EB]/20">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="p-3 bg-[#D4AF37]/10 rounded-2xl border border-[#D4AF37]/20">
+        <div className="p-3 bg-[#D4AF37]/10 rounded-2xl border border-[#D4AF37]/20 shadow-[0_4px_12px_rgba(212,175,55,0.08)]">
           <User className="h-6 w-6 text-[#D4AF37]" />
         </div>
         <div>
@@ -46,19 +55,19 @@ export default function PortfolioProvider({
       </div>
 
       {/* Main Profile Card */}
-      <div className="relative p-6 bg-[#F8FAFC] rounded-2xl border border-[#D4AF37]/10">
+      <div className="relative p-6 bg-[#F8FAFC] rounded-2xl border border-[#D4AF37]/10 shadow-[0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_32px_rgba(212,175,55,0.08)] transition-all duration-300">
         <div className="absolute -top-10 -right-10 w-20 h-20 bg-[#D4AF37]/5 rounded-full blur-2xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col items-center text-center">
           {/* Avatar with gradient ring */}
           <div className="relative mb-3">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#2563EB] via-[#3B82F6] to-[#60A5FA] p-[2px]">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#2563EB] via-[#3B82F6] to-[#60A5FA] p-[2px] shadow-[0_4px_16px_rgba(37,99,235,0.2)]">
               <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-4xl font-['Poppins'] font-bold text-[#2563EB]">
                 {fullName.charAt(0).toUpperCase()}
               </div>
             </div>
             {isVerified && (
-              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-[#2563EB] to-[#3B82F6] rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-[#2563EB] to-[#3B82F6] rounded-full flex items-center justify-center border-2 border-white shadow-[0_2px_8px_rgba(37,99,235,0.3)]">
                 <ShieldCheck className="h-4.5 w-4.5 text-white" />
               </div>
             )}
@@ -81,7 +90,9 @@ export default function PortfolioProvider({
           <div className="flex items-center gap-3 mt-2">
             <div className="flex items-center gap-1 text-[#D4AF37]">
               <Star className="h-4 w-4 fill-[#D4AF37] text-[#D4AF37]" />
-              <span className="font-['Space_Grotesk'] font-bold text-[#111827]">{rating.toFixed(1)}</span>
+              <span className="font-['Space_Grotesk'] font-bold text-[#111827]">
+                {rating.toFixed(1)}
+              </span>
             </div>
             {totalReviews > 0 && (
               <span className="text-xs font-['Inter'] text-[#6B7280]">
@@ -122,7 +133,7 @@ export default function PortfolioProvider({
             {languages.map((lang) => (
               <span
                 key={lang}
-                className="px-4 py-1.5 bg-[#14B8A6]/5 text-[#374151] text-[13px] font-['Inter'] font-medium rounded-2xl border border-[#14B8A6]/10 hover:border-[#14B8A6]/30 transition-all duration-200"
+                className="px-4 py-1.5 bg-[#14B8A6]/5 text-[#374151] text-[13px] font-['Inter'] font-medium rounded-2xl border border-[#14B8A6]/10 hover:border-[#14B8A6]/30 transition-all duration-200 shadow-[0_2px_8px_rgba(20,184,166,0.06)] hover:shadow-[0_4px_16px_rgba(20,184,166,0.12)]"
               >
                 {lang}
               </span>
@@ -142,7 +153,7 @@ export default function PortfolioProvider({
             {availability.map((opt) => (
               <span
                 key={opt}
-                className="px-4 py-1.5 bg-[#D4AF37]/5 text-[#374151] text-[13px] font-['Inter'] font-medium rounded-2xl border border-[#D4AF37]/10 hover:border-[#D4AF37]/30 transition-all duration-200"
+                className="px-4 py-1.5 bg-[#D4AF37]/5 text-[#374151] text-[13px] font-['Inter'] font-medium rounded-2xl border border-[#D4AF37]/10 hover:border-[#D4AF37]/30 transition-all duration-200 shadow-[0_2px_8px_rgba(212,175,55,0.06)] hover:shadow-[0_4px_16px_rgba(212,175,55,0.12)]"
               >
                 {opt}
               </span>
@@ -153,7 +164,7 @@ export default function PortfolioProvider({
 
       {/* Statistics */}
       <div className="pt-4 border-t border-[#D4AF37]/20 grid grid-cols-3 gap-3">
-        <div className="text-center">
+        <div className="text-center p-2 rounded-xl hover:bg-[#F8FAFC] transition-all duration-200">
           <div className="font-['Space_Grotesk'] font-bold text-lg text-[#D4AF37]">
             {totalServices}
           </div>
@@ -161,7 +172,7 @@ export default function PortfolioProvider({
             Services
           </div>
         </div>
-        <div className="text-center border-x border-[#D4AF37]/20">
+        <div className="text-center p-2 rounded-xl hover:bg-[#F8FAFC] transition-all duration-200 border-x border-[#D4AF37]/20">
           <div className="font-['Space_Grotesk'] font-bold text-lg text-[#D4AF37]">
             {totalReviews}
           </div>
@@ -169,7 +180,7 @@ export default function PortfolioProvider({
             Reviews
           </div>
         </div>
-        <div className="text-center">
+        <div className="text-center p-2 rounded-xl hover:bg-[#F8FAFC] transition-all duration-200">
           <div className="font-['Space_Grotesk'] font-bold text-lg text-[#D4AF37]">
             {isVerified ? "✓" : "—"}
           </div>

@@ -22,18 +22,48 @@ export default function PortfolioInfo({
       <div className="lg:col-span-2 bg-[#FFFFFF] rounded-[26px] p-8 shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] transition-all duration-300 hover:scale-[1.02] relative overflow-hidden border border-[#E5E7EB]">
         {/* Background decoration */}
         <div className="absolute -top-20 -right-20 w-60 h-60 opacity-[0.03] pointer-events-none text-[#2563EB]">
-          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="100" cy="100" r="40" stroke="currentColor" strokeWidth="2" />
-            <ellipse cx="100" cy="100" rx="80" ry="30" stroke="currentColor" strokeWidth="1.5" transform="rotate(45 100 100)" />
-            <ellipse cx="100" cy="100" rx="80" ry="30" stroke="currentColor" strokeWidth="1.5" transform="rotate(-45 100 100)" />
+          <svg
+            viewBox="0 0 200 200"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle
+              cx="100"
+              cy="100"
+              r="40"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
+            <ellipse
+              cx="100"
+              cy="100"
+              rx="80"
+              ry="30"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              transform="rotate(45 100 100)"
+            />
+            <ellipse
+              cx="100"
+              cy="100"
+              rx="80"
+              ry="30"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              transform="rotate(-45 100 100)"
+            />
           </svg>
         </div>
 
         {/* Gold dotted pattern */}
-        <div className="absolute bottom-0 right-0 w-40 h-40 opacity-[0.03] pointer-events-none" style={{
-          backgroundImage: "radial-gradient(circle, #D4AF37 2px, transparent 2px)",
-          backgroundSize: "12px 12px",
-        }} />
+        <div
+          className="absolute bottom-0 right-0 w-40 h-40 opacity-[0.03] pointer-events-none"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, #D4AF37 2px, transparent 2px)",
+            backgroundSize: "12px 12px",
+          }}
+        />
 
         <div className="relative z-10 space-y-5">
           {/* About Header */}
@@ -127,15 +157,21 @@ export default function PortfolioInfo({
         <div className="pt-4 border-t border-[#D4AF37]/20 space-y-3">
           <div className="flex items-center justify-between text-sm text-[#6B7280] group hover:bg-[#F8FAFC] p-2 rounded-xl transition-all duration-200">
             <span className="font-['Inter']">Satisfaction</span>
-            <span className="font-['Space_Grotesk'] font-bold text-[#D4AF37]">100%</span>
+            <span className="font-['Space_Grotesk'] font-bold text-[#D4AF37]">
+              100%
+            </span>
           </div>
           <div className="flex items-center justify-between text-sm text-[#6B7280] group hover:bg-[#F8FAFC] p-2 rounded-xl transition-all duration-200">
             <span className="font-['Inter']">Support</span>
-            <span className="font-['Space_Grotesk'] font-bold text-[#D4AF37]">24/7</span>
+            <span className="font-['Space_Grotesk'] font-bold text-[#D4AF37]">
+              24/7
+            </span>
           </div>
           <div className="flex items-center justify-between text-sm text-[#6B7280] group hover:bg-[#F8FAFC] p-2 rounded-xl transition-all duration-200">
             <span className="font-['Inter']">Verified</span>
-            <span className="font-['Space_Grotesk'] font-bold text-[#D4AF37]">✓</span>
+            <span className="font-['Space_Grotesk'] font-bold text-[#D4AF37]">
+              ✓
+            </span>
           </div>
         </div>
       </div>

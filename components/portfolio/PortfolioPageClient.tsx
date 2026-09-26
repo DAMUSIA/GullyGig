@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Sun,
   Moon,
@@ -11,22 +11,18 @@ import {
   Copy,
   Check,
   QrCode,
-  Star,
-  MessageSquare,
-  Globe,
-  MapPin,
-  User,
-  Sparkles,
   Send,
   Download,
   ShieldCheck,
-  Eye,
-  Award,
-  AlertCircle,
 } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { getBaseUrl, getPortfolioUrl } from "@/lib/url";
+import PortfolioHero from "./PortfolioHero";
+import PortfolioInfo from "./PortfolioInfo";
+import PortfolioContact from "./PortfolioContact";
+import PortfolioReviews from "./PortfolioReviews";
+import PortfolioProvider from "./PortfolioProvider";
 
 interface ReviewItem {
   id: string;
@@ -84,75 +80,45 @@ interface PortfolioPageClientProps {
   portfolioId: string;
 }
 
-// Helper functions for deterministic formatting
-const formatDate = (dateStr: string) => {
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return "";
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-};
-
-const formatMonthYear = (dateStr?: string) => {
-  if (!dateStr) return "June 2026";
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return "June 2026";
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  return `${months[d.getMonth()]} ${d.getFullYear()}`;
-};
-
-/**
- * Renders the client-side service portfolio page.
- *
- * @param initialService - The service listing and provider data to display.
- * @param initialReviews - The initial set of reviews for the listing.
- * @param portfolioId - The portfolio identifier used to build share and QR links.
- * @returns The portfolio page content.
- */
 export default function PortfolioPageClient({
   initialService,
   initialReviews,
   portfolioId,
 }: PortfolioPageClientProps) {
-  // Theme state
+  // Theme state - default to dark mode
   const [mounted, setMounted] = useState(false);
-  const [darkMode, setDarkMode] = useState<boolean>(false);
+  const [darkMode, setDarkMode] = useState<boolean>(true);
 
+  // Use useLayoutEffect to avoid setState warning
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-    const savedTheme = localStorage.getItem("theme");
-    const systemPrefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    ).matches;
-
-    setDarkMode(savedTheme === "dark" || (!savedTheme && systemPrefersDark));
+    // Check if we're in the browser
+    if (typeof window !== "undefined") {
+      // Use a timeout to avoid the setState warning
+      const timer = setTimeout(() => {
+        setMounted(true);
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme) {
+          setDarkMode(savedTheme === "dark");
+        } else {
+          setDarkMode(true);
+        }
+      }, 0);
+      return () => clearTimeout(timer);
+    }
   }, []);
+
+  // Apply theme class to html element
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      if (darkMode) {
+        document.documentElement.classList.add("dark");
+        document.documentElement.classList.remove("light");
+      } else {
+        document.documentElement.classList.add("light");
+        document.documentElement.classList.remove("dark");
+      }
+    }
+  }, [darkMode]);
 
   // Auth & Interactions
   const [user, setUser] = useState<SupabaseUser | null>(null);
@@ -171,45 +137,39 @@ export default function PortfolioPageClient({
   );
   const [isLiked, setIsLiked] = useState(false);
 
-  // Reviews States
-  const [reviews, setReviews] = useState<ReviewItem[]>(initialReviews);
-  const [reviewsCount, setReviewsCount] = useState(
-    initialService.reviews_count || 0,
-  );
-  const [ratingAverage, setRatingAverage] = useState(
-    initialService.rating_average || 0,
-  );
-  const [userRating, setUserRating] = useState(0);
-  const [userComment, setUserComment] = useState("");
-  const [reviewLoading, setReviewLoading] = useState(false);
+  // Reviews States - keep these for future use
+  const [reviews] = useState<ReviewItem[]>(initialReviews);
+  const [reviewsCount] = useState(initialService.reviews_count || 0);
+  const [ratingAverage] = useState(initialService.rating_average || 0);
 
   // UI helpers
   const [copiedUrl, setCopiedUrl] = useState(false);
-  const [copiedPhoneIdx, setCopiedPhoneIdx] = useState<number | null>(null);
   const [showShareDropdown, setShowShareDropdown] = useState(false);
 
-  // IMPORTANT: Generate portfolio URL using the ID and title
-  // This will be the same on both server and client because we're using the ID
+  // Generate portfolio URL
   const portfolioUrl = getPortfolioUrl(portfolioId, initialService.title);
 
-  // Store QR code URL and share text in state to avoid hydration mismatch
-  const [qrCodeUrl, setQrCodeUrl] = useState("");
-  const [shareText, setShareText] = useState("");
+  // Get contact numbers with useMemo
+  const activeNumbers = useMemo(() => {
+    const numbers = initialService.contact_numbers;
+    const phoneNo = initialService.users?.phone_no;
 
-  // Generate dynamic content only on client side
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setQrCodeUrl(
-      "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Fwww.gullygig.in",
-    );
+    if (numbers?.length) {
+      return numbers;
+    }
+    if (phoneNo) {
+      return [phoneNo];
+    }
+    return [];
+  }, [initialService.contact_numbers, initialService.users]);
 
-    // Generate share text
-    const activeNumbers = initialService.contact_numbers?.length
-      ? initialService.contact_numbers
-      : initialService.users?.phone_no
-        ? [initialService.users.phone_no]
-        : [];
+  // Generate QR code URL with useMemo
+  const qrCodeUrl = useMemo(() => {
+    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(portfolioUrl)}`;
+  }, [portfolioUrl]);
 
+  // Share text with useMemo
+  const shareText = useMemo(() => {
     const baseUrl = getBaseUrl();
     const fullPortfolioUrl = `${baseUrl}/p/${initialService.id}`;
 
@@ -220,11 +180,9 @@ export default function PortfolioPageClient({
     const price = initialService.starting_price
       ? `₹${initialService.starting_price}${initialService.price_unit ? ` / ${initialService.price_unit.toLowerCase()}` : ""}`
       : "Contact for pricing";
-    const rating = initialService.rating_average
-      ? `${initialService.rating_average.toFixed(1)} ⭐`
-      : "New";
-    const reviewsText = initialService.reviews_count
-      ? `${initialService.reviews_count} reviews`
+    const rating = ratingAverage ? `${ratingAverage.toFixed(1)} ⭐` : "New";
+    const reviewsText = reviewsCount
+      ? `${reviewsCount} reviews`
       : "No reviews yet";
 
     const modes =
@@ -232,12 +190,12 @@ export default function PortfolioPageClient({
         ? `\n📍 Service Modes: ${initialService.service_modes.join(", ")}`
         : "";
 
-    const availability =
+    const availabilityText =
       initialService.availability.length > 0
         ? `\n📅 Availability: ${initialService.availability.join(", ")}`
         : "";
 
-    const languages =
+    const languagesText =
       initialService.languages.length > 0
         ? `\n🌐 Languages: ${initialService.languages.join(", ")}`
         : "";
@@ -246,46 +204,30 @@ export default function PortfolioPageClient({
       ? `\n\n📝 "${initialService.description.substring(0, 120)}${initialService.description.length > 120 ? "..." : ""}"`
       : "";
 
-    const text = `🔹 *${initialService.title}* 🔹
+    return `🔹 *${initialService.title}* 🔹
 ━━━━━━━━━━━━━━━━━━━━━━
 👤 Provider: ${providerName}
 📂 Category: ${initialService.category}
 📍 Location: ${location}
 ⭐ Rating: ${rating} (${reviewsText})
-💰 Price: ${price}${modes}${availability}${languages}${description}
+💰 Price: ${price}${modes}${availabilityText}${languagesText}${description}
 ━━━━━━━━━━━━━━━━━━━━━━
 📞 Contact: ${activeNumbers.length > 0 ? activeNumbers[0] : "Available on portfolio"}
 🔗 View Full Portfolio:
 ${fullPortfolioUrl}
 ━━━━━━━━━━━━━━━━━━━━━━
 #${initialService.category.replace(/\s/g, "")} #GullyGig #LocalServices ${initialService.city ? `#${initialService.city.replace(/\s/g, "")}` : ""}`;
+  }, [initialService, ratingAverage, reviewsCount, activeNumbers]);
 
-    setShareText(text);
-  }, [initialService, portfolioUrl, portfolioId]);
-
-  // Apply theme class
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [darkMode]);
-
+  // Theme toggle function
   const toggleTheme = () => {
     const newDark = !darkMode;
     setDarkMode(newDark);
-    if (newDark) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
+    localStorage.setItem("theme", newDark ? "dark" : "light");
   };
 
   // Check if liked
-  const checkIfLiked = React.useCallback(
+  const checkIfLiked = useCallback(
     async (accessToken: string) => {
       try {
         const res = await fetch(`/api/likes?serviceId=${initialService.id}`, {
@@ -328,16 +270,6 @@ ${fullPortfolioUrl}
 
     return () => subscription.unsubscribe();
   }, [checkIfLiked]);
-
-  // Check user review completion
-  const userHasReviewed = !!(
-    user &&
-    reviews.some(
-      (r) =>
-        r.users?.full_name === user.user_metadata?.full_name ||
-        r.user_id === user.id,
-    )
-  );
 
   // Log View count
   useEffect(() => {
@@ -402,67 +334,6 @@ ${fullPortfolioUrl}
     }
   };
 
-  // Review Submit
-  const handleReviewSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || !token) {
-      setAuthModalReason("write a review for this service provider");
-      setShowAuthModal(true);
-      return;
-    }
-
-    if (userRating === 0) {
-      alert("Please select a rating score.");
-      return;
-    }
-
-    setReviewLoading(true);
-    try {
-      const res = await fetch("/api/reviews", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          serviceId: initialService.id,
-          rating: userRating,
-          comment: userComment,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to submit review.");
-      }
-
-      setRatingAverage(data.averageRating);
-      setReviewsCount(data.totalReviews);
-      setUserComment("");
-      setUserRating(0);
-
-      if (supabase) {
-        const { data: newReviews } = await supabase
-          .from("service_ratings")
-          .select("*, users:user_id(full_name)")
-          .eq("service_id", initialService.id)
-          .order("created_at", { ascending: false });
-        if (newReviews) setReviews(newReviews);
-      }
-    } catch (err: unknown) {
-      const errorObj = err as { message?: string } | null;
-      alert(errorObj?.message || "Failed to submit review.");
-    } finally {
-      setReviewLoading(false);
-    }
-  };
-
-  // Contacts
-  const activeNumbers = initialService.contact_numbers?.length
-    ? initialService.contact_numbers
-    : initialService.users?.phone_no
-      ? [initialService.users.phone_no]
-      : [];
-
   const cleanNumber = (num: string) => num.replace(/\D/g, "");
 
   // Share handlers
@@ -492,39 +363,51 @@ ${fullPortfolioUrl}
     }
   };
 
-  const copyPhoneToClipboard = async (num: string, idx: number) => {
-    try {
-      await navigator.clipboard.writeText(num);
-      setCopiedPhoneIdx(idx);
-      setTimeout(() => setCopiedPhoneIdx(null), 2000);
-    } catch (err) {
-      console.error("Failed to copy phone:", err);
-    }
-  };
-
   // QR Code Download
   const downloadQrCode = () => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     const img = new Image();
     img.crossOrigin = "anonymous";
-    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
-      portfolioUrl,
-    )}`;
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(portfolioUrl)}`;
 
     img.onload = () => {
-      canvas.width = 280;
-      canvas.height = 320;
+      canvas.width = 340;
+      canvas.height = 400;
       if (!ctx) return;
 
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, 280, 320);
-      ctx.drawImage(img, 15, 15, 250, 250);
+      if (darkMode) {
+        // Dark mode QR background
+        const gradient = ctx.createLinearGradient(0, 0, 340, 400);
+        gradient.addColorStop(0, "#0A1F3D");
+        gradient.addColorStop(0.5, "#102B54");
+        gradient.addColorStop(1, "#061528");
+        ctx.fillStyle = gradient;
+        ctx.strokeStyle = "rgba(214,179,106,0.35)";
+      } else {
+        // Light mode QR background
+        ctx.fillStyle = "#FFFFFF";
+        ctx.strokeStyle = "rgba(37,99,235,0.2)";
+      }
+      ctx.fillRect(0, 0, 340, 400);
 
-      ctx.fillStyle = "#0f172a";
-      ctx.font = "bold 13px system-ui, sans-serif";
+      // Border
+      ctx.lineWidth = 2;
+      ctx.strokeRect(15, 15, 310, 370);
+
+      // QR Code
+      ctx.drawImage(img, 20, 30, 300, 300);
+
+      // Text
+      ctx.fillStyle = darkMode ? "#FFFFFF" : "#111827";
+      ctx.font = "bold 16px Inter, system-ui, sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText("Scan to View Portfolio on GullyGig", 140, 295);
+      ctx.fillText("Scan to View Portfolio", 170, 370);
+      ctx.fillStyle = darkMode
+        ? "rgba(255,255,255,0.4)"
+        : "rgba(107,114,128,0.6)";
+      ctx.font = "12px Inter, system-ui, sans-serif";
+      ctx.fillText("GullyGig Premium Service", 170, 392);
 
       const link = document.createElement("a");
       link.download = `${initialService.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-qr.png`;
@@ -533,32 +416,41 @@ ${fullPortfolioUrl}
     };
   };
 
-  // Rating distribution
-  const ratingDistribution = [5, 4, 3, 2, 1].map((stars) => {
-    const matchCount = reviews.filter(
-      (r) => Math.round(r.rating) === stars,
-    ).length;
-    const percentage = reviewsCount > 0 ? (matchCount / reviewsCount) * 100 : 0;
-    return { stars, percentage, count: matchCount };
-  });
-
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 font-sans pb-28">
+    <div
+      className={`min-h-screen transition-colors duration-300 font-['Inter'] pb-28 ${
+        darkMode
+          ? "bg-[#061528] text-white"
+          : "bg-gradient-to-b from-[#FFFFFF] via-[#F8FAFC] to-[#EEF5FB] text-[#111827]"
+      }`}
+    >
       {/* Theme Switcher */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 flex justify-end gap-3 items-center">
-        <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3.5 py-1.5 rounded-full shadow-xs">
+      <div
+        className={`max-w-[1400px] mx-auto px-8 pt-6 flex justify-end gap-3 items-center transition-all duration-300`}
+      >
+        <span
+          className={`text-[10px] font-extrabold uppercase tracking-widest px-3.5 py-1.5 rounded-full shadow-xs transition-all duration-300 ${
+            darkMode
+              ? "text-white/40 bg-white/5 backdrop-blur-sm border border-white/10"
+              : "text-[#6B7280] bg-white/80 backdrop-blur-sm border border-[#E5E7EB]"
+          }`}
+        >
           GullyGig Service Hub
         </span>
         <button
           onClick={toggleTheme}
-          className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-800 transition shadow-xs cursor-pointer"
-          title="Toggle Light/Dark Theme"
+          className={`p-2.5 rounded-xl transition-all duration-300 shadow-xs cursor-pointer ${
+            darkMode
+              ? "bg-white/5 backdrop-blur-sm border border-white/10 text-white/60 hover:bg-white/10"
+              : "bg-white/80 backdrop-blur-sm border border-[#E5E7EB] text-[#6B7280] hover:bg-[#F8FAFC]"
+          }`}
+          title="Toggle Theme"
         >
           {mounted ? (
             darkMode ? (
-              <Sun className="h-5 w-5 text-amber-500" />
+              <Sun className="h-5 w-5 text-[#D6B36A]" />
             ) : (
-              <Moon className="h-5 w-5 text-indigo-650" />
+              <Moon className="h-5 w-5 text-[#2563EB]" />
             )
           ) : (
             <div className="h-5 w-5" />
@@ -566,692 +458,350 @@ ${fullPortfolioUrl}
         </button>
       </div>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 mt-6 space-y-8">
+      <main className="max-w-[1400px] mx-auto px-8 mt-6 space-y-6">
         {/* HERO SECTION */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 text-white rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl border border-white/5 animate-in fade-in duration-300">
-          <div className="absolute -top-12 -right-12 w-48 h-48 bg-blue-500/15 rounded-full blur-3xl pointer-events-none animate-pulse-subtle" />
-          <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-purple-500/15 rounded-full blur-3xl pointer-events-none animate-pulse-subtle" />
-
-          <div className="relative z-10 space-y-6">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-500/20 text-blue-300 text-[10px] font-extrabold uppercase tracking-widest rounded-lg border border-blue-500/30">
-                <Sparkles className="h-3 w-3" />
-                {initialService.category}
-              </span>
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold uppercase tracking-widest rounded-lg border border-emerald-500/30">
-                <ShieldCheck className="h-3 w-3" />
-                Verified Partner
-              </span>
-            </div>
-
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-white via-white to-blue-100 bg-clip-text text-transparent">
-              {initialService.title}
-            </h1>
-
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-3.5 text-xs sm:text-sm font-semibold text-slate-300">
-              <div className="flex items-center gap-1.5">
-                <MapPin className="h-4 w-4 text-red-400 shrink-0" />
-                <span>
-                  {[initialService.area, initialService.city]
-                    .filter(Boolean)
-                    .join(", ")}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl">
-                <div className="flex items-center text-amber-400 gap-0.5">
-                  <Star className="h-4 w-4 fill-amber-400" />
-                  <span className="font-extrabold text-white">
-                    {ratingAverage.toFixed(1)}
-                  </span>
-                </div>
-                <span className="text-slate-400">({reviewsCount} reviews)</span>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-4 border-t border-white/10 pt-5 text-[11px] font-bold text-slate-400">
-              <span className="flex items-center gap-1.5">
-                <Eye className="h-4 w-4" />
-                {viewsCount} Views
-              </span>
-              <span className="h-3.5 w-[1px] bg-white/10" />
-              <span className="flex items-center gap-1.5">
-                <Heart className="h-4 w-4" />
-                {likesCount} Likes
-              </span>
-            </div>
-
-            {initialService.service_modes.length > 0 && (
-              <div className="space-y-2.5 pt-2">
-                <span className="block text-[10px] font-extrabold text-slate-450 uppercase tracking-widest">
-                  Available Modes
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {initialService.service_modes.map((mode) => (
-                    <span
-                      key={mode}
-                      className={`px-3 py-1.5 text-xs font-bold rounded-full border transition-all ${
-                        mode.toLowerCase().includes("online") ||
-                        mode.toLowerCase().includes("video")
-                          ? "bg-sky-500/10 border-sky-400/30 text-sky-300"
-                          : "bg-indigo-500/10 border-indigo-400/30 text-indigo-300"
-                      }`}
-                    >
-                      {mode}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
+        <PortfolioHero
+          title={initialService.title}
+          category={initialService.category}
+          city={initialService.city}
+          area={initialService.area}
+          ratingAverage={ratingAverage}
+          reviewsCount={reviewsCount}
+          startingPrice={initialService.starting_price}
+          priceUnit={initialService.price_unit}
+          viewsCount={viewsCount}
+          likesCount={likesCount}
+          darkMode={darkMode}
+        />
 
         {/* MAIN COLUMN GRID */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           {/* LEFT 2 COLUMNS */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6">
             {/* ABOUT SERVICE */}
-            <section className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border border-slate-200/50 dark:border-slate-800/40 rounded-3xl p-6 sm:p-8 shadow-md space-y-4">
-              <h3 className="text-lg font-extrabold flex items-center gap-2">
-                <Award className="h-5 w-5 text-blue-600" />
-                About Service
-              </h3>
-              <p className="text-slate-650 dark:text-slate-300 text-sm sm:text-base leading-relaxed whitespace-pre-wrap font-medium">
-                {initialService.description}
-              </p>
-            </section>
-
-            {/* SERVICE DETAILS */}
-            <section className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border border-slate-200/50 dark:border-slate-800/40 rounded-3xl p-6 sm:p-8 shadow-md space-y-5">
-              <h3 className="text-lg font-extrabold">Service Specifications</h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-100 dark:border-slate-800/20">
-                  <span className="text-[10px] font-extrabold text-slate-405 dark:text-slate-500 uppercase tracking-widest block mb-1">
-                    Category
-                  </span>
-                  <span className="text-sm font-bold text-slate-850 dark:text-slate-200">
-                    {initialService.category}
-                  </span>
-                </div>
-
-                <div className="p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-100 dark:border-slate-800/20">
-                  <span className="text-[10px] font-extrabold text-slate-405 dark:text-slate-500 uppercase tracking-widest block mb-1">
-                    Pricing
-                  </span>
-                  <span className="text-sm font-extrabold text-blue-650 dark:text-blue-400">
-                    {initialService.starting_price
-                      ? `₹${initialService.starting_price} / ${initialService.price_unit || "hour"}`
-                      : "Request Quote"}
-                  </span>
-                </div>
-
-                <div className="p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-100 dark:border-slate-800/20">
-                  <span className="text-[10px] font-extrabold text-slate-405 dark:text-slate-500 uppercase tracking-widest block mb-1">
-                    Languages
-                  </span>
-                  <span className="text-sm font-bold text-slate-850 dark:text-slate-200">
-                    {initialService.languages?.join(", ") || "English"}
-                  </span>
-                </div>
-
-                <div className="p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-100 dark:border-slate-800/20">
-                  <span className="text-[10px] font-extrabold text-slate-405 dark:text-slate-500 uppercase tracking-widest block mb-1">
-                    Availability
-                  </span>
-                  <span className="text-sm font-bold text-slate-850 dark:text-slate-200">
-                    {initialService.availability?.join(", ") ||
-                      "Flexible hours"}
-                  </span>
-                </div>
-              </div>
-            </section>
+            <PortfolioInfo
+              description={initialService.description}
+              serviceModes={initialService.service_modes}
+              languages={initialService.languages}
+              availability={initialService.availability}
+            />
 
             {/* CONTACT CARDS */}
-            <section className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border border-slate-200/50 dark:border-slate-800/40 rounded-3xl p-6 sm:p-8 shadow-md space-y-6">
-              <div>
-                <h3 className="text-lg font-extrabold">
-                  Instant Contact Channels
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Get in touch directly via Call or WhatsApp
-                </p>
-              </div>
-
-              {activeNumbers.length === 0 ? (
-                <p className="text-xs text-slate-450 italic">
-                  No contact numbers attached.
-                </p>
-              ) : (
-                <div className="space-y-4">
-                  {activeNumbers.map((number, idx) => {
-                    const cleaned = cleanNumber(number);
-                    return (
-                      <div
-                        key={idx}
-                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/20 rounded-2xl"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-                            <Phone className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <span className="text-[9px] font-extrabold text-slate-400 dark:text-slate-550 uppercase tracking-widest block">
-                              Phone{" "}
-                              {activeNumbers.length > 1 ? `#${idx + 1}` : ""}
-                            </span>
-                            <span className="text-sm font-extrabold tracking-tight">
-                              {number}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-2">
-                          <button
-                            onClick={() => copyPhoneToClipboard(number, idx)}
-                            className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-xl transition cursor-pointer"
-                            title="Copy number"
-                          >
-                            {copiedPhoneIdx === idx ? (
-                              <Check className="h-4.5 w-4.5 text-green-500" />
-                            ) : (
-                              <Copy className="h-4.5 w-4.5" />
-                            )}
-                          </button>
-
-                          <a
-                            href={`tel:${cleaned}`}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition cursor-pointer active:scale-95 shadow-md shadow-blue-500/10"
-                          >
-                            <Phone className="h-3.5 w-3.5" />
-                            <span>Call</span>
-                          </a>
-
-                          <a
-                            href={`https://wa.me/${cleaned}?text=${encodeURIComponent(
-                              `Hello! I saw your service "${initialService.title}" on GullyGig and want to enquire.`,
-                            )}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition cursor-pointer active:scale-95 shadow-md shadow-emerald-500/10"
-                          >
-                            <MessageCircle className="h-3.5 w-3.5" />
-                            <span>WhatsApp</span>
-                          </a>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </section>
+            <PortfolioContact
+              contactNumbers={activeNumbers}
+              serviceTitle={initialService.title}
+            />
 
             {/* TRUST STATISTICS */}
             <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="bg-white/70 dark:bg-slate-900/70 border border-slate-200/50 dark:border-slate-800/40 p-5 rounded-2xl text-center shadow-xs hover:scale-102 transition duration-200">
-                <span className="text-2xl font-black block text-slate-850 dark:text-slate-100">
+              <div
+                className={`p-5 rounded-2xl text-center hover:scale-[1.02] transition duration-200 ${
+                  darkMode
+                    ? "bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#D6B36A]/20"
+                    : "bg-white/80 backdrop-blur-sm border border-[#E5E7EB] hover:border-[#2563EB]/20 shadow-sm"
+                }`}
+              >
+                <span
+                  className={`text-2xl font-['Space_Grotesk'] font-black block transition-all duration-300 ${
+                    darkMode ? "text-white" : "text-[#111827]"
+                  }`}
+                >
                   {viewsCount}
                 </span>
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-450 mt-1 block">
+                <span
+                  className={`text-[10px] font-extrabold uppercase tracking-widest mt-1 block transition-all duration-300 ${
+                    darkMode ? "text-white/40" : "text-[#6B7280]"
+                  }`}
+                >
                   Views
                 </span>
               </div>
-              <div className="bg-white/70 dark:bg-slate-900/70 border border-slate-200/50 dark:border-slate-800/40 p-5 rounded-2xl text-center shadow-xs hover:scale-102 transition duration-200">
-                <span className="text-2xl font-black block text-red-500">
+              <div
+                className={`p-5 rounded-2xl text-center hover:scale-[1.02] transition duration-200 ${
+                  darkMode
+                    ? "bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#D6B36A]/20"
+                    : "bg-white/80 backdrop-blur-sm border border-[#E5E7EB] hover:border-[#2563EB]/20 shadow-sm"
+                }`}
+              >
+                <span
+                  className={`text-2xl font-['Space_Grotesk'] font-black block transition-all duration-300 ${
+                    darkMode ? "text-[#D6B36A]" : "text-[#2563EB]"
+                  }`}
+                >
                   {likesCount}
                 </span>
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-450 mt-1 block">
+                <span
+                  className={`text-[10px] font-extrabold uppercase tracking-widest mt-1 block transition-all duration-300 ${
+                    darkMode ? "text-white/40" : "text-[#6B7280]"
+                  }`}
+                >
                   Likes
                 </span>
               </div>
-              <div className="bg-white/70 dark:bg-slate-900/70 border border-slate-200/50 dark:border-slate-800/40 p-5 rounded-2xl text-center shadow-xs hover:scale-102 transition duration-200">
-                <span className="text-2xl font-black block text-emerald-600">
+              <div
+                className={`p-5 rounded-2xl text-center hover:scale-[1.02] transition duration-200 ${
+                  darkMode
+                    ? "bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#D6B36A]/20"
+                    : "bg-white/80 backdrop-blur-sm border border-[#E5E7EB] hover:border-[#2563EB]/20 shadow-sm"
+                }`}
+              >
+                <span
+                  className={`text-2xl font-['Space_Grotesk'] font-black block transition-all duration-300 ${
+                    darkMode ? "text-[#27C7C5]" : "text-[#14B8A6]"
+                  }`}
+                >
                   {reviewsCount}
                 </span>
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-450 mt-1 block">
+                <span
+                  className={`text-[10px] font-extrabold uppercase tracking-widest mt-1 block transition-all duration-300 ${
+                    darkMode ? "text-white/40" : "text-[#6B7280]"
+                  }`}
+                >
                   Reviews
                 </span>
               </div>
-              <div className="bg-white/70 dark:bg-slate-900/70 border border-slate-200/50 dark:border-slate-800/40 p-5 rounded-2xl text-center shadow-xs hover:scale-102 transition duration-200">
-                <span className="text-2xl font-black block text-amber-500 flex items-center justify-center gap-1">
+              <div
+                className={`p-5 rounded-2xl text-center hover:scale-[1.02] transition duration-200 ${
+                  darkMode
+                    ? "bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#D6B36A]/20"
+                    : "bg-white/80 backdrop-blur-sm border border-[#E5E7EB] hover:border-[#2563EB]/20 shadow-sm"
+                }`}
+              >
+                <span
+                  className={`text-2xl font-['Space_Grotesk'] font-black block flex items-center justify-center gap-1 transition-all duration-300 ${
+                    darkMode ? "text-[#D6B36A]" : "text-[#D4AF37]"
+                  }`}
+                >
                   ⭐ {ratingAverage.toFixed(1)}
                 </span>
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-450 mt-1 block">
+                <span
+                  className={`text-[10px] font-extrabold uppercase tracking-widest mt-1 block transition-all duration-300 ${
+                    darkMode ? "text-white/40" : "text-[#6B7280]"
+                  }`}
+                >
                   Avg Rating
                 </span>
               </div>
             </section>
 
             {/* REVIEWS */}
-            <section className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border border-slate-200/50 dark:border-slate-800/40 rounded-3xl p-6 sm:p-8 shadow-md space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-extrabold flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5 text-blue-600" />
-                  Client Reviews
-                </h3>
-                <span className="text-xs font-bold px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded-full">
-                  {reviewsCount} total
-                </span>
-              </div>
-
-              {reviews.length === 0 ? (
-                <div className="text-center py-10 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
-                  <MessageSquare className="h-10 w-10 text-slate-400 mx-auto mb-2" />
-                  <p className="text-sm font-bold">No Reviews Yet</p>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Provider is waiting for their first service rating.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/20 rounded-2xl p-5 flex flex-col justify-center">
-                    <div className="text-center pb-4 border-b border-slate-200/60 dark:border-slate-850 mb-4">
-                      <span className="text-4xl font-black block">
-                        {ratingAverage.toFixed(1)}
-                      </span>
-                      <span className="text-xs font-semibold text-slate-500 block mt-1">
-                        out of 5 stars
-                      </span>
-                    </div>
-
-                    <div className="space-y-2">
-                      {ratingDistribution.map((row) => (
-                        <div
-                          key={row.stars}
-                          className="flex items-center gap-2 text-xs font-bold text-slate-500"
-                        >
-                          <span className="w-3 text-right">{row.stars}</span>
-                          <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                          <div className="flex-1 h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-amber-400 rounded-full"
-                              style={{ width: `${row.percentage}%` }}
-                            />
-                          </div>
-                          <span className="w-6 text-right font-medium">
-                            {row.count}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="md:col-span-2 space-y-4 max-h-[380px] overflow-y-auto pr-2">
-                    {reviews.map((rev) => (
-                      <div
-                        key={rev.id}
-                        className="p-4 border border-slate-100 dark:border-slate-800/60 rounded-2xl space-y-2 bg-white dark:bg-slate-900/50 shadow-xs hover:border-slate-250 transition"
-                      >
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-full bg-blue-150/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-extrabold text-xs border border-blue-500/10">
-                              {(rev.users?.full_name || "Anonymous")
-                                .charAt(0)
-                                .toUpperCase()}
-                            </div>
-                            <div>
-                              <span className="text-xs font-extrabold block">
-                                {rev.users?.full_name || "Anonymous"}
-                              </span>
-                              <div className="flex items-center text-amber-400 gap-0.5 mt-0.5">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`h-3 w-3 ${
-                                      i < rev.rating
-                                        ? "fill-amber-400 text-amber-400"
-                                        : "text-slate-300 dark:text-slate-700"
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                          <span className="text-[10px] font-bold text-slate-400">
-                            {formatDate(rev.created_at)}
-                          </span>
-                        </div>
-
-                        {rev.review && (
-                          <p className="text-xs text-slate-600 dark:text-slate-350 font-medium leading-relaxed bg-slate-50/50 dark:bg-slate-900/20 p-2.5 rounded-lg border border-slate-100/50 dark:border-slate-800/10">
-                            {rev.review}
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Leave Review Form */}
-              <div className="border-t border-slate-100 dark:border-slate-800/60 pt-6 space-y-4">
-                <h4 className="text-sm font-extrabold">Write a Review</h4>
-                {user && user.id === initialService.user_id ? (
-                  <div className="p-4 bg-amber-500/5 border border-amber-500/15 rounded-2xl text-xs font-semibold text-amber-650 dark:text-amber-450 flex items-center gap-2">
-                    <AlertCircle className="h-4 w-4 shrink-0 text-amber-500" />
-                    <span>You cannot review your own service listing.</span>
-                  </div>
-                ) : userHasReviewed ? (
-                  <div className="p-4 bg-blue-500/5 border border-blue-500/10 rounded-2xl text-xs font-semibold text-blue-650 dark:text-blue-400">
-                    You have already submitted a review for this service
-                    provider. Thank you for your feedback!
-                  </div>
-                ) : (
-                  <form onSubmit={handleReviewSubmit} className="space-y-4">
-                    <div className="space-y-1.5">
-                      <span className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        Select Rating
-                      </span>
-                      <div className="flex items-center gap-1.5">
-                        {[1, 2, 3, 4, 5].map((score) => (
-                          <button
-                            type="button"
-                            key={score}
-                            onClick={() => setUserRating(score)}
-                            className="p-1 hover:scale-110 active:scale-95 transition cursor-pointer"
-                          >
-                            <Star
-                              className={`h-7 w-7 ${
-                                score <= userRating
-                                  ? "fill-amber-400 text-amber-400"
-                                  : "text-slate-300 dark:text-slate-700 hover:text-amber-300"
-                              }`}
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label
-                        htmlFor="review-comment"
-                        className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
-                      >
-                        Share your experience
-                      </label>
-                      <textarea
-                        id="review-comment"
-                        rows={3}
-                        value={userComment}
-                        onChange={(e) => setUserComment(e.target.value)}
-                        placeholder="Explain how this provider helped you, what the quality of service was, and any feedback..."
-                        className="w-full p-4 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:bg-slate-900 focus:border-blue-500 font-semibold"
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={reviewLoading}
-                      className="w-full inline-flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-extrabold rounded-2xl shadow-md shadow-blue-500/10 transition cursor-pointer active:scale-98"
-                    >
-                      <Send className="h-3.5 w-3.5" />
-                      <span>
-                        {reviewLoading ? "Posting Review..." : "Submit Review"}
-                      </span>
-                    </button>
-                  </form>
-                )}
-              </div>
-            </section>
+            <PortfolioReviews
+              reviews={reviews}
+              ratingAverage={ratingAverage}
+              reviewsCount={reviewsCount}
+            />
           </div>
 
           {/* RIGHT COLUMN */}
-          <div className="space-y-8">
+          <div className="space-y-6">
             {/* PROVIDER PROFILE */}
             {initialService.users && (
-              <section className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border border-slate-200/50 dark:border-slate-800/40 rounded-3xl p-6 sm:p-8 shadow-md space-y-5">
-                <h3 className="text-lg font-extrabold flex items-center gap-2">
-                  <User className="h-5 w-5 text-blue-600" />
-                  Service Provider
-                </h3>
-
-                <div className="flex items-center gap-3.5 p-4 bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/20 rounded-2xl">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-650 text-white rounded-full flex items-center justify-center font-black text-lg shadow-md shrink-0">
-                    {initialService.users.full_name.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="min-w-0">
-                    <h4 className="text-base font-extrabold truncate">
-                      {initialService.users.full_name}
-                    </h4>
-                    {initialService.users.location && (
-                      <div className="flex items-center gap-1 text-xs font-semibold text-slate-550 dark:text-slate-400 mt-0.5">
-                        <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                        <span className="truncate">
-                          {initialService.users.location}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {initialService.users.about && (
-                  <div className="space-y-1.5">
-                    <span className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-                      About Provider
-                    </span>
-                    <p className="text-xs text-slate-650 dark:text-slate-350 leading-relaxed font-medium">
-                      {initialService.users.about}
-                    </p>
-                  </div>
-                )}
-
-                <div className="text-[10px] font-bold text-slate-450 dark:text-slate-500 border-t border-slate-100 dark:border-slate-800/60 pt-4 flex justify-between">
-                  <span>MEMBER SINCE</span>
-                  <span>
-                    {formatMonthYear(initialService.users.created_at)}
-                  </span>
-                </div>
-
-                {/* Social Links */}
-                {initialService.users.social_links &&
-                  Object.keys(initialService.users.social_links).length > 0 && (
-                    <div className="border-t border-slate-100 dark:border-slate-800/60 pt-4 space-y-2">
-                      <span className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-                        Connect Online
-                      </span>
-                      <div className="flex flex-wrap gap-2">
-                        {initialService.users.social_links.instagram && (
-                          <a
-                            href={initialService.users.social_links.instagram}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-pink-650 hover:bg-pink-500/10 transition cursor-pointer"
-                            title="Instagram"
-                          >
-                            <svg
-                              className="h-4.5 w-4.5"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <rect
-                                width="20"
-                                height="20"
-                                x="2"
-                                y="2"
-                                rx="5"
-                                ry="5"
-                              />
-                              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                              <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-                            </svg>
-                          </a>
-                        )}
-                        {initialService.users.social_links.facebook && (
-                          <a
-                            href={initialService.users.social_links.facebook}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-blue-650 hover:bg-blue-500/10 transition cursor-pointer"
-                            title="Facebook"
-                          >
-                            <svg
-                              className="h-4.5 w-4.5"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-                            </svg>
-                          </a>
-                        )}
-                        {initialService.users.social_links.linkedin && (
-                          <a
-                            href={initialService.users.social_links.linkedin}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-blue-500 hover:bg-blue-400/10 transition cursor-pointer"
-                            title="LinkedIn"
-                          >
-                            <svg
-                              className="h-4.5 w-4.5"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-                              <rect width="4" height="12" x="2" y="9" />
-                              <circle cx="4" cy="4" r="2" />
-                            </svg>
-                          </a>
-                        )}
-                        {initialService.users.social_links.youtube && (
-                          <a
-                            href={initialService.users.social_links.youtube}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-red-650 hover:bg-red-500/10 transition cursor-pointer"
-                            title="YouTube"
-                          >
-                            <svg
-                              className="h-4.5 w-4.5"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17z" />
-                              <polygon points="10 15 15 12 10 9" />
-                            </svg>
-                          </a>
-                        )}
-                        {initialService.users.social_links.website && (
-                          <a
-                            href={initialService.users.social_links.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-500/10 transition cursor-pointer"
-                            title="Website"
-                          >
-                            <Globe className="h-4.5 w-4.5" />
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  )}
-              </section>
+              <PortfolioProvider
+                fullName={initialService.users.full_name}
+                location={initialService.users.location}
+                about={initialService.users.about}
+                memberSince={
+                  initialService.users.created_at
+                    ? new Date(initialService.users.created_at)
+                        .getFullYear()
+                        .toString()
+                    : "2024"
+                }
+                languages={initialService.languages}
+                availability={initialService.availability}
+                rating={ratingAverage}
+                totalReviews={reviewsCount}
+                totalServices={1}
+                isVerified={true}
+              />
             )}
 
-            {/* QR CODE CARD */}
-            <section className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border border-slate-200/50 dark:border-slate-800/40 rounded-3xl p-6 sm:p-8 shadow-md text-center space-y-5 relative overflow-hidden">
-              <div className="absolute -bottom-20 -right-20 w-36 h-36 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+            {/* QR CODE */}
+            <div
+              className={`relative overflow-hidden rounded-[26px] p-8 shadow-[0_8px_32px_rgba(0,0,0,0.25)] transition-all duration-250 group ${
+                darkMode
+                  ? "bg-gradient-to-br from-[#0A1F3D] via-[#102B54] to-[#061528] border border-[#D6B36A]/20 hover:border-[#D6B36A]/40"
+                  : "bg-white border border-[#E5E7EB] hover:border-[#2563EB]/30 shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.12)]"
+              }`}
+            >
+              {/* Background decorative elements */}
+              <div
+                className={`absolute -top-20 -right-20 w-48 h-48 rounded-full blur-3xl pointer-events-none ${
+                  darkMode ? "bg-[#5BE7FF]/5" : "bg-[#2563EB]/5"
+                }`}
+              />
+              <div
+                className={`absolute -bottom-20 -left-20 w-48 h-48 rounded-full blur-3xl pointer-events-none ${
+                  darkMode ? "bg-[#D6B36A]/5" : "bg-[#D4AF37]/5"
+                }`}
+              />
 
-              <div className="space-y-1 relative z-10">
-                <div className="flex items-center justify-center gap-1.5 text-blue-600 dark:text-blue-400">
+              {/* Thin glowing lines */}
+              <div
+                className={`absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-${
+                  darkMode ? "[#D6B36A]" : "[#2563EB]"
+                }/20 to-transparent`}
+              />
+              <div
+                className={`absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-${
+                  darkMode ? "[#5BE7FF]" : "[#14B8A6]"
+                }/10 to-transparent`}
+              />
+
+              <div className="relative z-10 flex flex-col items-center gap-5">
+                {/* Header */}
+                <div
+                  className={`flex items-center gap-2 ${darkMode ? "text-[#D6B36A]" : "text-[#D4AF37]"}`}
+                >
                   <QrCode className="h-5 w-5" />
-                  <span className="text-xs font-extrabold uppercase tracking-widest">
-                    GullyGig QR
+                  <span className="text-xs font-['Inter'] font-semibold uppercase tracking-[1.5px]">
+                    Premium QR
                   </span>
                 </div>
-                <h4 className="text-base font-extrabold">
-                  Scan to Visit GullyGig
+
+                <h4
+                  className={`text-lg font-['Poppins'] font-semibold text-center transition-all duration-300 ${
+                    darkMode ? "text-white" : "text-[#111827]"
+                  }`}
+                >
+                  Scan to View Portfolio
                 </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                  Scan to visit the GullyGig platform instantly on mobile
-                  devices.
-                </p>
-              </div>
 
-              <div className="relative z-10 inline-flex bg-white p-3.5 rounded-2xl shadow-lg border border-slate-100">
-                {qrCodeUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={qrCodeUrl}
-                    alt="QR Code"
-                    width={140}
-                    height={140}
-                    className="rounded-lg bg-white block"
-                    loading="lazy"
+                {/* QR Code Container */}
+                <div className="relative">
+                  <div
+                    className={`absolute -inset-1 rounded-2xl blur-sm ${
+                      darkMode
+                        ? "bg-gradient-to-r from-[#D6B36A]/20 via-[#5BE7FF]/10 to-[#D6B36A]/20"
+                        : "bg-gradient-to-r from-[#2563EB]/20 via-[#14B8A6]/10 to-[#2563EB]/20"
+                    }`}
                   />
-                ) : (
-                  <div className="w-[140px] h-[140px] bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse" />
-                )}
-              </div>
+                  <div
+                    className={`relative p-3 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] ${
+                      darkMode
+                        ? "bg-white border border-[#D6B36A]/10"
+                        : "bg-white border border-[#E5E7EB]"
+                    }`}
+                  >
+                    {qrCodeUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={qrCodeUrl}
+                        alt="QR Code"
+                        width={160}
+                        height={160}
+                        className="rounded-xl"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-[160px] h-[160px] bg-gray-200 rounded-xl animate-pulse" />
+                    )}
+                  </div>
+                  {/* Corner accents */}
+                  <div
+                    className={`absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 rounded-tl-lg ${
+                      darkMode ? "border-[#D6B36A]/30" : "border-[#2563EB]/30"
+                    }`}
+                  />
+                  <div
+                    className={`absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 rounded-tr-lg ${
+                      darkMode ? "border-[#D6B36A]/30" : "border-[#2563EB]/30"
+                    }`}
+                  />
+                  <div
+                    className={`absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 rounded-bl-lg ${
+                      darkMode ? "border-[#D6B36A]/30" : "border-[#2563EB]/30"
+                    }`}
+                  />
+                  <div
+                    className={`absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 rounded-br-lg ${
+                      darkMode ? "border-[#D6B36A]/30" : "border-[#2563EB]/30"
+                    }`}
+                  />
+                </div>
 
-              <div className="flex gap-2 relative z-10 pt-2">
+                {/* Download Button */}
                 <button
                   onClick={downloadQrCode}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-extrabold rounded-xl transition cursor-pointer"
+                  className={`w-full flex items-center justify-center gap-2 py-3 text-sm font-['Inter'] font-semibold rounded-2xl border transition-all duration-200 ${
+                    darkMode
+                      ? "bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border-white/10 hover:shadow-[0_0_20px_rgba(214,179,106,0.15)]"
+                      : "bg-[#F8FAFC] hover:bg-[#EEF5FB] text-[#111827] border-[#E5E7EB] hover:shadow-[0_0_20px_rgba(37,99,235,0.1)]"
+                  }`}
                 >
-                  <Download className="h-3.5 w-3.5" />
-                  <span>Download QR</span>
+                  <Download className="h-4 w-4" />
+                  Download QR
                 </button>
               </div>
-            </section>
+            </div>
 
             {/* SHARE SECTION */}
-            <section className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border border-slate-200/50 dark:border-slate-800/40 rounded-3xl p-6 sm:p-8 shadow-md space-y-5">
+            <section
+              className={`rounded-[26px] p-8 shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.12)] transition-all duration-250 space-y-5 ${
+                darkMode
+                  ? "bg-[#0F2344] border border-white/10"
+                  : "bg-[#FFFFFF] border border-[#E5E7EB]"
+              }`}
+            >
               <div>
-                <h3 className="text-sm font-extrabold flex items-center gap-2">
-                  <Share2 className="h-4 w-4 text-blue-600" />
+                <h3
+                  className={`text-sm font-['Poppins'] font-semibold flex items-center gap-2 transition-all duration-300 ${
+                    darkMode ? "text-white" : "text-[#111827]"
+                  }`}
+                >
+                  <Share2
+                    className={`h-4 w-4 ${darkMode ? "text-[#D6B36A]" : "text-[#D4AF37]"}`}
+                  />
                   Share Portfolio
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <p
+                  className={`text-xs mt-1 font-['Inter'] transition-all duration-300 ${
+                    darkMode ? "text-[#94A7C4]" : "text-[#6B7280]"
+                  }`}
+                >
                   Promote this service across social networks
                 </p>
               </div>
 
               {mounted && (
                 <div className="grid grid-cols-2 gap-2.5">
-                  {/* WhatsApp - Primary */}
                   <a
                     href={`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex items-center justify-center gap-2 py-2.5 px-3 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-950/50 border border-emerald-200/50 dark:border-emerald-800/30 text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-emerald-200 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+                    className={`group flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-['Inter'] font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer ${
+                      darkMode
+                        ? "bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white"
+                        : "bg-[#F8FAFC] hover:bg-[#EEF5FB] border border-[#E5E7EB] text-[#374151] hover:text-[#111827]"
+                    }`}
                   >
                     <MessageCircle className="h-4 w-4 group-hover:scale-110 transition-transform" />
                     <span>WhatsApp</span>
                   </a>
 
-                  {/* Telegram */}
                   <a
                     href={`https://t.me/share/url?url=${encodeURIComponent(portfolioUrl)}&text=${encodeURIComponent(shareText)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex items-center justify-center gap-2 py-2.5 px-3 bg-sky-50 dark:bg-sky-950/30 hover:bg-sky-100 dark:hover:bg-sky-950/50 border border-sky-200/50 dark:border-sky-800/30 text-sky-700 dark:text-sky-300 hover:text-sky-800 dark:hover:text-sky-200 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+                    className={`group flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-['Inter'] font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer ${
+                      darkMode
+                        ? "bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white"
+                        : "bg-[#F8FAFC] hover:bg-[#EEF5FB] border border-[#E5E7EB] text-[#374151] hover:text-[#111827]"
+                    }`}
                   >
                     <Send className="h-4 w-4 group-hover:scale-110 transition-transform" />
                     <span>Telegram</span>
                   </a>
 
-                  {/* LinkedIn */}
                   <a
                     href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(portfolioUrl)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex items-center justify-center gap-2 py-2.5 px-3 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-950/50 border border-blue-200/50 dark:border-blue-800/30 text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+                    className={`group flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-['Inter'] font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer ${
+                      darkMode
+                        ? "bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white"
+                        : "bg-[#F8FAFC] hover:bg-[#EEF5FB] border border-[#E5E7EB] text-[#374151] hover:text-[#111827]"
+                    }`}
                   >
                     <svg
                       className="h-4 w-4 group-hover:scale-110 transition-transform"
@@ -1269,12 +819,15 @@ ${fullPortfolioUrl}
                     <span>LinkedIn</span>
                   </a>
 
-                  {/* Facebook */}
                   <a
                     href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(portfolioUrl)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex items-center justify-center gap-2 py-2.5 px-3 bg-indigo-50 dark:bg-indigo-950/30 hover:bg-indigo-100 dark:hover:bg-indigo-950/50 border border-indigo-200/50 dark:border-indigo-800/30 text-indigo-700 dark:text-indigo-300 hover:text-indigo-800 dark:hover:text-indigo-200 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+                    className={`group flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-['Inter'] font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer ${
+                      darkMode
+                        ? "bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white"
+                        : "bg-[#F8FAFC] hover:bg-[#EEF5FB] border border-[#E5E7EB] text-[#374151] hover:text-[#111827]"
+                    }`}
                   >
                     <svg
                       className="h-4 w-4 group-hover:scale-110 transition-transform"
@@ -1292,15 +845,24 @@ ${fullPortfolioUrl}
                 </div>
               )}
 
-              {/* Copy Link */}
               <button
                 onClick={copyPortfolioUrl}
-                className="w-full inline-flex items-center justify-center gap-2 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-extrabold rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-98 cursor-pointer border border-slate-200/50 dark:border-slate-700/50"
+                className={`w-full inline-flex items-center justify-center gap-2 py-3 text-xs font-['Inter'] font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-98 cursor-pointer ${
+                  darkMode
+                    ? "bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10"
+                    : "bg-[#F8FAFC] hover:bg-[#EEF5FB] text-[#374151] hover:text-[#111827] border border-[#E5E7EB]"
+                }`}
               >
                 {copiedUrl ? (
                   <>
-                    <Check className="h-4 w-4 text-green-500" />
-                    <span className="text-green-500">Link Copied!</span>
+                    <Check
+                      className={`h-4 w-4 ${darkMode ? "text-[#27C7C5]" : "text-[#14B8A6]"}`}
+                    />
+                    <span
+                      className={darkMode ? "text-[#27C7C5]" : "text-[#14B8A6]"}
+                    >
+                      Link Copied!
+                    </span>
                   </>
                 ) : (
                   <>
@@ -1309,36 +871,41 @@ ${fullPortfolioUrl}
                   </>
                 )}
               </button>
-
-              {/* Quick Share Preview */}
-              <div className="pt-3 border-t border-slate-200/50 dark:border-slate-800/50">
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium text-center">
-                  📱 Share your portfolio with clients and grow your business
-                </p>
-              </div>
             </section>
           </div>
         </div>
       </main>
 
       {/* STICKY ACTION BAR */}
-      <div className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 w-[95%] sm:w-auto sm:max-w-2xl z-50 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-3 sm:px-5 sm:py-3 rounded-full flex items-center justify-between sm:gap-6 animate-in slide-in-from-bottom duration-300">
-        {/* Glassmorphism glow effect - subtle gradient overlay */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-white/5 via-transparent to-white/5 dark:from-white/5 dark:via-transparent dark:to-white/5 pointer-events-none" />
-
-        {/* Glassmorphism border glow */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-blue-500/5 dark:from-blue-500/10 dark:via-purple-500/10 dark:to-blue-500/10 pointer-events-none blur-sm" />
-
-        <div className="flex flex-col text-left shrink-0 pl-2 sm:pl-0 relative z-10">
-          <span className="text-[8px] sm:text-[9px] font-extrabold text-slate-500/80 dark:text-slate-400/80 uppercase tracking-widest">
+      <div
+        className={`fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 w-[95%] sm:w-auto sm:max-w-2xl z-50 backdrop-blur-2xl backdrop-saturate-150 border p-3 sm:px-5 sm:py-3 rounded-full flex items-center justify-between sm:gap-6 animate-in slide-in-from-bottom duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.12)] ${
+          darkMode
+            ? "bg-white/10 border-white/10"
+            : "bg-white/80 border-[#E5E7EB]"
+        }`}
+      >
+        <div className="flex flex-col text-left pl-2 sm:pl-0 relative z-10">
+          <span
+            className={`text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest transition-all duration-300 ${
+              darkMode ? "text-white/50" : "text-[#6B7280]"
+            }`}
+          >
             STARTING AT
           </span>
-          <span className="text-sm sm:text-base font-black text-blue-600 dark:text-blue-400">
+          <span
+            className={`text-sm sm:text-base font-['Space_Grotesk'] font-black transition-all duration-300 ${
+              darkMode ? "text-[#D6B36A]" : "text-[#2563EB]"
+            }`}
+          >
             {initialService.starting_price
               ? `₹${initialService.starting_price}`
               : "Enquire"}
             {initialService.starting_price && initialService.price_unit && (
-              <span className="text-[9px] sm:text-[10px] font-normal text-slate-500/70 dark:text-slate-400/70">
+              <span
+                className={`text-[9px] sm:text-[10px] font-normal transition-all duration-300 ${
+                  darkMode ? "text-white/40" : "text-[#6B7280]"
+                }`}
+              >
                 {" "}
                 / {initialService.price_unit.replace("per ", "").toLowerCase()}
               </span>
@@ -1347,37 +914,55 @@ ${fullPortfolioUrl}
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2 relative z-10">
-          {/* Like Button */}
           <button
             onClick={handleLikeToggle}
             className={`p-2 sm:p-2.5 rounded-full transition-all duration-200 active:scale-90 cursor-pointer backdrop-blur-sm ${
               isLiked
-                ? "bg-red-500/15 border border-red-500/30 text-red-500 hover:bg-red-500/25 dark:bg-red-500/20 dark:border-red-500/40"
-                : "bg-white/40 dark:bg-slate-800/40 border border-white/30 dark:border-slate-700/50 text-slate-500/70 dark:text-slate-400/70 hover:bg-white/60 dark:hover:bg-slate-700/60 hover:text-red-500 dark:hover:text-red-400"
+                ? darkMode
+                  ? "bg-red-500/20 border border-red-500/30 text-red-500 hover:bg-red-500/30"
+                  : "bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20"
+                : darkMode
+                  ? "bg-white/5 border border-white/10 text-white/50 hover:bg-white/10 hover:text-red-400"
+                  : "bg-white border border-[#E5E7EB] text-[#6B7280] hover:bg-[#F8FAFC] hover:text-red-500"
             }`}
             title="Like this Service"
           >
             <Heart
-              className={`h-4 w-4 sm:h-4.5 sm:w-4.5 transition-transform duration-200 hover:scale-110 ${isLiked ? "fill-red-500" : ""}`}
+              className={`h-4 w-4 sm:h-4.5 sm:w-4.5 transition-transform duration-200 hover:scale-110 ${
+                isLiked ? "fill-red-500" : ""
+              }`}
             />
           </button>
 
-          {/* Share Button */}
           <button
             onClick={handleNativeShare}
-            className="p-2 sm:p-2.5 rounded-full transition-all duration-200 active:scale-90 cursor-pointer relative bg-white/40 dark:bg-slate-800/40 border border-white/30 dark:border-slate-700/50 text-slate-500/70 dark:text-slate-400/70 hover:bg-white/60 dark:hover:bg-slate-700/60 hover:text-blue-600 dark:hover:text-blue-400 backdrop-blur-sm"
+            className={`p-2 sm:p-2.5 rounded-full transition-all duration-200 active:scale-90 cursor-pointer relative backdrop-blur-sm ${
+              darkMode
+                ? "bg-white/5 border border-white/10 text-white/50 hover:bg-white/10 hover:text-[#D6B36A]"
+                : "bg-white border border-[#E5E7EB] text-[#6B7280] hover:bg-[#F8FAFC] hover:text-[#2563EB]"
+            }`}
             title="Share portfolio"
           >
             <Share2 className="h-4 w-4 sm:h-4.5 sm:w-4.5 transition-transform duration-200 hover:scale-110" />
 
             {showShareDropdown && (
-              <div className="absolute bottom-14 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl p-2.5 shadow-2xl w-48 flex flex-col gap-1 z-50 text-left">
+              <div
+                className={`absolute bottom-14 right-0 backdrop-blur-xl border rounded-2xl p-2.5 shadow-2xl w-48 flex flex-col gap-1 z-50 text-left ${
+                  darkMode
+                    ? "bg-[#0A1F3D]/90 border-white/10"
+                    : "bg-white/90 border-[#E5E7EB]"
+                }`}
+              >
                 <button
                   onClick={() => {
                     copyPortfolioUrl();
                     setShowShareDropdown(false);
                   }}
-                  className="w-full text-xs font-bold text-slate-700 dark:text-slate-300 p-2 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg text-left transition-colors"
+                  className={`w-full text-xs font-['Inter'] font-semibold p-2 rounded-lg text-left transition-colors ${
+                    darkMode
+                      ? "text-white/70 hover:bg-white/5"
+                      : "text-[#374151] hover:bg-[#F8FAFC]"
+                  }`}
                 >
                   Copy Link
                 </button>
@@ -1385,7 +970,11 @@ ${fullPortfolioUrl}
                   href={`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full text-xs font-bold text-slate-700 dark:text-slate-300 p-2 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg text-left transition-colors"
+                  className={`w-full text-xs font-['Inter'] font-semibold p-2 rounded-lg text-left transition-colors ${
+                    darkMode
+                      ? "text-white/70 hover:bg-white/5"
+                      : "text-[#374151] hover:bg-[#F8FAFC]"
+                  }`}
                 >
                   Share to WhatsApp
                 </a>
@@ -1393,11 +982,14 @@ ${fullPortfolioUrl}
             )}
           </button>
 
-          {/* Call Button */}
           {activeNumbers.length > 0 && (
             <a
               href={`tel:${cleanNumber(activeNumbers[0])}`}
-              className="inline-flex items-center justify-center gap-1 sm:gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white text-xs font-extrabold rounded-full transition-all duration-200 active:scale-95 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 cursor-pointer backdrop-blur-sm"
+              className={`inline-flex items-center justify-center gap-1 sm:gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 text-xs font-['Inter'] font-bold rounded-full transition-all duration-200 active:scale-95 shadow-lg cursor-pointer backdrop-blur-sm ${
+                darkMode
+                  ? "bg-gradient-to-r from-[#D6B36A] to-[#C89A3D] hover:from-[#C89A3D] hover:to-[#D6B36A] text-[#061528] shadow-[#D6B36A]/20 hover:shadow-[#D6B36A]/40"
+                  : "bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:from-[#3B82F6] hover:to-[#2563EB] text-white shadow-[#2563EB]/20 hover:shadow-[#2563EB]/40"
+              }`}
             >
               <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-200 group-hover:scale-110" />
               <span className="text-[10px] sm:text-xs">Call Now</span>
@@ -1411,16 +1003,40 @@ ${fullPortfolioUrl}
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
             onClick={() => setShowAuthModal(false)}
-            className="absolute inset-0 bg-slate-950/60 backdrop-blur-md cursor-pointer"
+            className={`absolute inset-0 backdrop-blur-md cursor-pointer ${
+              darkMode ? "bg-[#061528]/80" : "bg-[#111827]/40"
+            }`}
           />
-          <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-850 rounded-3xl p-6 shadow-2xl z-10 flex flex-col gap-5 text-center animate-in zoom-in-95 duration-200">
-            <div className="w-12 h-12 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto">
+          <div
+            className={`relative w-full max-w-2xl border rounded-3xl p-6 shadow-2xl z-10 flex flex-col gap-5 text-center animate-in zoom-in-95 duration-200 ${
+              darkMode
+                ? "bg-[#0A1F3D] border-white/10"
+                : "bg-white border-[#E5E7EB]"
+            }`}
+          >
+            <div
+              className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto border ${
+                darkMode
+                  ? "bg-[#D6B36A]/10 text-[#D6B36A] border-[#D6B36A]/20"
+                  : "bg-[#2563EB]/10 text-[#2563EB] border-[#2563EB]/20"
+              }`}
+            >
               <ShieldCheck className="h-6 w-6" />
             </div>
 
             <div className="space-y-1.5">
-              <h3 className="text-lg font-black">Authentication Required</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+              <h3
+                className={`text-lg font-['Poppins'] font-black transition-all duration-300 ${
+                  darkMode ? "text-white" : "text-[#111827]"
+                }`}
+              >
+                Authentication Required
+              </h3>
+              <p
+                className={`text-xs leading-relaxed font-['Inter'] font-medium transition-all duration-300 ${
+                  darkMode ? "text-white/50" : "text-[#6B7280]"
+                }`}
+              >
                 You must login or register a GullyGig account to{" "}
                 {authModalReason}.
               </p>
@@ -1429,13 +1045,21 @@ ${fullPortfolioUrl}
             <div className="flex flex-col gap-2 pt-2">
               <a
                 href={`/Auth?redirect=${encodeURIComponent(window.location.pathname)}`}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold rounded-2xl transition shadow-md shadow-blue-500/10 cursor-pointer"
+                className={`w-full py-3 text-xs font-['Inter'] font-bold rounded-2xl transition shadow-md cursor-pointer ${
+                  darkMode
+                    ? "bg-gradient-to-r from-[#D6B36A] to-[#C89A3D] hover:from-[#C89A3D] hover:to-[#D6B36A] text-[#061528] shadow-[#D6B36A]/20"
+                    : "bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:from-[#3B82F6] hover:to-[#2563EB] text-white shadow-[#2563EB]/20"
+                }`}
               >
                 Log In
               </a>
               <a
                 href={`/Auth?mode=register&redirect=${encodeURIComponent(window.location.pathname)}`}
-                className="w-full py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-extrabold rounded-2xl transition cursor-pointer"
+                className={`w-full py-3 text-xs font-['Inter'] font-bold rounded-2xl transition border cursor-pointer ${
+                  darkMode
+                    ? "bg-white/5 hover:bg-white/10 text-white border-white/10"
+                    : "bg-[#F8FAFC] hover:bg-[#EEF5FB] text-[#374151] border-[#E5E7EB]"
+                }`}
               >
                 Create Free Account
               </a>
@@ -1443,7 +1067,11 @@ ${fullPortfolioUrl}
 
             <button
               onClick={() => setShowAuthModal(false)}
-              className="text-slate-400 dark:text-slate-500 hover:text-slate-650 text-xs font-bold cursor-pointer"
+              className={`text-xs font-['Inter'] font-bold cursor-pointer transition-all duration-300 ${
+                darkMode
+                  ? "text-white/30 hover:text-white/60"
+                  : "text-[#6B7280] hover:text-[#374151]"
+              }`}
             >
               Cancel
             </button>

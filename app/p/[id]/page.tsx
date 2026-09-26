@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
 import PortfolioPageClient from "@/components/portfolio/PortfolioPageClient";
-import { getBaseUrl } from "@/lib/url";
+import { getBaseUrl, resolvePortfolioIdFromParam } from "@/lib/url";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -31,28 +31,11 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
  */
 async function getPortfolioData(idOrSlug: string) {
   try {
-    let resolvedId = idOrSlug;
+    const resolvedId = resolvePortfolioIdFromParam(idOrSlug);
 
-    // Check if idOrSlug is a valid UUID
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(idOrSlug)) {
-      // It's a slug, e.g. "guitar-lessons-uuid-here"
-      // Extract the UUID from the end
-      const parts = idOrSlug.split("-");
-      // The last 5 parts should be the UUID (8-4-4-4-12 hex segments)
-      if (parts.length >= 5) {
-        const possibleUuid = parts.slice(-5).join("-");
-        if (uuidRegex.test(possibleUuid)) {
-          resolvedId = possibleUuid;
-        } else {
-          console.error(`Invalid UUID in slug: ${idOrSlug}`);
-          return null;
-        }
-      } else {
-        console.error(`Invalid slug format: ${idOrSlug}`);
-        return null;
-      }
+    if (!resolvedId) {
+      console.error(`Invalid portfolio identifier: ${idOrSlug}`);
+      return null;
     }
 
     // 1. Fetch service detail with user profile and analytics

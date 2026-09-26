@@ -484,12 +484,14 @@ ${fullPortfolioUrl}
               serviceModes={initialService.service_modes}
               languages={initialService.languages}
               availability={initialService.availability}
+              darkMode={darkMode}
             />
 
             {/* CONTACT CARDS */}
             <PortfolioContact
               contactNumbers={activeNumbers}
               serviceTitle={initialService.title}
+              darkMode={darkMode}
             />
 
             {/* TRUST STATISTICS */}
@@ -589,6 +591,13 @@ ${fullPortfolioUrl}
               reviews={reviews}
               ratingAverage={ratingAverage}
               reviewsCount={reviewsCount}
+              darkMode={darkMode}
+              serviceId={initialService.id}
+              token={token}
+              onRequestAuth={() => {
+                setAuthModalReason("write a verified client review");
+                setShowAuthModal(true);
+              }}
             />
           </div>
 
@@ -613,6 +622,7 @@ ${fullPortfolioUrl}
                 totalReviews={reviewsCount}
                 totalServices={1}
                 isVerified={true}
+                darkMode={darkMode}
               />
             )}
 

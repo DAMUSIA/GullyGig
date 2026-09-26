@@ -23,6 +23,7 @@ interface PortfolioProviderProps {
   rating?: number;
   totalReviews?: number;
   totalServices?: number;
+  darkMode?: boolean;
 }
 
 export default function PortfolioProvider({
@@ -36,73 +37,95 @@ export default function PortfolioProvider({
   rating = 4.8,
   totalReviews = 0,
   totalServices = 1,
+  darkMode = true,
 }: PortfolioProviderProps) {
   return (
-    <div className="bg-[#FFFFFF] rounded-[26px] p-8 shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] transition-all duration-300 space-y-6 border border-[#E5E7EB] hover:border-[#2563EB]/20">
+    <div
+      className={`rounded-[26px] p-8 transition-all duration-300 space-y-6 ${
+        darkMode
+          ? "bg-[#0F2344] border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+          : "bg-white border border-[#E5E7EB] shadow-[0_8px_32px_rgba(0,0,0,0.06)]"
+      }`}
+    >
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="p-3 bg-[#D4AF37]/10 rounded-2xl border border-[#D4AF37]/20 shadow-[0_4px_12px_rgba(212,175,55,0.08)]">
-          <User className="h-6 w-6 text-[#D4AF37]" />
+        <div
+          className={`p-3 rounded-2xl border ${
+            darkMode
+              ? "bg-[#D6B36A]/10 text-[#D6B36A] border-[#D6B36A]/20"
+              : "bg-[#2563EB]/10 text-[#2563EB] border-[#2563EB]/20"
+          }`}
+        >
+          <User className="h-6 w-6" />
         </div>
         <div>
-          <h3 className="text-xl font-['Poppins'] font-semibold text-[#111827]">
+          <h3
+            className={`text-xl font-['Poppins'] font-semibold ${
+              darkMode ? "text-white" : "text-[#111827]"
+            }`}
+          >
             Service Provider
           </h3>
-          <p className="text-sm font-['Inter'] text-[#6B7280]">
+          <p
+            className={`text-sm font-['Inter'] ${
+              darkMode ? "text-white/50" : "text-[#6B7280]"
+            }`}
+          >
             Verified professional on GullyGig
           </p>
         </div>
       </div>
 
       {/* Main Profile Card */}
-      <div className="relative p-6 bg-[#F8FAFC] rounded-2xl border border-[#D4AF37]/10 shadow-[0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_32px_rgba(212,175,55,0.08)] transition-all duration-300">
-        <div className="absolute -top-10 -right-10 w-20 h-20 bg-[#D4AF37]/5 rounded-full blur-2xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col items-center text-center">
-          {/* Avatar with gradient ring */}
+      <div
+        className={`relative p-6 rounded-2xl border transition-all duration-300 text-center ${
+          darkMode
+            ? "bg-white/5 border-white/10"
+            : "bg-[#F8FAFC] border-[#E5E7EB]"
+        }`}
+      >
+        <div className="relative z-10 flex flex-col items-center">
+          {/* Avatar with ring */}
           <div className="relative mb-3">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#2563EB] via-[#3B82F6] to-[#60A5FA] p-[2px] shadow-[0_4px_16px_rgba(37,99,235,0.2)]">
-              <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-4xl font-['Poppins'] font-bold text-[#2563EB]">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 p-[2px] shadow-lg">
+              <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-3xl font-['Poppins'] font-bold text-white">
                 {fullName.charAt(0).toUpperCase()}
               </div>
             </div>
             {isVerified && (
-              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-[#2563EB] to-[#3B82F6] rounded-full flex items-center justify-center border-2 border-white shadow-[0_2px_8px_rgba(37,99,235,0.3)]">
-                <ShieldCheck className="h-4.5 w-4.5 text-white" />
+              <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center border-2 border-white shadow-sm text-white">
+                <ShieldCheck className="h-4 w-4" />
               </div>
             )}
           </div>
 
           {/* Name */}
-          <h4 className="text-xl font-['Poppins'] font-semibold text-[#111827]">
+          <h4
+            className={`text-xl font-['Poppins'] font-bold ${
+              darkMode ? "text-white" : "text-[#111827]"
+            }`}
+          >
             {fullName}
           </h4>
 
           {/* Location */}
           {location && (
-            <div className="flex items-center justify-center gap-1.5 text-sm font-['Inter'] text-[#6B7280] mt-0.5">
-              <MapPin className="h-4 w-4 text-[#D4AF37] flex-shrink-0" />
+            <div
+              className={`flex items-center justify-center gap-1.5 text-xs font-['Inter'] mt-1 ${
+                darkMode ? "text-white/60" : "text-[#6B7280]"
+              }`}
+            >
+              <MapPin className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
               <span>{location}</span>
             </div>
           )}
 
-          {/* Rating */}
-          <div className="flex items-center gap-3 mt-2">
-            <div className="flex items-center gap-1 text-[#D4AF37]">
-              <Star className="h-4 w-4 fill-[#D4AF37] text-[#D4AF37]" />
-              <span className="font-['Space_Grotesk'] font-bold text-[#111827]">
-                {rating.toFixed(1)}
-              </span>
-            </div>
-            {totalReviews > 0 && (
-              <span className="text-xs font-['Inter'] text-[#6B7280]">
-                ({totalReviews} reviews)
-              </span>
-            )}
-          </div>
-
           {/* Member Since */}
-          <div className="flex items-center gap-1.5 mt-2 text-xs font-['Inter'] text-[#6B7280]">
+          <div
+            className={`flex items-center gap-1.5 mt-2 text-xs font-['Inter'] ${
+              darkMode ? "text-white/40" : "text-[#6B7280]"
+            }`}
+          >
             <Calendar className="h-3.5 w-3.5" />
             <span>Member since {memberSince}</span>
           </div>
@@ -112,83 +135,23 @@ export default function PortfolioProvider({
       {/* About */}
       {about && (
         <div className="space-y-2">
-          <h4 className="text-[11px] font-['Inter'] font-semibold text-[#6B7280] uppercase tracking-[1.5px] flex items-center gap-2">
-            <Briefcase className="h-4 w-4 text-[#2563EB]" />
+          <h4
+            className={`text-[11px] font-['Inter'] font-semibold uppercase tracking-[1.5px] flex items-center gap-2 ${
+              darkMode ? "text-white/60" : "text-[#6B7280]"
+            }`}
+          >
+            <Briefcase className="h-4 w-4 text-blue-500" />
             About the Provider
           </h4>
-          <p className="text-sm font-['Inter'] text-[#374151] leading-relaxed whitespace-pre-wrap">
+          <p
+            className={`text-xs sm:text-sm font-['Inter'] leading-relaxed whitespace-pre-wrap ${
+              darkMode ? "text-slate-300" : "text-[#374151]"
+            }`}
+          >
             {about}
           </p>
         </div>
       )}
-
-      {/* Languages */}
-      {languages && languages.length > 0 && (
-        <div className="space-y-2">
-          <h4 className="text-[11px] font-['Inter'] font-semibold text-[#6B7280] uppercase tracking-[1.5px] flex items-center gap-2">
-            <Globe className="h-4 w-4 text-[#14B8A6]" />
-            Languages Spoken
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {languages.map((lang) => (
-              <span
-                key={lang}
-                className="px-4 py-1.5 bg-[#14B8A6]/5 text-[#374151] text-[13px] font-['Inter'] font-medium rounded-2xl border border-[#14B8A6]/10 hover:border-[#14B8A6]/30 transition-all duration-200 shadow-[0_2px_8px_rgba(20,184,166,0.06)] hover:shadow-[0_4px_16px_rgba(20,184,166,0.12)]"
-              >
-                {lang}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Availability */}
-      {availability && availability.length > 0 && (
-        <div className="space-y-2">
-          <h4 className="text-[11px] font-['Inter'] font-semibold text-[#6B7280] uppercase tracking-[1.5px] flex items-center gap-2">
-            <Clock className="h-4 w-4 text-[#D4AF37]" />
-            Availability
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {availability.map((opt) => (
-              <span
-                key={opt}
-                className="px-4 py-1.5 bg-[#D4AF37]/5 text-[#374151] text-[13px] font-['Inter'] font-medium rounded-2xl border border-[#D4AF37]/10 hover:border-[#D4AF37]/30 transition-all duration-200 shadow-[0_2px_8px_rgba(212,175,55,0.06)] hover:shadow-[0_4px_16px_rgba(212,175,55,0.12)]"
-              >
-                {opt}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Statistics */}
-      <div className="pt-4 border-t border-[#D4AF37]/20 grid grid-cols-3 gap-3">
-        <div className="text-center p-2 rounded-xl hover:bg-[#F8FAFC] transition-all duration-200">
-          <div className="font-['Space_Grotesk'] font-bold text-lg text-[#D4AF37]">
-            {totalServices}
-          </div>
-          <div className="text-[10px] font-['Inter'] font-medium text-[#6B7280] uppercase tracking-[0.5px]">
-            Services
-          </div>
-        </div>
-        <div className="text-center p-2 rounded-xl hover:bg-[#F8FAFC] transition-all duration-200 border-x border-[#D4AF37]/20">
-          <div className="font-['Space_Grotesk'] font-bold text-lg text-[#D4AF37]">
-            {totalReviews}
-          </div>
-          <div className="text-[10px] font-['Inter'] font-medium text-[#6B7280] uppercase tracking-[0.5px]">
-            Reviews
-          </div>
-        </div>
-        <div className="text-center p-2 rounded-xl hover:bg-[#F8FAFC] transition-all duration-200">
-          <div className="font-['Space_Grotesk'] font-bold text-lg text-[#D4AF37]">
-            {isVerified ? "✓" : "—"}
-          </div>
-          <div className="text-[10px] font-['Inter'] font-medium text-[#6B7280] uppercase tracking-[0.5px]">
-            Verified
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

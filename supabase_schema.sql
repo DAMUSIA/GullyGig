@@ -1,16 +1,9 @@
--- Kaamao/GullyGig Database Setup Script
+-- GullyGig Database Setup Script
 -- Paste and run this script in your Supabase SQL Editor to set up tables, unique constraints, RLS, and policies.
-
--- Clean up existing tables if needed (WARNING: This will drop existing data)
--- DROP TABLE IF EXISTS public.service_analytics CASCADE;
--- DROP TABLE IF EXISTS public.service_ratings CASCADE;
--- DROP TABLE IF EXISTS public.service_likes CASCADE;
--- DROP TABLE IF EXISTS public.services CASCADE;
--- DROP TABLE IF EXISTS public.users CASCADE;
 
 -- ==================== 1. TABLES CREATION ====================
 
--- Users Profile Table
+-- Users Profile Table (with is_paid status: default false)
 CREATE TABLE IF NOT EXISTS public.users (
   id uuid NOT NULL,
   full_name text NOT NULL,
@@ -20,13 +13,14 @@ CREATE TABLE IF NOT EXISTS public.users (
   gender text,
   location text,
   about text,
+  is_paid boolean DEFAULT false NOT NULL,
   created_at timestamp with time zone DEFAULT now(),
   social_links jsonb DEFAULT '{}'::jsonb,
   CONSTRAINT users_pkey PRIMARY KEY (id),
   CONSTRAINT users_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE
 );
 
--- Services Table
+-- Services Table (Strict 1 service per user via UNIQUE(user_id) constraint)
 CREATE TABLE IF NOT EXISTS public.services (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL,
@@ -51,7 +45,8 @@ CREATE TABLE IF NOT EXISTS public.services (
   reviews_count integer DEFAULT 0,
   contact_numbers text[] DEFAULT '{}'::text[],
   CONSTRAINT services_pkey PRIMARY KEY (id),
-  CONSTRAINT services_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE
+  CONSTRAINT services_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE,
+  CONSTRAINT services_user_id_unique UNIQUE (user_id)
 );
 
 -- Service Likes Table
@@ -120,14 +115,23 @@ CREATE POLICY "Allow users to update their own profile"
 CREATE POLICY "Allow public read access to services"
   ON public.services FOR SELECT USING (true);
 
-CREATE POLICY "Allow authenticated users to insert services"
-  ON public.services FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+-- Allow authenticated and paid users to insert their single service
+CREATE POLICY "Allow paid users to insert one service"
+  ON public.services FOR INSERT TO authenticated
+  WITH CHECK (
+    auth.uid() = user_id AND
+    EXISTS (
+      SELECT 1 FROM public.users
+      WHERE users.id = auth.uid() AND users.is_paid = true
+    )
+  );
 
 CREATE POLICY "Allow owners to update services"
   ON public.services FOR UPDATE TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
--- Note: The client-side also increments view counts directly on the services table, which runs anonymously.
--- This policy allows public/anonymous users to update the views_count.
+CREATE POLICY "Allow owners to delete services"
+  ON public.services FOR DELETE TO authenticated USING (auth.uid() = user_id);
+
 CREATE POLICY "Allow public update of service views"
   ON public.services FOR UPDATE USING (true) WITH CHECK (true);
 
@@ -155,30 +159,54 @@ CREATE POLICY "Allow users to update/delete their own service_ratings"
 CREATE POLICY "Allow public read access to service_analytics"
   ON public.service_analytics FOR SELECT USING (true);
 
--- Only service_role can write to analytics
--- (Client writes should go through API routes that use service_role)
-
 -- --- TABLE GRANTS ---
--- Users table: authenticated users can manage their own profiles, anon can read
 GRANT SELECT ON TABLE public.users TO anon;
 GRANT SELECT, INSERT, UPDATE ON TABLE public.users TO authenticated;
 GRANT ALL ON TABLE public.users TO postgres, service_role;
 
--- Services table: authenticated users can manage their own services, anon can read
 GRANT SELECT ON TABLE public.services TO anon;
-GRANT SELECT, INSERT, UPDATE ON TABLE public.services TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.services TO authenticated;
 GRANT ALL ON TABLE public.services TO postgres, service_role;
 
--- Service likes: authenticated users can like/unlike, anon can read
 GRANT SELECT ON TABLE public.service_likes TO anon;
 GRANT SELECT, INSERT, DELETE ON TABLE public.service_likes TO authenticated;
 GRANT ALL ON TABLE public.service_likes TO postgres, service_role;
 
--- Service ratings: authenticated users can review, anon can read
 GRANT SELECT ON TABLE public.service_ratings TO anon;
 GRANT SELECT, INSERT, UPDATE ON TABLE public.service_ratings TO authenticated;
 GRANT ALL ON TABLE public.service_ratings TO postgres, service_role;
 
--- Service analytics: only service_role can write, all can read
 GRANT SELECT ON TABLE public.service_analytics TO anon, authenticated;
 GRANT ALL ON TABLE public.service_analytics TO postgres, service_role;
+
+-- ==================== 4. MIGRATION & ADMIN QUERIES ====================
+-- If you already have existing tables in Supabase, run these migration statements:
+--
+-- 1. Add is_paid column (default false):
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS is_paid boolean DEFAULT false NOT NULL;
+--
+-- 2. Enforce 1 service per user limit with unique constraint:
+-- ALTER TABLE public.services ADD CONSTRAINT services_user_id_unique UNIQUE (user_id);
+--
+-- 3. Update existing service insert RLS policy to enforce payment:
+-- DROP POLICY IF EXISTS "Allow authenticated users to insert services" ON public.services;
+-- CREATE POLICY "Allow paid users to insert one service"
+--   ON public.services FOR INSERT TO authenticated
+--   WITH CHECK (
+--     auth.uid() = user_id AND
+--     EXISTS (
+--       SELECT 1 FROM public.users
+--       WHERE users.id = auth.uid() AND users.is_paid = true
+--     )
+--   );
+--
+-- 4. MANUALLY MARK A USER AS PAID (Activate Provider):
+-- UPDATE public.users SET is_paid = true WHERE email = 'user@example.com';
+-- UPDATE public.users SET is_paid = true WHERE phone_no = '7559302315';
+-- UPDATE public.users SET is_paid = true WHERE id = 'YOUR_USER_UUID_HERE';
+--
+-- 5. MANUALLY MARK A USER AS UNPAID (Deactivate):
+-- UPDATE public.users SET is_paid = false WHERE email = 'user@example.com';
+--
+-- 6. VIEW ALL USERS & PAYMENT STATUS:
+-- SELECT id, full_name, email, phone_no, is_paid, created_at FROM public.users ORDER BY created_at DESC;

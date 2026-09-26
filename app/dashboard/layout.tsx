@@ -499,9 +499,12 @@ export default function DashboardLayout({
   const [isLoading, setIsLoading] = useState(true);
   const [profileName, setProfileName] = useState("User");
   const [profileEmail, setProfileEmail] = useState("");
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // WhatsApp Community states
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
+  const [alreadyJoinedChecked, setAlreadyJoinedChecked] = useState(false);
 
   const isMobile = useMediaQuery("(max-width: 767px)");
 
@@ -599,35 +602,49 @@ export default function DashboardLayout({
   };
 
   const handleJoinLater = () => {
+    if (alreadyJoinedChecked) {
+      localStorage.setItem("gullygig_whatsapp_joined", "true");
+    } else {
+      const oneWeekFromNow = new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000,
+      ).toISOString();
+      localStorage.setItem("gullygig_whatsapp_remind_at", oneWeekFromNow);
+    }
     setShowWhatsAppModal(false);
-    const oneWeekFromNow = new Date(
-      Date.now() + 7 * 24 * 60 * 60 * 1000,
-    ).toISOString();
-    localStorage.setItem("gullygig_whatsapp_remind_at", oneWeekFromNow);
   };
 
   const handleCloseModal = () => {
+    if (alreadyJoinedChecked) {
+      localStorage.setItem("gullygig_whatsapp_joined", "true");
+    } else {
+      sessionStorage.setItem("gullygig_whatsapp_dismissed_session", "true");
+    }
     setShowWhatsAppModal(false);
-    sessionStorage.setItem("gullygig_whatsapp_dismissed_session", "true");
   };
 
   // ============================================
-  // ULTRA FAST: Instant Logout Handler (No delays)
+  // Logout Trigger & Confirmation Handlers
   // ============================================
-  const handleLogout = () => {
-    // Step 1: Clear local state immediately (instant UI feedback)
-    setProfileName("User");
-    setProfileEmail("");
-    setIsLoading(false);
+  const handleOpenLogoutConfirm = () => {
+    setMobileSidebarOpen(false);
+    setShowLogoutModal(true);
+  };
 
-    // Step 2: Navigate to login page instantly (no await, no refresh delay)
-    router.push("/Auth");
-
-    // Step 3: Sign out in the background (doesn't block UI)
-    // Use void to explicitly ignore the promise
-    void signOut().catch(() => {
-      // Silent error handling - user is already redirected
-    });
+  const handleConfirmLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      setProfileName("User");
+      setProfileEmail("");
+      await signOut();
+      router.push("/Auth");
+      router.refresh();
+    } catch (err) {
+      console.error("Logout error:", err);
+      router.push("/Auth");
+    } finally {
+      setIsLoggingOut(false);
+      setShowLogoutModal(false);
+    }
   };
 
   // Close mobile sidebar on route change (Fixed)
@@ -643,13 +660,14 @@ export default function DashboardLayout({
   // Handle escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && mobileSidebarOpen) {
-        setMobileSidebarOpen(false);
+      if (e.key === "Escape") {
+        if (mobileSidebarOpen) setMobileSidebarOpen(false);
+        if (showLogoutModal) setShowLogoutModal(false);
       }
     };
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
-  }, [mobileSidebarOpen]);
+  }, [mobileSidebarOpen, showLogoutModal]);
 
   // Get page title based on pathname
   const getPageTitle = () => {
@@ -697,7 +715,7 @@ export default function DashboardLayout({
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
         currentPath={pathname || ""}
-        onLogout={handleLogout}
+        onLogout={handleOpenLogoutConfirm}
         profileName={profileName}
         profileEmail={profileEmail}
       />
@@ -707,7 +725,7 @@ export default function DashboardLayout({
         isOpen={mobileSidebarOpen}
         onClose={() => setMobileSidebarOpen(false)}
         currentPath={pathname || ""}
-        onLogout={handleLogout}
+        onLogout={handleOpenLogoutConfirm}
         profileName={profileName}
         profileEmail={profileEmail}
       />
@@ -766,6 +784,57 @@ export default function DashboardLayout({
         <div className="p-4 sm:p-6 lg:p-8">{children}</div>
       </motion.main>
 
+      {/* Logout Confirmation Modal */}
+      <AnimatePresence>
+        {showLogoutModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-white border border-slate-100 rounded-3xl shadow-2xl p-6 sm:p-8 w-2xl text-center space-y-5 relative"
+            >
+              <div className="w-14 h-14 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto border border-red-100">
+                <LogOut className="w-7 h-7" />
+              </div>
+
+              <div className="space-y-1.5">
+                <h3 className="text-xl font-extrabold text-slate-800">
+                  Confirm Logout
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                  Are you sure you want to sign out of your GullyGig account?
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowLogoutModal(false)}
+                  disabled={isLoggingOut}
+                  className="flex-1 py-3 px-4 border border-slate-200 hover:bg-slate-50 text-slate-700 font-extrabold text-xs rounded-xl transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmLogout}
+                  disabled={isLoggingOut}
+                  className="flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-extrabold text-xs rounded-xl transition shadow-md shadow-red-500/20 flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  {isLoggingOut ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <LogOut className="w-4 h-4" />
+                  )}
+                  <span>{isLoggingOut ? "Signing out..." : "Logout"}</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* WhatsApp Community Popup Modal */}
       {showWhatsAppModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-300">
@@ -816,6 +885,20 @@ export default function DashboardLayout({
                   </a>
                 </p>
               </div>
+
+              {/* Already Joined Checklist */}
+              <label className="flex items-center gap-2.5 text-left w-full px-1 mb-3 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-colors cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={alreadyJoinedChecked}
+                  onChange={(e) => setAlreadyJoinedChecked(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                />
+                <span>
+                  I have already joined this WhatsApp group (don&apos;t show
+                  again)
+                </span>
+              </label>
 
               {/* Action Buttons */}
               <div className="w-full flex flex-col sm:flex-row gap-3 mt-2">

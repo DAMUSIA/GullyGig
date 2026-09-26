@@ -1,27 +1,14 @@
-import { createClient } from "@supabase/supabase-js";
 import { Metadata } from "next";
 import React from "react";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
 import PortfolioPageClient from "@/components/portfolio/PortfolioPageClient";
 import { getBaseUrl, resolvePortfolioIdFromParam } from "@/lib/url";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
-
-const supabaseUrl =
-  process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseServiceKey =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  "mockKeyPart1.mockKeyPart2.mockKeyPart3";
-
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-});
 
 /**
  * Loads portfolio data for a service identifier or slug.
@@ -31,6 +18,11 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
  */
 async function getPortfolioData(idOrSlug: string) {
   try {
+    if (!supabaseAdmin) {
+      console.error("Supabase admin client not initialized");
+      return null;
+    }
+
     const resolvedId = resolvePortfolioIdFromParam(idOrSlug);
 
     if (!resolvedId) {

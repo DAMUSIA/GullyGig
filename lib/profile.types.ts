@@ -19,6 +19,8 @@ export interface UserProfile {
   avatar?: string;
   joinDate: string;
   bio: string;
+  isPaid?: boolean;
+  is_paid?: boolean;
 }
 
 /**

@@ -157,10 +157,7 @@ export interface PostReviewResult {
   totalReviews?: number;
   error?: string;
   errorCode?:
-    | "NOT_FOUND"
-    | "CLIENT_ERROR"
-    | "SERVER_ERROR"
-    | "INAPPROPRIATE_CONTENT";
+    "NOT_FOUND" | "CLIENT_ERROR" | "SERVER_ERROR" | "INAPPROPRIATE_CONTENT";
   moderationFlags?: string[];
 }
 

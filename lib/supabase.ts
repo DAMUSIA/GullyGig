@@ -64,6 +64,7 @@ export interface UserProfile {
   gender?: string | null;
   location: string | null;
   about: string | null;
+  is_paid?: boolean;
   created_at: string;
 }
 

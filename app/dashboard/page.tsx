@@ -74,6 +74,7 @@ export default function DashboardPage() {
     null,
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [isPaid, setIsPaid] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
@@ -105,14 +106,22 @@ export default function DashboardPage() {
 
         if (!supabase) throw new Error("Supabase not configured");
 
-        const { data: servicesData, error: servicesError } = await supabase
-          .from("services")
-          .select("*")
-          .eq("user_id", currentUser.id)
-          .order("created_at", { ascending: false });
+        const [servicesRes, userRes] = await Promise.all([
+          supabase
+            .from("services")
+            .select("*")
+            .eq("user_id", currentUser.id)
+            .order("created_at", { ascending: false }),
+          supabase
+            .from("users")
+            .select("is_paid")
+            .eq("id", currentUser.id)
+            .single(),
+        ]);
 
-        if (servicesError) throw servicesError;
-        setServices((servicesData as ServiceItem[]) || []);
+        if (servicesRes.error) throw servicesRes.error;
+        setServices((servicesRes.data as ServiceItem[]) || []);
+        setIsPaid(!!userRes.data?.is_paid);
 
         const { data: reviewsData, error: reviewsError } = await supabase
           .from("service_ratings")
@@ -304,6 +313,8 @@ export default function DashboardPage() {
       <WelcomeHeader
         userName={user?.user_metadata?.full_name || "Tutor"}
         onAddService={() => router.push("/dashboard/create-service")}
+        isPaid={isPaid}
+        hasService={services.length > 0}
       />
 
       <AnalyticsCard

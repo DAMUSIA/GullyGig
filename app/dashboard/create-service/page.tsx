@@ -620,7 +620,7 @@ export default function CreateServicePage() {
             <Briefcase className="w-8 h-8" />
           </div>
 
-          <div className="space-y-2 max-w-md mx-auto">
+          <div className="space-y-2 max-w mx-auto">
             <h2 className="text-2xl font-extrabold text-slate-800">
               Service Listing Limit Reached
             </h2>
@@ -631,7 +631,7 @@ export default function CreateServicePage() {
             </p>
           </div>
 
-          <div className="bg-slate-50 border border-slate-200/70 rounded-2xl p-5 max-w-md mx-auto text-left text-xs font-semibold text-slate-600 space-y-2">
+          <div className="bg-slate-50 border border-slate-200/70 rounded-2xl p-5 max-w mx-auto text-left text-xs font-semibold text-slate-600 space-y-2">
             <p className="text-slate-800 font-bold">Need to make changes?</p>
             <p>
               You can easily update your service title, pricing, location,
@@ -639,7 +639,7 @@ export default function CreateServicePage() {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 max-w-md mx-auto">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 max-w mx-auto">
             <button
               onClick={() => router.push("/dashboard")}
               className="w-full sm:flex-1 py-3 px-5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-2xl transition shadow-md shadow-blue-500/15 cursor-pointer"
@@ -988,7 +988,7 @@ export default function CreateServicePage() {
                 <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto border border-blue-100">
                   <Sparkles className="w-8 h-8" />
                 </div>
-                <div className="space-y-2 max-w-md mx-auto">
+                <div className="space-y-2 max-w mx-auto">
                   <h2 className="text-2xl font-extrabold text-slate-800">
                     Ready to launch your service?
                   </h2>
@@ -1099,7 +1099,7 @@ export default function CreateServicePage() {
                 <h2 className="text-2xl font-extrabold text-slate-800">
                   Service Listing Published!
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-md mx-auto">
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w mx-auto">
                   Congratulations! Your service listing is now live. Local
                   clients can discover your profile, explore details, and
                   contact you directly.

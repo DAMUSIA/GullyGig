@@ -521,7 +521,7 @@ export default function CreateServicePage() {
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10 max-w-md w-full text-center space-y-5"
+                className="bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10 max-w text-center space-y-5"
               >
                 <button
                   onClick={() => setShowContactModal(false)}

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { Lightbulb } from "lucide-react";
 
 interface PricingFormData {
   priceType: string;
@@ -35,10 +36,10 @@ export default function Pricing({
         Set your pricing details
       </p>
 
-      <div className="bg-gradient-to-r from-blue-600/5 to-blue-800/5 rounded-xl p-4 mb-6 border border-blue-600/10">
+      <div className="bg-gradient-to-r from-blue-600/5 to-blue-800/5 rounded-xl p-4 mb-6 border border-blue-600/10 flex items-center gap-2">
+        <Lightbulb className="w-4 h-4 text-blue-600 shrink-0" />
         <p className="text-sm text-blue-600 font-sans">
-          💡 Pricing Tips: Research similar services in your area to set a
-          competitive price.
+          <span className="font-semibold">Pricing Tips:</span> Research similar services in your area to set a competitive price.
         </p>
       </div>
 

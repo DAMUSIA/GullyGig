@@ -120,3 +120,43 @@ export function getPosterUrl(serviceId: string): string {
 export function getQRCodeUrl(data: string, size: number = 150): string {
   return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}`;
 }
+
+/**
+ * Extracts a YouTube Video ID from any standard YouTube URL (watch, embed, shorts, youtu.be)
+ */
+export function getYouTubeVideoId(url?: string | null): string | null {
+  if (!url || typeof url !== "string") return null;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+
+  // Check if it's already an 11-char ID
+  if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) {
+    return trimmed;
+  }
+
+  // Robust regex covering watch?v=, embed/, shorts/, live/, youtu.be/, etc.
+  const match = trimmed.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts\/|live\/|watch\?v=|watch\?.+&v=))([\w-]{11})/i,
+  );
+  if (match && match[1]) {
+    return match[1];
+  }
+
+  // Fallback query string search for ?v= or &v=
+  const fallbackMatch = trimmed.match(/[?&]v=([^&#]+)/);
+  if (fallbackMatch && fallbackMatch[1] && fallbackMatch[1].length === 11) {
+    return fallbackMatch[1];
+  }
+
+  return null;
+}
+
+/**
+ * Generates a clean, privacy-friendly YouTube embed URL for iframe players
+ */
+export function getYouTubeEmbedUrl(url?: string | null): string | null {
+  const videoId = getYouTubeVideoId(url);
+  if (!videoId) return null;
+  return `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&playsinline=1`;
+}
+

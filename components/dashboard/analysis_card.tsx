@@ -31,7 +31,7 @@ export function AnalyticsCard({
     },
     {
       icon: Globe,
-      label: "Portfolio Views",
+      label: "Site Views",
       value: totalPortfolioViews,
       color: "blue" as const,
     },

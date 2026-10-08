@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { User, MapPin, Calendar, ShieldCheck, Briefcase } from "lucide-react";
 import {
@@ -7,6 +5,10 @@ import {
   FaFacebook,
   FaLinkedin,
   FaYoutube,
+  FaDiscord,
+  FaTelegram,
+  FaWhatsapp,
+  FaTwitter,
   FaGlobe as FaGlobeIcon,
 } from "react-icons/fa6";
 
@@ -28,7 +30,35 @@ interface PortfolioProviderProps {
     linkedin?: string;
     youtube?: string;
     website?: string;
+    discord?: string;
+    telegram?: string;
+    whatsapp?: string;
+    twitter?: string;
+    intro_video_url?: string;
   };
+}
+
+function formatUrl(url: string, platform: string): string {
+  const trimmed = url.trim();
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+
+  switch (platform) {
+    case "instagram":
+      return `https://instagram.com/${trimmed.replace(/^@/, "")}`;
+    case "telegram":
+      return `https://t.me/${trimmed.replace(/^@/, "")}`;
+    case "whatsapp": {
+      const clean = trimmed.replace(/\D/g, "");
+      return clean.length === 10 ? `https://wa.me/91${clean}` : `https://wa.me/${clean}`;
+    }
+    case "twitter":
+      return `https://x.com/${trimmed.replace(/^@/, "")}`;
+    case "youtube":
+      return trimmed.startsWith("@") ? `https://youtube.com/${trimmed}` : `https://${trimmed}`;
+    default:
+      return `https://${trimmed}`;
+  }
 }
 
 export default function PortfolioProvider({
@@ -42,7 +72,12 @@ export default function PortfolioProvider({
 }: PortfolioProviderProps) {
   const initial = fullName ? fullName.charAt(0).toUpperCase() : "P";
   const hasSocials =
-    socialLinks && Object.values(socialLinks).some((val) => Boolean(val));
+    socialLinks && Object.values(socialLinks).some((val) => Boolean(val && typeof val === "string" && val.trim()));
+
+  // If no provider details are provided, do not render this card section
+  if (!fullName && !about && !location && !hasSocials) {
+    return null;
+  }
 
   return (
     <div
@@ -134,10 +169,25 @@ export default function PortfolioProvider({
 
           {/* Social Links */}
           {hasSocials && (
-            <div className="flex items-center justify-center gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-slate-800/80 w-full">
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-slate-800/80 w-full">
+              {socialLinks.whatsapp && (
+                <a
+                  href={formatUrl(socialLinks.whatsapp, "whatsapp")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-2 rounded-xl border transition-all ${
+                    darkMode
+                      ? "bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700"
+                      : "bg-white hover:bg-slate-100 text-slate-600 border-slate-200"
+                  }`}
+                  title="WhatsApp"
+                >
+                  <FaWhatsapp className="w-4 h-4 text-emerald-500" />
+                </a>
+              )}
               {socialLinks.instagram && (
                 <a
-                  href={socialLinks.instagram}
+                  href={formatUrl(socialLinks.instagram, "instagram")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`p-2 rounded-xl border transition-all ${
@@ -150,24 +200,9 @@ export default function PortfolioProvider({
                   <FaInstagram className="w-4 h-4 text-pink-500" />
                 </a>
               )}
-              {socialLinks.facebook && (
-                <a
-                  href={socialLinks.facebook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`p-2 rounded-xl border transition-all ${
-                    darkMode
-                      ? "bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700"
-                      : "bg-white hover:bg-slate-100 text-slate-600 border-slate-200"
-                  }`}
-                  title="Facebook Profile"
-                >
-                  <FaFacebook className="w-4 h-4 text-blue-500" />
-                </a>
-              )}
               {socialLinks.linkedin && (
                 <a
-                  href={socialLinks.linkedin}
+                  href={formatUrl(socialLinks.linkedin, "linkedin")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`p-2 rounded-xl border transition-all ${
@@ -180,9 +215,39 @@ export default function PortfolioProvider({
                   <FaLinkedin className="w-4 h-4 text-sky-500" />
                 </a>
               )}
+              {socialLinks.discord && (
+                <a
+                  href={formatUrl(socialLinks.discord, "discord")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-2 rounded-xl border transition-all ${
+                    darkMode
+                      ? "bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700"
+                      : "bg-white hover:bg-slate-100 text-slate-600 border-slate-200"
+                  }`}
+                  title="Discord"
+                >
+                  <FaDiscord className="w-4 h-4 text-indigo-500" />
+                </a>
+              )}
+              {socialLinks.telegram && (
+                <a
+                  href={formatUrl(socialLinks.telegram, "telegram")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-2 rounded-xl border transition-all ${
+                    darkMode
+                      ? "bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700"
+                      : "bg-white hover:bg-slate-100 text-slate-600 border-slate-200"
+                  }`}
+                  title="Telegram"
+                >
+                  <FaTelegram className="w-4 h-4 text-sky-400" />
+                </a>
+              )}
               {socialLinks.youtube && (
                 <a
-                  href={socialLinks.youtube}
+                  href={formatUrl(socialLinks.youtube, "youtube")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`p-2 rounded-xl border transition-all ${
@@ -195,9 +260,9 @@ export default function PortfolioProvider({
                   <FaYoutube className="w-4 h-4 text-red-500" />
                 </a>
               )}
-              {socialLinks.website && (
+              {socialLinks.twitter && (
                 <a
-                  href={socialLinks.website}
+                  href={formatUrl(socialLinks.twitter, "twitter")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`p-2 rounded-xl border transition-all ${
@@ -205,7 +270,37 @@ export default function PortfolioProvider({
                       ? "bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700"
                       : "bg-white hover:bg-slate-100 text-slate-600 border-slate-200"
                   }`}
-                  title="Website"
+                  title="Twitter / X"
+                >
+                  <FaTwitter className="w-4 h-4 text-sky-400" />
+                </a>
+              )}
+              {socialLinks.facebook && (
+                <a
+                  href={formatUrl(socialLinks.facebook, "facebook")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-2 rounded-xl border transition-all ${
+                    darkMode
+                      ? "bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700"
+                      : "bg-white hover:bg-slate-100 text-slate-600 border-slate-200"
+                  }`}
+                  title="Facebook Profile"
+                >
+                  <FaFacebook className="w-4 h-4 text-blue-500" />
+                </a>
+              )}
+              {socialLinks.website && (
+                <a
+                  href={formatUrl(socialLinks.website, "website")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-2 rounded-xl border transition-all ${
+                    darkMode
+                      ? "bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700"
+                      : "bg-white hover:bg-slate-100 text-slate-600 border-slate-200"
+                  }`}
+                  title="Website / Portfolio"
                 >
                   <FaGlobeIcon className="w-4 h-4 text-emerald-500" />
                 </a>

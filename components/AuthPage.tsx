@@ -358,7 +358,7 @@ export default function AuthPage({
 
                 <div>
                   <h2 className="text-2xl font-bold text-gray-800">
-                    Welcome to GullyGig! 🎉
+                    Welcome to GullyGig!
                   </h2>
                   <p className="text-sm text-gray-500 mt-2">
                     Account created successfully. Opportunity starts here!

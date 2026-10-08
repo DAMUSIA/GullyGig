@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import Link from "next/link";
 import {
   Search,
   MapPin,
@@ -16,8 +17,10 @@ import {
   Plus,
   Loader2,
   AlertCircle,
+  ExternalLink,
 } from "lucide-react";
 import { getCurrentUser, supabase } from "@/lib/supabase";
+import InstagramLikeButton from "@/components/ui/InstagramLikeButton";
 
 interface UserProfile {
   full_name: string;
@@ -134,15 +137,15 @@ export default function NearbyServicePage() {
     if (!supabase) return new Set<string>();
 
     try {
-      console.log("🔍 Loading likes for user:", userId);
+      console.log("[Marketplace] Loading likes for user:", userId);
 
       // First, check if we can read the table at all
       const { data: allLikes, error: allError } = await supabase
         .from("service_likes")
         .select("*");
 
-      console.log("📊 All likes in table:", allLikes);
-      console.log("📊 All likes error:", allError);
+      console.log("[Marketplace] All likes in table:", allLikes);
+      console.log("[Marketplace] All likes error:", allError);
 
       // Now get user-specific likes
       const { data: likesData, error: likesError } = await supabase
@@ -150,19 +153,19 @@ export default function NearbyServicePage() {
         .select("service_id")
         .eq("user_id", userId);
 
-      console.log("🔍 Query result:", likesData);
-      console.log("🔍 Query error:", likesError);
+      console.log("[Marketplace] Query result:", likesData);
+      console.log("[Marketplace] Query error:", likesError);
 
       if (likesError) {
-        console.error("❌ Error loading likes:", likesError);
+        console.error("[Marketplace] Error loading likes:", likesError);
         return new Set<string>();
       }
 
       const ids = new Set<string>(likesData?.map((l) => l.service_id) || []);
-      console.log(`✅ Loaded ${ids.size} liked services:`, [...ids]);
+      console.log(`[Marketplace] Loaded ${ids.size} liked services:`, [...ids]);
       return ids;
     } catch (err) {
-      console.error("❌ Failed to load likes:", err);
+      console.error("[Marketplace] Failed to load likes:", err);
       return new Set<string>();
     }
   }, []);
@@ -176,14 +179,14 @@ export default function NearbyServicePage() {
     async function initPage() {
       try {
         setLoading(true);
-        console.log("🚀 Initializing page...");
+        console.log("[Marketplace] Initializing page...");
 
         // Get current user
         const { user } = (await getCurrentUser()) as {
           user: ServiceUser | null;
         };
         setCurrentUser(user);
-        console.log("👤 Current user:", user?.id || "Not logged in");
+        console.log("[Marketplace] Current user:", user?.id || "Not logged in");
 
         if (!supabase) {
           throw new Error(
@@ -192,7 +195,7 @@ export default function NearbyServicePage() {
         }
 
         // Fetch services with user profiles
-        console.log("📦 Fetching services...");
+        console.log("[Marketplace] Fetching services...");
         const { data: servicesData, error: servicesError } = await supabase
           .from("services")
           .select("*, users:user_id(full_name, about)")
@@ -202,7 +205,7 @@ export default function NearbyServicePage() {
 
         if (isMounted) {
           setServices((servicesData as ServiceItem[]) || []);
-          console.log(`📦 Loaded ${servicesData?.length || 0} services`);
+          console.log(`[Marketplace] Loaded ${servicesData?.length || 0} services`);
         }
 
         // ============================================
@@ -213,24 +216,24 @@ export default function NearbyServicePage() {
           const likedIds = await loadUserLikes(user.id);
           if (isMounted) {
             setLikedServiceIds(likedIds);
-            console.log(`❤️ Restored ${likedIds.size} likes from database`);
+            console.log(`[Marketplace] Restored ${likedIds.size} likes from database`);
           }
         } else {
           // If no user, ensure likes are empty
           if (isMounted) {
             setLikedServiceIds(new Set());
-            console.log("👤 No user logged in, likes set to empty");
+            console.log("[Marketplace] No user logged in, likes set to empty");
           }
         }
       } catch (err: unknown) {
-        console.error("❌ Error loading marketplace:", err);
+        console.error("[Marketplace] Error loading marketplace:", err);
         if (isMounted) {
           setError("Failed to retrieve service listings. Please reload.");
         }
       } finally {
         if (isMounted) {
           setLoading(false);
-          console.log("✅ Page initialization complete");
+          console.log("[Marketplace] Page initialization complete");
         }
       }
     }
@@ -334,7 +337,7 @@ export default function NearbyServicePage() {
     // Use a local variable to check current state
     const isCurrentlyLiked = likedServiceIds.has(service.id);
     console.log(
-      `🔄 Toggling like for service ${service.id}: currently ${isCurrentlyLiked ? "liked" : "unliked"}`,
+      `[Marketplace] Toggling like for service ${service.id}: currently ${isCurrentlyLiked ? "liked" : "unliked"}`,
     );
 
     // Prevent multiple rapid clicks for this specific service
@@ -403,7 +406,7 @@ export default function NearbyServicePage() {
         const finalCount = data.likesCount || 0;
 
         console.log(
-          `✅ Like toggled successfully: ${finalLiked ? "liked" : "unliked"}, count: ${finalCount}`,
+          `[Marketplace] Like toggled successfully: ${finalLiked ? "liked" : "unliked"}, count: ${finalCount}`,
         );
 
         // ============================================
@@ -428,7 +431,7 @@ export default function NearbyServicePage() {
         throw new Error(data.error || "Failed to update like");
       }
     } catch (err) {
-      console.error("❌ Like toggle failed:", err);
+      console.error("[Marketplace] Like toggle failed:", err);
 
       // ============================================
       // ROLLBACK ON ERROR
@@ -723,9 +726,9 @@ export default function NearbyServicePage() {
               aria-label="Sort services by"
             >
               <option value="Newest">Newest Listed</option>
-              <option value="Highest Rated">Highest Rated ⭐</option>
-              <option value="Most Viewed">Most Viewed 👁</option>
-              <option value="Most Liked">Most Liked ❤️</option>
+              <option value="Highest Rated">Highest Rated</option>
+              <option value="Most Viewed">Most Viewed</option>
+              <option value="Most Liked">Most Liked</option>
               <option value="Lowest Price">Lowest Price (₹)</option>
               <option value="Highest Price">Highest Price (₹)</option>
             </select>
@@ -853,39 +856,13 @@ export default function NearbyServicePage() {
                             <Navigation className="h-4 w-4 fill-blue-600/10" />
                           </button>
                         )}
-                        {/* ============================================
-                            LIKE BUTTON - Instagram Style
-                            Heart fills if service.id is in likedServiceIds
-                            ============================================ */}
+                        {/* LIKE BUTTON - Fast reaction Instagram Style with background sync */}
                         {!isOwnService && (
-                          <button
-                            type="button"
-                            onClick={(e) => handleToggleLike(e, service)}
-                            disabled={isLikingThis}
-                            className={`p-1.5 border rounded-xl transition-all hover:scale-105 active:scale-95 ${
-                              isLiked
-                                ? "bg-red-50 border-red-200 text-red-500"
-                                : "bg-slate-50 border-slate-200 text-slate-400 hover:text-red-500 hover:bg-red-50/50"
-                            } ${isLikingThis ? "opacity-50 cursor-not-allowed" : ""}`}
-                            aria-label={
-                              isLiked
-                                ? `Unlike ${service.title}`
-                                : `Like ${service.title}`
-                            }
-                            title={
-                              isLiked
-                                ? `Unlike ${service.title}`
-                                : `Like ${service.title}`
-                            }
-                          >
-                            {isLikingThis ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Heart
-                                className={`h-4 w-4 ${isLiked ? "fill-red-500" : ""}`}
-                              />
-                            )}
-                          </button>
+                          <InstagramLikeButton
+                            variant="icon-only"
+                            isLiked={isLiked}
+                            onToggle={() => handleToggleLike(undefined as any, service)}
+                          />
                         )}
                       </div>
                     </div>
@@ -929,8 +906,8 @@ export default function NearbyServicePage() {
                   </div>
 
                   {/* Card Bottom Area */}
-                  <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-auto">
-                    <div className="flex items-center gap-1 text-slate-400 font-semibold text-[11px] max-w-[50%]">
+                  <div className="flex items-center justify-between border-t border-slate-100 pt-3.5 mt-auto gap-2">
+                    <div className="flex items-center gap-1 text-slate-400 font-semibold text-[11px] min-w-0 flex-1">
                       <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                       <span className="truncate">
                         {[service.area, service.city]
@@ -938,9 +915,20 @@ export default function NearbyServicePage() {
                           .join(", ")}
                       </span>
                     </div>
-                    <span className="text-xs font-extrabold text-blue-600 shrink-0">
-                      {priceLabel}
-                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Link
+                        href={`/p/${service.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-[10px] rounded-lg transition flex items-center gap-1 border border-blue-100"
+                        title="View Full Portfolio"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        <span>Portfolio</span>
+                      </Link>
+                      <span className="text-xs font-extrabold text-blue-600 shrink-0">
+                        {priceLabel}
+                      </span>
+                    </div>
                   </div>
                 </div>
               );
@@ -960,7 +948,7 @@ export default function NearbyServicePage() {
           <div className="bg-white border border-slate-100 rounded-3xl shadow-2xl relative z-10 w-full max-w-3xl max-h-[90vh] overflow-y-auto flex flex-col animate-in zoom-in-95 duration-200">
             {/* Modal Header */}
             <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between z-10">
-              <div className="space-y-0.5">
+              <div className="space-y-0.5 min-w-0 flex-1 pr-4">
                 <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full uppercase border border-blue-100/30">
                   {selectedService.category}
                 </span>
@@ -968,15 +956,25 @@ export default function NearbyServicePage() {
                   {selectedService.title}
                 </h2>
               </div>
-              <button
-                type="button"
-                onClick={() => setSelectedService(null)}
-                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-all cursor-pointer"
-                aria-label="Close details"
-                title="Close details"
-              >
-                <X className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/p/${selectedService.id}`}
+                  className="px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs rounded-xl transition flex items-center gap-1.5 border border-blue-200 shadow-xs"
+                  title="Open Full Portfolio"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>View Portfolio</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setSelectedService(null)}
+                  className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-all cursor-pointer"
+                  aria-label="Close details"
+                  title="Close details"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
 
             {/* Modal Body */}

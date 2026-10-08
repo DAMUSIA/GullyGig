@@ -8,8 +8,16 @@ import {
   FaFacebook,
   FaLinkedin,
   FaYoutube,
+  FaDiscord,
+  FaTelegram,
+  FaTwitter,
   FaGlobe as FaGlobeIcon,
 } from "react-icons/fa6";
+
+interface CustomSocialLink {
+  name: string;
+  url: string;
+}
 
 interface SocialLinks {
   instagram?: string;
@@ -17,6 +25,12 @@ interface SocialLinks {
   linkedin?: string;
   youtube?: string;
   website?: string;
+  discord?: string;
+  telegram?: string;
+  whatsapp?: string;
+  twitter?: string;
+  intro_video_url?: string;
+  custom_links?: CustomSocialLink[];
 }
 
 interface PortfolioContactProps {
@@ -24,6 +38,29 @@ interface PortfolioContactProps {
   serviceTitle: string;
   darkMode?: boolean;
   socialLinks?: SocialLinks;
+}
+
+function formatUrl(url: string, platform: string): string {
+  const trimmed = url.trim();
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+
+  switch (platform) {
+    case "instagram":
+      return `https://instagram.com/${trimmed.replace(/^@/, "")}`;
+    case "telegram":
+      return `https://t.me/${trimmed.replace(/^@/, "")}`;
+    case "whatsapp": {
+      const clean = trimmed.replace(/\D/g, "");
+      return clean.length === 10 ? `https://wa.me/91${clean}` : `https://wa.me/${clean}`;
+    }
+    case "twitter":
+      return `https://x.com/${trimmed.replace(/^@/, "")}`;
+    case "youtube":
+      return trimmed.startsWith("@") ? `https://youtube.com/${trimmed}` : `https://${trimmed}`;
+    default:
+      return `https://${trimmed}`;
+  }
 }
 
 export default function PortfolioContact({
@@ -46,8 +83,24 @@ export default function PortfolioContact({
     }
   };
 
+  const customLinks = (socialLinks?.custom_links || []).filter(
+    (l) => l.name?.trim() && l.url?.trim(),
+  );
+
   const hasSocials =
-    socialLinks && Object.values(socialLinks).some((val) => Boolean(val));
+    (socialLinks &&
+      Object.entries(socialLinks).some(
+        ([key, val]) =>
+          key !== "intro_video_url" &&
+          key !== "custom_links" &&
+          Boolean(val && typeof val === "string" && val.trim()),
+      )) ||
+    customLinks.length > 0;
+
+  // If no contact numbers and no social profiles are provided, do not render this section at all
+  if (contactNumbers.length === 0 && !hasSocials) {
+    return null;
+  }
 
   return (
     <div
@@ -80,19 +133,8 @@ export default function PortfolioContact({
         </div>
       </div>
 
-      {/* Contact Numbers List */}
-      {contactNumbers.length === 0 ? (
-        <div
-          className={`p-4 rounded-2xl border text-center text-xs italic ${
-            darkMode
-              ? "bg-slate-950/40 border-slate-800 text-slate-400"
-              : "bg-slate-50 border-slate-200 text-slate-500"
-          }`}
-        >
-          No direct phone numbers published. Please use website booking or
-          inquiry options.
-        </div>
-      ) : (
+      {/* Contact Numbers List (Only if numbers are provided) */}
+      {contactNumbers.length > 0 && (
         <div className="space-y-4">
           {contactNumbers.map((number, idx) => {
             const cleaned = cleanNumber(number);
@@ -180,7 +222,7 @@ export default function PortfolioContact({
         </div>
       )}
 
-      {/* Social Media & Web Profiles Section */}
+      {/* Social Media & Online Profiles Section */}
       {hasSocials && (
         <div className="pt-2 space-y-3">
           <h4
@@ -189,12 +231,12 @@ export default function PortfolioContact({
             }`}
           >
             <ExternalLink className="w-3.5 h-3.5 text-blue-500" />
-            Social &amp; Online Profiles
+            Social Profiles &amp; Online Connect
           </h4>
           <div className="grid grid-cols-2 gap-2">
-            {socialLinks.instagram && (
+            {socialLinks?.whatsapp && (
               <a
-                href={socialLinks.instagram}
+                href={formatUrl(socialLinks.whatsapp, "whatsapp")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs font-bold transition-all ${
@@ -203,14 +245,30 @@ export default function PortfolioContact({
                     : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800"
                 }`}
               >
-                <FaInstagram className="w-4 h-4 text-pink-500" />
+                <FaWhatsapp className="w-4 h-4 text-emerald-500 shrink-0" />
+                <span className="truncate">WhatsApp</span>
+              </a>
+            )}
+
+            {socialLinks?.instagram && (
+              <a
+                href={formatUrl(socialLinks.instagram, "instagram")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs font-bold transition-all ${
+                  darkMode
+                    ? "bg-slate-950/60 hover:bg-slate-800 border-slate-800 text-slate-200"
+                    : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800"
+                }`}
+              >
+                <FaInstagram className="w-4 h-4 text-pink-500 shrink-0" />
                 <span className="truncate">Instagram</span>
               </a>
             )}
 
-            {socialLinks.facebook && (
+            {socialLinks?.linkedin && (
               <a
-                href={socialLinks.facebook}
+                href={formatUrl(socialLinks.linkedin, "linkedin")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs font-bold transition-all ${
@@ -219,30 +277,14 @@ export default function PortfolioContact({
                     : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800"
                 }`}
               >
-                <FaFacebook className="w-4 h-4 text-blue-500" />
-                <span className="truncate">Facebook</span>
-              </a>
-            )}
-
-            {socialLinks.linkedin && (
-              <a
-                href={socialLinks.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs font-bold transition-all ${
-                  darkMode
-                    ? "bg-slate-950/60 hover:bg-slate-800 border-slate-800 text-slate-200"
-                    : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-200"
-                }`}
-              >
-                <FaLinkedin className="w-4 h-4 text-sky-500" />
+                <FaLinkedin className="w-4 h-4 text-sky-500 shrink-0" />
                 <span className="truncate">LinkedIn</span>
               </a>
             )}
 
-            {socialLinks.youtube && (
+            {socialLinks?.discord && (
               <a
-                href={socialLinks.youtube}
+                href={formatUrl(socialLinks.discord, "discord")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs font-bold transition-all ${
@@ -251,14 +293,78 @@ export default function PortfolioContact({
                     : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800"
                 }`}
               >
-                <FaYoutube className="w-4 h-4 text-red-500" />
+                <FaDiscord className="w-4 h-4 text-indigo-500 shrink-0" />
+                <span className="truncate">Discord</span>
+              </a>
+            )}
+
+            {socialLinks?.telegram && (
+              <a
+                href={formatUrl(socialLinks.telegram, "telegram")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs font-bold transition-all ${
+                  darkMode
+                    ? "bg-slate-950/60 hover:bg-slate-800 border-slate-800 text-slate-200"
+                    : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800"
+                }`}
+              >
+                <FaTelegram className="w-4 h-4 text-sky-400 shrink-0" />
+                <span className="truncate">Telegram</span>
+              </a>
+            )}
+
+            {socialLinks?.youtube && (
+              <a
+                href={formatUrl(socialLinks.youtube, "youtube")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs font-bold transition-all ${
+                  darkMode
+                    ? "bg-slate-950/60 hover:bg-slate-800 border-slate-800 text-slate-200"
+                    : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800"
+                }`}
+              >
+                <FaYoutube className="w-4 h-4 text-red-500 shrink-0" />
                 <span className="truncate">YouTube</span>
               </a>
             )}
 
-            {socialLinks.website && (
+            {socialLinks?.twitter && (
               <a
-                href={socialLinks.website}
+                href={formatUrl(socialLinks.twitter, "twitter")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs font-bold transition-all ${
+                  darkMode
+                    ? "bg-slate-950/60 hover:bg-slate-800 border-slate-800 text-slate-200"
+                    : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800"
+                }`}
+              >
+                <FaTwitter className="w-4 h-4 text-sky-400 shrink-0" />
+                <span className="truncate">Twitter / X</span>
+              </a>
+            )}
+
+            {socialLinks?.facebook && (
+              <a
+                href={formatUrl(socialLinks.facebook, "facebook")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs font-bold transition-all ${
+                  darkMode
+                    ? "bg-slate-950/60 hover:bg-slate-800 border-slate-800 text-slate-200"
+                    : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800"
+                }`}
+              >
+                <FaFacebook className="w-4 h-4 text-blue-500 shrink-0" />
+                <span className="truncate">Facebook</span>
+              </a>
+            )}
+
+            {socialLinks?.website && (
+              <a
+                href={formatUrl(socialLinks.website, "website")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs font-bold transition-all col-span-2 ${
@@ -267,10 +373,27 @@ export default function PortfolioContact({
                     : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800"
                 }`}
               >
-                <FaGlobeIcon className="w-4 h-4 text-emerald-500" />
-                <span className="truncate">Official Website</span>
+                <FaGlobeIcon className="w-4 h-4 text-emerald-500 shrink-0" />
+                <span className="truncate">Official Website / Portfolio</span>
               </a>
             )}
+
+            {customLinks.map((link, idx) => (
+              <a
+                key={idx}
+                href={formatUrl(link.url, link.name.toLowerCase())}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs font-bold transition-all ${
+                  darkMode
+                    ? "bg-slate-950/60 hover:bg-slate-800 border-slate-800 text-slate-200"
+                    : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800"
+                }`}
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                <span className="truncate">{link.name}</span>
+              </a>
+            ))}
           </div>
         </div>
       )}

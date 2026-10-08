@@ -143,15 +143,31 @@ export default function Footer({ onShowToast }: FooterProps) {
                   support@gullygig.in
                 </a>
               </span>
-              <span className="flex items-center gap-1">
-                <span>Phone:</span>
-                <a
-                  href="tel:7559302315"
-                  className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                >
-                  7559302315
-                </a>
-              </span>
+              <div className="flex flex-col gap-1 pt-0.5">
+                <span className="text-[11px] text-slate-500 uppercase tracking-wider font-bold">Helpline &amp; Support:</span>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <a
+                    href="tel:8879514626"
+                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+                  >
+                    +91 88795 14626
+                  </a>
+                  <span className="text-slate-300 dark:text-slate-700">•</span>
+                  <a
+                    href="tel:7559302315"
+                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+                  >
+                    +91 755 930 2315
+                  </a>
+                  <span className="text-slate-300 dark:text-slate-700">•</span>
+                  <a
+                    href="tel:8263081521"
+                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+                  >
+                    +91 82630 81521
+                  </a>
+                </div>
+              </div>
             </div>
 
             {/* Social Icons */}

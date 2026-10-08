@@ -17,6 +17,9 @@ import {
   Zap,
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
+import { motion } from "framer-motion";
+import Icon from "@/components/Icon";
+import InstagramLikeButton from "@/components/ui/InstagramLikeButton";
 
 interface PortfolioHeroProps {
   title: string;
@@ -51,8 +54,142 @@ interface PortfolioHeroProps {
 const formatCount = (n: number) =>
   n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, "")}K` : String(n);
 
-const pillClass =
-  "inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700";
+// Animated sliding button matching Home Hero AnimatedCTA design with exact speed & smoothness
+function AnimatedHeroAction({
+  href,
+  onClick,
+  target,
+  rel,
+  defaultText,
+  hoverText,
+  variant = "primary",
+  icon: IconComponent,
+}: {
+  href?: string;
+  onClick?: () => void;
+  target?: string;
+  rel?: string;
+  defaultText: string;
+  hoverText: string;
+  variant?: "primary" | "whatsapp" | "schedule";
+  icon?: React.ComponentType<{ className?: string }>;
+}) {
+  const [isHovered, setIsHovered] = React.useState(false);
+
+  const baseContainerClass = `relative overflow-hidden w-full min-h-[56px] rounded-2xl flex items-center justify-center group transition-shadow shadow-md cursor-pointer border select-none ${
+    variant === "primary"
+      ? "bg-[#1855c9] border-[#1855c9] shadow-lg shadow-blue-900/30"
+      : variant === "whatsapp"
+        ? "bg-[#e2edff] dark:bg-blue-950/80 border-blue-200 dark:border-blue-900/80 shadow-sm"
+        : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm"
+  }`;
+
+  const slidingBgClass = `absolute inset-0 z-0 rounded-2xl ${
+    variant === "primary"
+      ? "bg-white"
+      : variant === "whatsapp"
+        ? "bg-[#25D366]"
+        : "bg-blue-600"
+  }`;
+
+  const defaultTextClass = `absolute flex items-center justify-center gap-2 text-[15px] font-bold tracking-wide w-full ${
+    variant === "primary"
+      ? "text-white"
+      : variant === "whatsapp"
+        ? "text-blue-700 dark:text-blue-300"
+        : "text-slate-800 dark:text-slate-200"
+  }`;
+
+  const hoverTextClass = `absolute flex items-center justify-center gap-2 text-[15px] font-bold tracking-wide w-full ${
+    variant === "primary"
+      ? "text-[#1855c9]"
+      : "text-white"
+  }`;
+
+  const content = (
+    <>
+      {/* The Sliding Background with smooth 1.5s cubic-bezier curve */}
+      <motion.div
+        initial={{ x: "-100%" }}
+        animate={{ x: isHovered ? "0%" : "-100%" }}
+        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+        className={slidingBgClass}
+      />
+
+      {/* Button Content Wrapper */}
+      <div className="relative z-10 flex items-center justify-center w-full h-full overflow-hidden px-4">
+        {/* Default State (Fades out and moves down) */}
+        <motion.div
+          initial={false}
+          animate={{
+            y: isHovered ? 30 : 0,
+            opacity: isHovered ? 0 : 1,
+          }}
+          transition={{ duration: 0.3 }}
+          className={defaultTextClass}
+        >
+          {IconComponent && <IconComponent className="h-4.5 w-4.5 shrink-0" />}
+          <span>{defaultText}</span>
+        </motion.div>
+
+        {/* Hover State (Fades in and moves up from bottom) */}
+        <motion.div
+          initial={false}
+          animate={{
+            y: isHovered ? 0 : -30,
+            opacity: isHovered ? 1 : 0,
+          }}
+          transition={{ duration: 0.3 }}
+          className={hoverTextClass}
+        >
+          <motion.span
+            initial={{ x: -10, opacity: 0 }}
+            animate={{
+              x: isHovered ? 0 : -10,
+              opacity: isHovered ? 1 : 0,
+            }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+            className="flex items-center"
+          >
+            {IconComponent ? (
+              <IconComponent className="h-4.5 w-4.5 shrink-0" />
+            ) : (
+              <Icon name="arrow_forward" className="text-lg" />
+            )}
+          </motion.span>
+          <span>{hoverText}</span>
+        </motion.div>
+      </div>
+    </>
+  );
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        target={target}
+        rel={rel}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className={baseContainerClass}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={baseContainerClass}
+    >
+      {content}
+    </button>
+  );
+}
 
 export default function PortfolioHero({
   title,
@@ -65,7 +202,9 @@ export default function PortfolioHero({
   priceUnit,
   viewsCount = 0,
   likesCount = 0,
+  darkMode = true,
   providerName = "Verified Provider",
+  providerAbout = null,
   providerImage = null,
   isVerified = true,
   topBadgeLabel = null,
@@ -85,7 +224,7 @@ export default function PortfolioHero({
     ? providerName.charAt(0).toUpperCase()
     : "P";
 
-  const hasRating = ratingAverage > 0;
+  const hasRating = ratingAverage > 0 && reviewsCount > 0;
   const ratingLabel =
     ratingAverage >= 4.8
       ? "Exceptional"
@@ -93,7 +232,7 @@ export default function PortfolioHero({
         ? "Excellent"
         : hasRating
           ? "Good"
-          : "Awaiting reviews";
+          : "Awaiting feedback";
 
   const communityReach = formatCount(likesCount > 0 ? likesCount : viewsCount);
   const availabilityTag =
@@ -102,15 +241,15 @@ export default function PortfolioHero({
   const stats = [
     {
       icon: Star,
-      value: hasRating ? `${ratingAverage.toFixed(1)}/5` : "—",
+      value: hasRating ? `${ratingAverage.toFixed(1)}/5` : "No rating",
       label: "Client Rating",
-      support: ratingLabel,
+      support: hasRating ? ratingLabel : "Awaiting feedback",
     },
     {
       icon: MessageSquare,
       value: String(reviewsCount),
       label: "Total Reviews",
-      support: reviewsCount > 0 ? "Verified feedback" : null,
+      support: reviewsCount > 0 ? "Verified feedback" : "New listing",
     },
     {
       icon: Heart,
@@ -133,11 +272,18 @@ export default function PortfolioHero({
         },
   ];
 
-  const primaryBtn =
-    "flex min-h-[58px] w-full items-center justify-center gap-2.5 rounded-2xl bg-[#1855c9] px-6 text-base font-bold text-white shadow-sm transition hover:bg-[#1448a8] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue-600";
+  const pillClass = darkMode
+    ? "inline-flex items-center gap-1.5 rounded-full border border-slate-800 bg-slate-950/80 px-3 py-1.5 text-xs font-semibold text-slate-300"
+    : "inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50/90 px-3 py-1.5 text-xs font-semibold text-blue-700";
 
   return (
-    <section className="relative overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-sm">
+    <section
+      className={`relative overflow-hidden rounded-[32px] border transition-all duration-300 shadow-xl ${
+        darkMode
+          ? "bg-slate-900/90 border-slate-800 text-white shadow-slate-950/40"
+          : "bg-white border-slate-200/90 text-slate-900 shadow-sm"
+      }`}
+    >
       <div className="grid grid-cols-1 lg:grid-cols-5">
         {/* ── Zone A: Provider identity ── */}
         <div className="flex flex-col gap-6 p-6 sm:p-8 lg:col-span-3 xl:p-10 sm:flex-row sm:items-start">
@@ -150,7 +296,13 @@ export default function PortfolioHero({
               </div>
             )}
 
-            <div className="relative h-40 w-40 overflow-hidden rounded-[24px] border border-slate-100 bg-slate-100 shadow-lg shadow-slate-900/10 sm:h-44 sm:w-44 xl:h-48 xl:w-48">
+            <div
+              className={`relative h-40 w-40 overflow-hidden rounded-[24px] border shadow-lg sm:h-44 sm:w-44 xl:h-48 xl:w-48 ${
+                darkMode
+                  ? "bg-slate-950 border-slate-800 shadow-black/40"
+                  : "bg-slate-100 border-slate-100 shadow-slate-900/10"
+              }`}
+            >
               {providerImage ? (
                 <Image
                   src={providerImage}
@@ -162,7 +314,7 @@ export default function PortfolioHero({
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
-                  <span className="select-none text-6xl font-extrabold text-blue-600">
+                  <span className="select-none text-6xl font-extrabold text-blue-500">
                     {providerInitial}
                   </span>
                 </div>
@@ -171,7 +323,7 @@ export default function PortfolioHero({
 
             {isVerified && (
               <div
-                className="absolute -bottom-2 -right-2 flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-white shadow ring-4 ring-white"
+                className="absolute -bottom-2 -right-2 flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-white shadow ring-4 ring-white dark:ring-slate-900"
                 aria-label="Verified"
               >
                 <Check className="h-4 w-4" strokeWidth={3} />
@@ -182,32 +334,35 @@ export default function PortfolioHero({
           {/* Info */}
           <div className="min-w-0 flex-1 space-y-3 text-center sm:pt-1 sm:text-left">
             <div className="flex flex-col items-center gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-              <h1 className="break-words text-[32px] font-extrabold leading-tight tracking-tight text-slate-900 sm:text-4xl xl:text-5xl">
+              <h1
+                className={`break-words text-[32px] font-extrabold leading-tight tracking-tight sm:text-4xl xl:text-5xl ${
+                  darkMode ? "text-white" : "text-slate-900"
+                }`}
+              >
                 {providerName}
               </h1>
-              {isVerified && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold uppercase text-blue-700">
-                  <CircleCheck className="h-3.5 w-3.5" />
-                  Verified Partner
-                </span>
-              )}
+              
             </div>
 
-            <p className="text-lg font-bold leading-snug text-blue-600 xl:text-2xl">
+            <p className="text-lg font-bold leading-snug text-blue-500 xl:text-2xl">
               {title}
             </p>
 
             {(locationText || languages.length > 0) && (
-              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-medium text-slate-600 sm:justify-start xl:text-base">
+              <div
+                className={`flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-medium sm:justify-start xl:text-base ${
+                  darkMode ? "text-slate-400" : "text-slate-600"
+                }`}
+              >
                 {locationText && (
                   <div className="flex items-center gap-1.5">
-                    <MapPin className="h-4 w-4 shrink-0 text-blue-600" />
+                    <MapPin className="h-4 w-4 shrink-0 text-blue-500" />
                     <span>{locationText}</span>
                   </div>
                 )}
                 {languages.length > 0 && (
                   <div className="flex items-center gap-1.5">
-                    <Languages className="h-4 w-4 shrink-0 text-blue-600" />
+                    <Languages className="h-4 w-4 shrink-0 text-blue-500" />
                     <span>{languages.join(", ")}</span>
                   </div>
                 )}
@@ -215,21 +370,23 @@ export default function PortfolioHero({
             )}
 
             <div className="flex flex-wrap justify-center gap-2 pt-1 sm:justify-start">
-              <span className={pillClass}>
-                <Zap className="h-3.5 w-3.5 fill-current text-blue-600" />
-                {category}
-              </span>
+              {category && (
+                <span className={pillClass}>
+                  <Zap className="h-3.5 w-3.5 fill-current text-blue-500" />
+                  {category}
+                </span>
+              )}
 
               {availabilityTag && (
                 <span className={pillClass}>
-                  <CalendarDays className="h-3.5 w-3.5 text-blue-600" />
+                  <CalendarDays className="h-3.5 w-3.5 text-blue-500" />
                   {availabilityTag}
                 </span>
               )}
 
               {startingPrice ? (
                 <span className={pillClass}>
-                  <Wallet className="h-3.5 w-3.5 text-blue-600" />
+                  <Wallet className="h-3.5 w-3.5 text-blue-500" />
                   From ₹{startingPrice}
                   {priceUnit
                     ? ` / ${priceUnit.replace(/^per\s+/i, "").toLowerCase()}`
@@ -250,95 +407,113 @@ export default function PortfolioHero({
             backgroundSize: "28px 28px",
           }}
         >
-          <div className="mx-auto flex w-full max-w-[350px] flex-col gap-3.5">
-            {/* Hire */}
+          <div className="mx-auto flex w-full flex-col gap-3.5">
+            {/* Hire / Call CTA */}
             {onHire ? (
-              <button type="button" onClick={onHire} className={primaryBtn}>
-                <Zap className="h-4 w-4 fill-current" />
-                Hire for a Gig
-              </button>
+              <AnimatedHeroAction
+                onClick={onHire}
+                defaultText="Hire for a Gig"
+                hoverText="Connect Now"
+                variant="primary"
+                icon={Zap}
+              />
             ) : primaryNumber ? (
-              <a href={`tel:${primaryNumber}`} className={primaryBtn}>
-                <Zap className="h-4 w-4 fill-current" />
-                Hire for a Gig
-              </a>
+              <AnimatedHeroAction
+                href={`tel:${primaryNumber}`}
+                defaultText="Hire for a Gig"
+                hoverText="Call Provider"
+                variant="primary"
+                icon={Zap}
+              />
             ) : (
               <div
-                className={`${primaryBtn} cursor-not-allowed opacity-70`}
+                className="relative overflow-hidden w-full min-h-[56px] rounded-2xl flex items-center justify-center bg-[#144fc6] opacity-60 text-white font-bold cursor-not-allowed text-base gap-2"
                 aria-disabled="true"
               >
-                <Zap className="h-4 w-4 fill-current" />
-                Hire for a Gig
+                <Zap className="h-5 w-5 fill-current" />
+                <span>Hire for a Gig</span>
               </div>
             )}
 
             {/* WhatsApp */}
             {primaryNumber ? (
-              <a
+              <AnimatedHeroAction
                 href={`https://wa.me/91${primaryNumber}?text=${encodeURIComponent(
                   `Hello! I found your service "${title}" on GullyGig and would like to enquire.`,
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex min-h-[54px] w-full items-center justify-center gap-2.5 rounded-2xl bg-[#e2edff] px-6 text-base font-bold text-blue-700 shadow-sm transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-              >
-                <FaWhatsapp className="h-5 w-5" />
-                WhatsApp chat
-              </a>
+                defaultText="WhatsApp"
+                hoverText="Chat on WhatsApp"
+                variant="whatsapp"
+                icon={FaWhatsapp}
+              />
             ) : (
               <div
-                className="flex min-h-[54px] w-full items-center justify-center gap-2.5 rounded-2xl bg-[#e2edff] px-6 text-base font-bold text-blue-700 opacity-60"
+                className="relative overflow-hidden w-full min-h-[56px] rounded-2xl flex items-center justify-center bg-[#e2edff] text-blue-700 opacity-60 font-bold text-base gap-2"
                 aria-disabled="true"
               >
                 <FaWhatsapp className="h-5 w-5" />
-                WhatsApp chat
+                <span>WhatsApp Chat</span>
               </div>
             )}
 
             {/* Schedule call (only if supported) */}
             {onScheduleCall && (
-              <button
-                type="button"
+              <AnimatedHeroAction
                 onClick={onScheduleCall}
-                className="flex min-h-[54px] w-full items-center justify-center gap-2.5 rounded-2xl bg-white px-6 text-base font-bold text-slate-800 shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-              >
-                <CalendarDays className="h-4 w-4 text-slate-700" />
-                Schedule a call
-              </button>
+                defaultText="Schedule a Call"
+                hoverText="Book Free Slot"
+                variant="schedule"
+                icon={CalendarDays}
+              />
             )}
 
-            {/* Save */}
+            {/* Save Button - Instagram Style */}
             {onLikeToggle && (
-              <button
-                type="button"
-                onClick={onLikeToggle}
-                aria-pressed={isLiked}
-                className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-2xl text-sm font-semibold text-white/90 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-              >
-                <Heart
-                  className={`h-4 w-4 ${isLiked ? "fill-red-400 text-red-400" : ""}`}
-                />
-                {isLiked ? "Saved to Favourites" : "Save to Favourites"}
-              </button>
+              <InstagramLikeButton
+                variant="hero-full"
+                isLiked={isLiked}
+                onToggle={onLikeToggle}
+                label={isLiked ? "Saved to Favourites" : "Save to Favourites"}
+              />
             )}
           </div>
         </div>
       </div>
 
       {/* ── Zone C: One unified stats strip ── */}
-      <div className="border-t border-slate-100 bg-slate-50/80">
-        <div className="grid grid-cols-2 gap-y-6 px-4 py-6 md:grid-cols-4 md:divide-x md:divide-slate-200/70 xl:px-8">
+      <div
+        className={`border-t ${
+          darkMode
+            ? "border-slate-800 bg-slate-950/60"
+            : "border-slate-100 bg-slate-50/80"
+        }`}
+      >
+        <div
+          className={`grid grid-cols-2 gap-y-6 px-4 py-6 md:grid-cols-4 md:divide-x xl:px-8 ${
+            darkMode ? "md:divide-slate-800/80" : "md:divide-slate-200/70"
+          }`}
+        >
           {stats.map(({ icon: Icon, value, label, support }) => (
             <div key={label} className="px-4 text-center">
-              <div className="flex items-center justify-center gap-1.5 text-2xl font-extrabold text-slate-900 xl:text-[30px]">
-                <Icon className="h-5 w-5 text-blue-600" />
+              <div
+                className={`flex items-center justify-center gap-1.5 text-2xl font-extrabold xl:text-[30px] ${
+                  darkMode ? "text-white" : "text-slate-900"
+                }`}
+              >
+                <Icon className="h-5 w-5 text-blue-500" />
                 {value}
               </div>
-              <div className="mt-1 text-xs font-bold uppercase tracking-wider text-blue-600">
+              <div className="mt-1 text-xs font-bold uppercase tracking-wider text-blue-500">
                 {label}
               </div>
               {support && (
-                <div className="text-xs font-medium text-slate-500">
+                <div
+                  className={`text-xs font-medium ${
+                    darkMode ? "text-slate-400" : "text-slate-500"
+                  }`}
+                >
                   {support}
                 </div>
               )}

@@ -225,7 +225,7 @@ export default function PortfolioReviews({
         >
           <MessageSquare className="w-8 h-8 mx-auto text-blue-500 opacity-60 mb-1" />
           <p className="text-sm font-bold">No Reviews Yet</p>
-          <p className="text-xs max-w-sm mx-auto">
+          <p className="text-xs max-w mx-auto">
             Be the first to share your experience with this service provider!
           </p>
         </div>
@@ -381,7 +381,7 @@ export default function PortfolioReviews({
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className={`w-full max-w-md border rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10 space-y-5 ${
+              className={`max-w border rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10 space-y-5 ${
                 darkMode
                   ? "bg-slate-900 border-slate-800 text-white"
                   : "bg-white border-slate-200 text-slate-800"

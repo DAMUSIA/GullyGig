@@ -1,9 +1,22 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Check, Loader2, Trash2 } from "lucide-react";
+import {
+  X,
+  Check,
+  Loader2,
+  Trash2,
+  Layers,
+  MapPin,
+  Globe,
+  Calendar,
+  Phone,
+  DollarSign,
+  Plus,
+  Sparkles,
+} from "lucide-react";
 
-interface ServiceItem {
+export interface ServiceItem {
   id: string;
   user_id: string;
   title: string;
@@ -27,20 +40,71 @@ interface ServiceItem {
   contact_numbers?: string[];
 }
 
+export interface EditServiceData {
+  title: string;
+  category: string;
+  description: string;
+  price: number | null;
+  priceUnit: string;
+  city: string;
+  area: string;
+  serviceModes: string[];
+  languages: string[];
+  availability: string[];
+  isActive: boolean;
+  contactNumbers: string[];
+}
+
 interface EditServiceModalProps {
   service: ServiceItem;
   onClose: () => void;
-  onSave: (data: {
-    title: string;
-    description: string;
-    price: number | null;
-    priceUnit: string;
-    isActive: boolean;
-    contactNumbers: string[];
-  }) => void;
+  onSave: (data: EditServiceData) => void;
   onDelete: (serviceId: string) => void;
   isSaving: boolean;
 }
+
+const COMMON_CATEGORIES = [
+  "Academic Tuition",
+  "Music & Instruments",
+  "Fitness & Gym",
+  "Yoga & Meditation",
+  "Dance & Performing Arts",
+  "Cooking & Culinary",
+  "Tailoring & Crafts",
+  "Tech & Coding",
+  "Art & Design",
+  "Language Classes",
+  "Home Services",
+  "Other",
+];
+
+const AVAILABLE_MODES = [
+  "At My Place",
+  "At Customer's Place",
+  "Online",
+];
+
+const POPULAR_LANGUAGES = [
+  "English",
+  "Hindi",
+  "Marathi",
+  "Gujarati",
+  "Bengali",
+  "Tamil",
+  "Telugu",
+  "Kannada",
+  "Malayalam",
+  "Punjabi",
+];
+
+const COMMON_AVAILABILITY = [
+  "Weekdays",
+  "Weekends",
+  "Morning",
+  "Afternoon",
+  "Evening",
+  "Flexible",
+];
 
 export function EditServiceModal({
   service,
@@ -49,13 +113,34 @@ export function EditServiceModal({
   onDelete,
   isSaving,
 }: EditServiceModalProps) {
-  const [title, setTitle] = useState(service.title);
-  const [description, setDescription] = useState(service.description);
+  const [title, setTitle] = useState(service.title || "");
+  const [category, setCategory] = useState(service.category || "Academic Tuition");
+  const [description, setDescription] = useState(service.description || "");
   const [price, setPrice] = useState<number | null>(service.starting_price);
   const [priceUnit, setPriceUnit] = useState(service.price_unit || "Per Hour");
+  const [city, setCity] = useState(service.city || "");
+  const [area, setArea] = useState(service.area || "");
+  const [serviceModes, setServiceModes] = useState<string[]>(
+    service.service_modes && service.service_modes.length > 0
+      ? service.service_modes
+      : ["At My Place"],
+  );
+  const [languages, setLanguages] = useState<string[]>(
+    service.languages && service.languages.length > 0
+      ? service.languages
+      : ["English"],
+  );
+  const [customLanguage, setCustomLanguage] = useState("");
+  const [availability, setAvailability] = useState<string[]>(
+    service.availability && service.availability.length > 0
+      ? service.availability
+      : ["Flexible"],
+  );
   const [isActive, setIsActive] = useState(service.is_active);
   const [contactNumbers, setContactNumbers] = useState<string[]>(
-    service.contact_numbers || [],
+    service.contact_numbers && service.contact_numbers.length > 0
+      ? service.contact_numbers
+      : [""],
   );
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
@@ -65,19 +150,68 @@ export function EditServiceModal({
   };
 
   const handleContactChange = (index: number, value: string) => {
-    // Only allow numbers
     const digitsOnly = value.replace(/\D/g, "");
-
-    // Limit to 10 digits
     const limitedDigits = digitsOnly.slice(0, 10);
-
     const updated = [...contactNumbers];
     updated[index] = limitedDigits;
     setContactNumbers(updated);
   };
 
+  const toggleMode = (mode: string) => {
+    if (serviceModes.includes(mode)) {
+      if (serviceModes.length > 1) {
+        setServiceModes(serviceModes.filter((m) => m !== mode));
+      }
+    } else {
+      setServiceModes([...serviceModes, mode]);
+    }
+  };
+
+  const toggleLanguage = (lang: string) => {
+    if (languages.includes(lang)) {
+      if (languages.length > 1) {
+        setLanguages(languages.filter((l) => l !== lang));
+      }
+    } else {
+      setLanguages([...languages, lang]);
+    }
+  };
+
+  const handleAddCustomLanguage = () => {
+    const trimmed = customLanguage.trim();
+    if (trimmed && !languages.includes(trimmed)) {
+      setLanguages([...languages, trimmed]);
+      setCustomLanguage("");
+    }
+  };
+
+  const toggleAvailability = (item: string) => {
+    if (availability.includes(item)) {
+      if (availability.length > 1) {
+        setAvailability(availability.filter((a) => a !== item));
+      }
+    } else {
+      setAvailability([...availability, item]);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (title.trim().length < 3) {
+      alert("Service title must be at least 3 characters.");
+      return;
+    }
+
+    if (description.trim().length < 20) {
+      alert("Description must be at least 20 characters.");
+      return;
+    }
+
+    if (!city.trim()) {
+      alert("Please enter a valid city for your service location.");
+      return;
+    }
 
     // Clean all contact numbers
     const cleanContacts = contactNumbers
@@ -94,15 +228,21 @@ export function EditServiceModal({
     }
 
     if (cleanContacts.length === 0) {
-      alert("At least one valid contact number is required.");
+      alert("At least one valid 10-digit contact number is required.");
       return;
     }
 
     onSave({
-      title,
-      description,
+      title: title.trim(),
+      category: category.trim(),
+      description: description.trim(),
       price,
-      priceUnit,
+      priceUnit: priceUnit.trim() || "Per Hour",
+      city: city.trim(),
+      area: area.trim(),
+      serviceModes,
+      languages,
+      availability,
       isActive,
       contactNumbers: cleanContacts,
     });
@@ -112,100 +252,274 @@ export function EditServiceModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         onClick={onClose}
-        className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm cursor-pointer"
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm cursor-pointer"
       />
 
-      <div className="relative w-full max-w-[520px] bg-white rounded-2xl shadow-2xl overflow-y-auto max-h-[90vh] animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300 ease-out">
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-4 mb-5">
+      <div className="relative w-full max-w-[640px] bg-white rounded-3xl shadow-2xl overflow-y-auto max-h-[92vh] animate-in fade-in zoom-in-95 duration-200 border border-slate-100">
+        <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-4">
             <div>
-              <h3 className="text-lg font-extrabold text-slate-800">
-                Edit Service
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100/50">
+                  Service Management
+                </span>
+              </div>
+              <h3 className="text-xl font-extrabold text-slate-900 mt-1">
+                Edit Service Details
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Update your listing details
+                Update all information for your public listing and portfolio
               </p>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 shrink-0 cursor-pointer transition-colors"
+              className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-600 shrink-0 cursor-pointer transition-colors"
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5" />
             </button>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <label className="text-xs font-bold text-slate-500 uppercase block mb-1">
-                Title
-              </label>
-              <input
-                type="text"
-                required
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 transition-all"
-              />
-            </div>
+          <div className="space-y-5">
+            {/* Section 1: Basic Information */}
+            <div className="space-y-3">
+              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <Layers className="h-3.5 w-3.5 text-blue-600" />
+                Basic Information
+              </span>
 
-            <div>
-              <label className="text-xs font-bold text-slate-500 uppercase block mb-1">
-                Description
-              </label>
-              <textarea
-                rows={3}
-                required
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 resize-none transition-all"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-bold text-slate-500 uppercase block mb-1">
-                  Price
+                <label className="text-xs font-semibold text-slate-600 block mb-1">
+                  Service Title <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="number"
-                  value={price || ""}
-                  onChange={(e) =>
-                    setPrice(
-                      e.target.value === "" ? null : Number(e.target.value),
-                    )
-                  }
-                  placeholder="e.g. 500"
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 transition-all"
+                  type="text"
+                  required
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Mathematics & Science Tutor for Class 8-12"
+                  className="w-full px-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 transition-all"
                 />
               </div>
+
               <div>
-                <label className="text-xs font-bold text-slate-500 uppercase block mb-1">
-                  Unit
+                <label className="text-xs font-semibold text-slate-600 block mb-1">
+                  Primary Category <span className="text-red-500">*</span>
                 </label>
                 <select
-                  value={priceUnit}
-                  onChange={(e) => setPriceUnit(e.target.value)}
-                  disabled={price === null}
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 disabled:opacity-50 cursor-pointer transition-all"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 transition-all cursor-pointer"
                 >
-                  <option value="Per Hour">Per Hour</option>
-                  <option value="Per Session">Per Session</option>
-                  <option value="Per Day">Per Day</option>
-                  <option value="Per Month">Per Month</option>
+                  {COMMON_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
                 </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-600 block mb-1">
+                  Description & Experience <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  rows={4}
+                  required
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Describe your qualifications, teaching methodology, experience, and what makes your service standout..."
+                  className="w-full px-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 resize-none transition-all"
+                />
               </div>
             </div>
 
-            {/* Contact Numbers Section */}
-            <div>
-              <label className="text-xs font-bold text-slate-500 uppercase block mb-1">
-                Contact Numbers
-                <span className="text-red-500 ml-1">*</span>
-                <span className="text-[10px] font-normal text-slate-400 ml-2">
-                  (Enter exactly 10 digits)
-                </span>
-              </label>
+            {/* Section 2: Location & Service Modes */}
+            <div className="space-y-3 pt-2 border-t border-slate-100">
+              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5 text-blue-600" />
+                Location & Service Modes
+              </span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-slate-600 block mb-1">
+                    City <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="e.g. Mumbai, Pune, Delhi"
+                    className="w-full px-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-600 block mb-1">
+                    Locality / Area
+                  </label>
+                  <input
+                    type="text"
+                    value={area}
+                    onChange={(e) => setArea(e.target.value)}
+                    placeholder="e.g. Andheri West, Kothrud"
+                    className="w-full px-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-600 block mb-1.5">
+                  How do you offer your service?
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {AVAILABLE_MODES.map((mode) => {
+                    const isSelected = serviceModes.includes(mode);
+                    return (
+                      <button
+                        key={mode}
+                        type="button"
+                        onClick={() => toggleMode(mode)}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                          isSelected
+                            ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                            : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                        }`}
+                      >
+                        {isSelected ? "✓ " : "+ "}
+                        {mode}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Section 3: Pricing */}
+            <div className="space-y-3 pt-2 border-t border-slate-100">
+              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <DollarSign className="h-3.5 w-3.5 text-blue-600" />
+                Pricing
+              </span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-slate-600 block mb-1">
+                    Starting Price (₹)
+                  </label>
+                  <input
+                    type="number"
+                    value={price !== null && price !== undefined ? price : ""}
+                    onChange={(e) =>
+                      setPrice(
+                        e.target.value === "" ? null : Number(e.target.value),
+                      )
+                    }
+                    placeholder="e.g. 500 (Leave blank for custom)"
+                    className="w-full px-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-600 block mb-1">
+                    Pricing Model / Unit
+                  </label>
+                  <input
+                    type="text"
+                    value={priceUnit}
+                    onChange={(e) => setPriceUnit(e.target.value)}
+                    placeholder="e.g. Per Hour, Per Month, Flexible"
+                    className="w-full px-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Section 4: Languages & Availability */}
+            <div className="space-y-3 pt-2 border-t border-slate-100">
+              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <Globe className="h-3.5 w-3.5 text-blue-600" />
+                Languages & Schedule
+              </span>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-600 block mb-1.5">
+                  Languages Spoken
+                </label>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {POPULAR_LANGUAGES.map((lang) => {
+                    const isSelected = languages.includes(lang);
+                    return (
+                      <button
+                        key={lang}
+                        type="button"
+                        onClick={() => toggleLanguage(lang)}
+                        className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer border ${
+                          isSelected
+                            ? "bg-blue-600 text-white border-blue-600"
+                            : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                        }`}
+                      >
+                        {isSelected ? "✓ " : ""}
+                        {lang}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={customLanguage}
+                    onChange={(e) => setCustomLanguage(e.target.value)}
+                    placeholder="Add other language..."
+                    className="flex-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-blue-500 text-slate-800"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddCustomLanguage}
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-600 block mb-1.5">
+                  Availability Schedule
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {COMMON_AVAILABILITY.map((avail) => {
+                    const isSelected = availability.includes(avail);
+                    return (
+                      <button
+                        key={avail}
+                        type="button"
+                        onClick={() => toggleAvailability(avail)}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                          isSelected
+                            ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                            : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                        }`}
+                      >
+                        {isSelected ? "✓ " : "+ "}
+                        {avail}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Section 5: Contact Numbers */}
+            <div className="space-y-3 pt-2 border-t border-slate-100">
+              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <Phone className="h-3.5 w-3.5 text-blue-600" />
+                Direct Contact Numbers
+                <span className="text-red-500">*</span>
+              </span>
+
               <div className="space-y-2">
                 {contactNumbers.map((num, idx) => {
                   const isValid = num.length === 10;
@@ -231,8 +545,8 @@ export function EditServiceModal({
                           }`}
                         />
                         {isComplete && isValid && (
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500 text-xs font-bold">
-                            ✓
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                            <Check className="w-4 h-4 text-green-500" />
                           </span>
                         )}
                         {isComplete && !isValid && (
@@ -241,18 +555,20 @@ export function EditServiceModal({
                           </span>
                         )}
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const updated = contactNumbers.filter(
-                            (_, i) => i !== idx,
-                          );
-                          setContactNumbers(updated);
-                        }}
-                        className="px-3 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-                      >
-                        Remove
-                      </button>
+                      {contactNumbers.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = contactNumbers.filter(
+                              (_, i) => i !== idx,
+                            );
+                            setContactNumbers(updated);
+                          }}
+                          className="px-3 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      )}
                     </div>
                   );
                 })}
@@ -261,39 +577,38 @@ export function EditServiceModal({
                   onClick={() => setContactNumbers([...contactNumbers, ""])}
                   className="inline-flex items-center gap-1.5 px-3.5 py-1.5 border border-blue-200 text-blue-600 hover:bg-blue-50 text-xs font-bold rounded-xl transition cursor-pointer"
                 >
-                  + Add Contact Number
+                  <Plus className="h-3.5 w-3.5" /> Add Another Phone Number
                 </button>
-                <p className="text-[10px] text-slate-400 mt-1">
-                  Enter up to 10 digits (numbers only). Example: 9876543210
-                </p>
               </div>
             </div>
-            <div className="flex items-center justify-between bg-slate-50 rounded-xl p-3 border border-slate-100">
+
+            {/* Section 6: Listing Status */}
+            <div className="flex items-center justify-between bg-slate-50/80 rounded-2xl p-4 border border-slate-200/70">
               <div>
-                <span className="text-sm font-bold text-slate-700 block">
-                  Active Status
+                <span className="text-sm font-bold text-slate-800 block">
+                  Active Listing Status
                 </span>
-                <span className="text-[10px] text-slate-400">
-                  Service discoverable on marketplace
+                <span className="text-xs text-slate-500">
+                  {isActive
+                    ? "Your service is live and discoverable on public directory"
+                    : "Listing is paused and hidden from public search"}
                 </span>
               </div>
               <input
                 type="checkbox"
                 checked={isActive}
                 onChange={(e) => setIsActive(e.target.checked)}
-                className="w-5 h-5 rounded-lg border-slate-200 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                className="w-5 h-5 rounded-lg border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
               />
             </div>
 
             {/* Danger Zone */}
-            <div className="mt-6 pt-5 border-t border-red-100 bg-red-50/20 rounded-2xl p-4 border border-dashed border-red-200">
+            <div className="mt-4 pt-4 border-t border-red-100 bg-red-50/30 rounded-2xl p-4 border border-dashed border-red-200">
               <span className="text-xs font-bold text-red-700 uppercase block mb-1">
                 Danger Zone
               </span>
               <p className="text-[11px] text-slate-500 mb-3 leading-relaxed font-medium">
-                Deleting this service is permanent and cannot be undone. All
-                reviews, likes, and performance analytics will be permanently
-                removed.
+                Deleting this service is permanent and cannot be undone. All reviews, likes, and performance analytics will be permanently removed.
               </p>
               <button
                 type="button"
@@ -306,23 +621,24 @@ export function EditServiceModal({
             </div>
           </div>
 
-          <div className="flex gap-3 mt-6">
+          {/* Action buttons */}
+          <div className="flex gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 border border-slate-200 text-slate-650 font-bold text-sm rounded-xl hover:bg-slate-50 transition cursor-pointer active:scale-95"
+              className="flex-1 py-3 border border-slate-200 text-slate-700 font-bold text-sm rounded-xl hover:bg-slate-50 transition cursor-pointer active:scale-95"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-lg shadow-blue-500/20"
             >
               {isSaving ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Saving...
+                  Saving Updates...
                 </>
               ) : (
                 <>
@@ -349,9 +665,7 @@ export function EditServiceModal({
                 </h4>
                 <p className="text-xs text-slate-500 leading-relaxed font-medium">
                   Are you sure you want to permanently delete{" "}
-                  <strong>{service.title}</strong>? This will delete all student
-                  reviews, user likes, page views, and performance analytics.
-                  This action cannot be undone.
+                  <strong>{service.title}</strong>? This will delete all student reviews, user likes, page views, and performance analytics. This action cannot be undone.
                 </p>
               </div>
               <div className="flex gap-2.5 pt-2">
@@ -380,3 +694,4 @@ export function EditServiceModal({
     </div>
   );
 }
+

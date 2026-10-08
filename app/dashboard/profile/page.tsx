@@ -57,6 +57,8 @@ export default function ProfilePage() {
     gender: "",
     location: "",
     about: "",
+    intro_video_url: "",
+    social_links: {} as Record<string, string>,
   });
 
   useEffect(() => {
@@ -88,6 +90,11 @@ export default function ProfilePage() {
             gender: dbProfile.gender || "",
             location: dbProfile.location || "",
             about: dbProfile.about || "",
+            intro_video_url:
+              dbProfile.intro_video_url ||
+              dbProfile.social_links?.intro_video_url ||
+              "",
+            social_links: (dbProfile.social_links as any) || {},
           });
         } else {
           // If no database profile exists, auto-initialize a default profile to avoid page crash
@@ -116,6 +123,8 @@ export default function ProfilePage() {
               gender: "",
               location: "",
               about: "",
+              intro_video_url: "",
+              social_links: {},
             });
           }
         }
@@ -270,6 +279,11 @@ export default function ProfilePage() {
         dob: formData.dob || null,
         location: formData.location.trim() || null,
         about: formData.about.trim() || null,
+        intro_video_url: formData.intro_video_url.trim() || null,
+        social_links: {
+          ...formData.social_links,
+          intro_video_url: formData.intro_video_url.trim() || undefined,
+        },
       };
 
       const { success, error } = await updateUserProfile(profile.id, payload);
@@ -301,6 +315,11 @@ export default function ProfilePage() {
         gender: profile.gender || "",
         location: profile.location || "",
         about: profile.about || "",
+        intro_video_url:
+          profile.intro_video_url ||
+          profile.social_links?.intro_video_url ||
+          "",
+        social_links: (profile.social_links as any) || {},
       });
     }
     setIsEditing(false);

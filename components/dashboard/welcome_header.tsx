@@ -55,11 +55,9 @@ export function WelcomeHeader({
             Welcome back, <span className="text-blue-200">{userName}</span>!
           </h1>
           <p className="text-blue-100/80 mt-1 text-xs sm:text-sm">
-            {hasService
-              ? "Your service is live and receiving discovery analytics."
-              : isPaid
-                ? "Your account is activated! Create your service listing below."
-                : "Complete your activation to unlock listing creation on GullyGig."}
+            {isPaid
+              ? "Your provider account is active. Manage your listings or create a new service below."
+              : "Complete your activation to unlock listing creation on GullyGig."}
           </p>
         </div>
 
@@ -67,17 +65,8 @@ export function WelcomeHeader({
           onClick={onAddService}
           className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white hover:bg-blue-50 text-blue-700 text-xs sm:text-sm font-extrabold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 active:scale-95 cursor-pointer whitespace-nowrap flex-shrink-0"
         >
-          {hasService ? (
-            <>
-              <ShieldCheck className="h-4 w-4" />
-              <span>1 Service Active</span>
-            </>
-          ) : (
-            <>
-              <Plus className="h-4 w-4" />
-              <span>{isPaid ? "Create Service" : "Activate Service"}</span>
-            </>
-          )}
+          <Plus className="h-4 w-4" />
+          <span>{isPaid ? "Create Service" : "Activate Listing"}</span>
         </button>
       </div>
     </div>

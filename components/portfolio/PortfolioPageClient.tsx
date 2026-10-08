@@ -12,6 +12,8 @@ import PortfolioInfo from "./PortfolioInfo";
 import PortfolioContact from "./PortfolioContact";
 import PortfolioReviews from "./PortfolioReviews";
 import PortfolioProvider from "./PortfolioProvider";
+import InstagramLikeButton from "@/components/ui/InstagramLikeButton";
+import Footer from "@/components/layout/Footer";
 
 interface ReviewItem {
   id: string;
@@ -37,11 +39,15 @@ interface ServiceData {
   languages: string[];
   starting_price: number | null;
   price_unit: string | null;
+  pricing_note?: string;
+  pricing_tiers?: { label: string; price: number | string; unit: string }[];
   rating_average: number;
   reviews_count: number;
   likes_count: number;
   contact_numbers?: string[];
   created_at: string;
+  intro_video_url?: string;
+  social_links?: any;
   users?: {
     full_name: string;
     location: string | null;
@@ -54,6 +60,12 @@ interface ServiceData {
       linkedin?: string;
       youtube?: string;
       website?: string;
+      discord?: string;
+      telegram?: string;
+      whatsapp?: string;
+      twitter?: string;
+      intro_video_url?: string;
+      custom_links?: { name: string; url: string }[];
     };
   };
   service_analytics?: {
@@ -262,69 +274,85 @@ export default function PortfolioPageClient({
 
   const cleanNumber = (num: string) => num.replace(/\D/g, "");
 
+  const hasSocials = Boolean(
+    (initialService.users?.social_links &&
+      Object.entries(initialService.users.social_links).some(
+        ([k, v]) =>
+          k !== "intro_video_url" &&
+          k !== "custom_links" &&
+          Boolean(v && typeof v === "string" && v.trim()),
+      )) ||
+      (initialService.users?.social_links?.custom_links &&
+        initialService.users.social_links.custom_links.some(
+          (l: { name?: string; url?: string }) => l.name?.trim() && l.url?.trim(),
+        )) ||
+      (initialService.social_links &&
+        Object.values(initialService.social_links).some((v: unknown) =>
+          Boolean(v && typeof v === "string" && v.trim()),
+        )),
+  );
+
+  const hasContact = activeNumbers.length > 0 || hasSocials;
+  const hasProvider = Boolean(
+    initialService.users &&
+      (initialService.users.full_name?.trim() ||
+        initialService.users.location?.trim() ||
+        initialService.users.about?.trim() ||
+        hasSocials),
+  );
+
+  const hasRightSidebar = hasContact || hasProvider;
+
   return (
     <div
       className={`min-h-screen font-sans pb-28 transition-colors duration-300 ${
         darkMode ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"
       }`}
     >
-      {/* Top Header Navigation */}
+      {/* Top Header Navigation - Transparent Minimalist Bar */}
       <header
         className={`sticky top-0 z-40 border-b backdrop-blur-md transition-colors duration-300 ${
           darkMode
-            ? "bg-slate-900/90 border-slate-800 text-white"
-            : "bg-white/90 border-slate-200 text-slate-900"
+            ? "bg-slate-950/40 border-slate-800/60 text-white"
+            : "bg-white/40 border-slate-200/60 text-slate-900"
         }`}
       >
         <div className="max-w-[1340px] mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-4">
-          {/* Left: Big Visible GullyGig Logo */}
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2 group">
-              <Image
-                src={darkMode ? "/logo_light.png" : "/logo_dark.png"}
-                alt="GullyGig"
-                width={74}
-                height={74}
-                className="object-contain w-full h-full"
-                priority
-              />
+          {/* Left: GullyGig Logo */}
+          <div className="flex items-center gap-4">
+            <Link href="/" className="flex items-center group transition-opacity hover:opacity-90">
+              <div className="flex h-22 w-36 sm:h-28 sm:w-28 items-center justify-start overflow-hidden">
+                <Image
+                  src={darkMode ? "/logo_light.png" : "/logo_dark.png"}
+                  alt="GullyGig"
+                  width={160}
+                  height={80}
+                  className="object-contain w-full h-full"
+                  priority
+                />
+              </div>
             </Link>
           </div>
 
-          {/* Right: Actions */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <span className="hidden md:inline-flex items-center gap-1.5 bg-blue-500/10 text-blue-500 font-bold text-xs uppercase px-3 py-1.5 rounded-full border border-blue-500/20">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              Verified Portfolio Showcase
-            </span>
-
-            <button
-              onClick={handleLikeToggle}
-              className={`border font-semibold text-xs sm:text-sm px-3.5 py-2 sm:px-4 sm:py-2 rounded-full flex items-center gap-2 transition-all shadow-sm cursor-pointer ${
-                isLiked
-                  ? "text-red-500 border-red-500/30 bg-red-500/10"
-                  : darkMode
-                    ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
-                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
-              }`}
-              title={isLiked ? "Saved" : "Save"}
-            >
-              <Heart
-                className={`w-4 h-4 ${isLiked ? "fill-red-500 text-red-500" : ""}`}
-              />
-              <span className="hidden sm:inline">
-                {isLiked ? "Saved" : "Save"}
-              </span>
-            </button>
+          {/* Right: Minimal Actions (Instant Like + Theme Toggle) */}
+          <div className="flex items-center gap-2.5">
+            <InstagramLikeButton
+              variant="pill"
+              isLiked={isLiked}
+              onToggle={handleLikeToggle}
+              darkMode={darkMode}
+              label={isLiked ? "Saved" : "Save"}
+            />
 
             <button
               onClick={toggleTheme}
-              className={`border font-semibold text-xs sm:text-sm p-2.5 sm:px-4 sm:py-2 rounded-full flex items-center gap-2 transition-all shadow-sm cursor-pointer ${
+              className={`p-2.5 rounded-full border transition-all shadow-xs cursor-pointer ${
                 darkMode
-                  ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
-                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+                  ? "border-slate-800 bg-slate-900/80 text-slate-300 hover:text-white hover:bg-slate-800"
+                  : "border-slate-200 bg-white/80 text-slate-700 hover:text-slate-900 hover:bg-slate-100"
               }`}
               title="Toggle Theme"
+              aria-label="Toggle dark/light theme"
             >
               {mounted ? (
                 darkMode ? (
@@ -336,18 +364,6 @@ export default function PortfolioPageClient({
                 <div className="w-4 h-4" />
               )}
             </button>
-
-            <Link
-              href="/explore"
-              className={`border font-semibold text-xs sm:text-sm px-3.5 py-2 sm:px-4 sm:py-2 rounded-full flex items-center gap-2 transition-all shadow-sm ${
-                darkMode
-                  ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
-                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
-              }`}
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Explore Gigs</span>
-            </Link>
           </div>
         </div>
       </header>
@@ -377,8 +393,14 @@ export default function PortfolioPageClient({
 
         {/* MAIN 12-COL CONTENT GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Column (8 cols): Showcase & Reviews */}
-          <div className="lg:col-span-7 xl:col-span-8 space-y-8">
+          {/* Left Column: Showcase & Reviews */}
+          <div
+            className={`space-y-8 ${
+              hasRightSidebar
+                ? "lg:col-span-7 xl:col-span-8"
+                : "lg:col-span-12"
+            }`}
+          >
             <PortfolioInfo
               description={initialService.description}
               serviceModes={initialService.service_modes}
@@ -386,6 +408,12 @@ export default function PortfolioPageClient({
               availability={initialService.availability}
               startingPrice={initialService.starting_price}
               priceUnit={initialService.price_unit}
+              pricingNote={initialService.pricing_note}
+              pricingTiers={initialService.pricing_tiers || null}
+              introVideoUrl={
+                initialService.intro_video_url ||
+                initialService.users?.social_links?.intro_video_url
+              }
               darkMode={darkMode}
             />
 
@@ -403,105 +431,124 @@ export default function PortfolioPageClient({
             />
           </div>
 
-          {/* Right Column (4 cols): Direct Contact & Provider Profile */}
-          <div className="lg:col-span-5 xl:col-span-4 space-y-8 sticky top-24">
-            <PortfolioContact
-              contactNumbers={activeNumbers}
-              serviceTitle={initialService.title}
-              darkMode={darkMode}
-              socialLinks={initialService.users?.social_links}
-            />
+          {/* Right Column: Direct Contact & Provider Profile (Only rendered if data exists) */}
+          {hasRightSidebar && (
+            <div className="lg:col-span-5 xl:col-span-4 space-y-8 sticky top-24">
+              {hasContact && (
+                <PortfolioContact
+                  contactNumbers={activeNumbers}
+                  serviceTitle={initialService.title}
+                  darkMode={darkMode}
+                  socialLinks={
+                    initialService.users?.social_links ||
+                    initialService.social_links
+                  }
+                />
+              )}
 
-            {initialService.users && (
-              <PortfolioProvider
-                fullName={initialService.users.full_name}
-                location={initialService.users.location}
-                about={initialService.users.about}
-                memberSince={
-                  initialService.users.created_at
-                    ? new Date(initialService.users.created_at)
-                        .getFullYear()
-                        .toString()
-                    : "2024"
-                }
-                languages={initialService.languages}
-                availability={initialService.availability}
-                rating={ratingAverage}
-                totalReviews={reviewsCount}
-                totalServices={1}
-                isVerified={true}
-                darkMode={darkMode}
-                socialLinks={initialService.users?.social_links}
-              />
-            )}
-          </div>
+              {hasProvider && initialService.users && (
+                <PortfolioProvider
+                  fullName={initialService.users.full_name}
+                  location={initialService.users.location}
+                  about={initialService.users.about}
+                  memberSince={
+                    initialService.users.created_at
+                      ? new Date(initialService.users.created_at)
+                          .getFullYear()
+                          .toString()
+                      : "2024"
+                  }
+                  languages={initialService.languages}
+                  availability={initialService.availability}
+                  rating={ratingAverage}
+                  totalReviews={reviewsCount}
+                  totalServices={1}
+                  isVerified={true}
+                  darkMode={darkMode}
+                  socialLinks={initialService.users?.social_links}
+                />
+              )}
+            </div>
+          )}
         </div>
       </main>
 
+      {/* FULL SITE FOOTER (WITH GULLYGIG LOGO & CONTACT DETAILS) */}
+      <Footer onShowToast={(msg) => alert(msg)} />
+
       {/* STICKY MOBILE ACTION BAR */}
-      <div
-        className={`fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] max-w-md z-50 backdrop-blur-xl border p-3 rounded-2xl flex items-center justify-between gap-4 shadow-2xl transition-all duration-300 ${
-          darkMode
-            ? "bg-slate-900/95 border-slate-800 text-white"
-            : "bg-white/95 border-slate-200 text-slate-900"
-        }`}
+<div
+  className={`fixed bottom-4 left-1/2 -translate-x-1/2
+    w-[30vw] max-w
+    z-50
+    backdrop-blur-xl
+    border p-3
+    rounded-2xl
+    flex items-center gap-3
+    shadow-2xl
+    transition-all duration-300
+    ${
+      darkMode
+        ? "bg-slate-900/95 border-slate-800 text-white"
+        : "bg-white/95 border-slate-200 text-slate-900"
+    }`}
+>
+  {/* RATE */}
+  <div className="flex-1 min-w-0 pl-1">
+    <span
+      className={`block text-[9px] font-extrabold uppercase tracking-wider ${
+        darkMode ? "text-slate-400" : "text-slate-500"
+      }`}
+    >
+      Starting Rate
+    </span>
+
+    <div className="flex items-baseline whitespace-nowrap">
+      <span className="text-base font-extrabold text-blue-600 dark:text-blue-400">
+        {initialService.starting_price
+          ? `₹${initialService.starting_price}`
+          : "Enquire"}
+      </span>
+
+      {initialService.starting_price && initialService.price_unit && (
+        <span
+          className={`ml-1 text-[10px] font-normal ${
+            darkMode ? "text-slate-400" : "text-slate-500"
+          }`}
+        >
+          / {initialService.price_unit
+            .replace(/^per\s+/i, "")
+            .toLowerCase()}
+        </span>
+      )}
+    </div>
+  </div>
+
+  {/* ACTIONS */}
+  <div className="flex items-center gap-2 shrink-0">
+    <div className="shrink-0">
+      <InstagramLikeButton
+        variant="icon-only"
+        isLiked={isLiked}
+        onToggle={handleLikeToggle}
+        darkMode={darkMode}
+      />
+    </div>
+
+    {activeNumbers.length > 0 && (
+      <a
+        href={`tel:${cleanNumber(activeNumbers[0])}`}
+        className="shrink-0 inline-flex items-center justify-center gap-1.5
+          px-4 py-2.5 text-xs font-bold text-white
+          bg-blue-600 hover:bg-blue-700 rounded-xl
+          transition shadow-md shadow-blue-600/20 active:scale-95"
       >
-        <div className="flex flex-col text-left pl-1">
-          <span
-            className={`text-[9px] font-extrabold uppercase tracking-wider ${
-              darkMode ? "text-slate-400" : "text-slate-500"
-            }`}
-          >
-            Starting Rate
-          </span>
-          <span className="text-base font-extrabold text-blue-600 dark:text-blue-400">
-            {initialService.starting_price
-              ? `₹${initialService.starting_price}`
-              : "Enquire"}
-            {initialService.starting_price && initialService.price_unit && (
-              <span
-                className={`text-[10px] font-normal ${
-                  darkMode ? "text-slate-400" : "text-slate-500"
-                }`}
-              >
-                {" "}
-                /{" "}
-                {initialService.price_unit
-                  .replace(/^per\s+/i, "")
-                  .toLowerCase()}
-              </span>
-            )}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleLikeToggle}
-            className={`p-2.5 rounded-xl border transition cursor-pointer ${
-              isLiked
-                ? "bg-red-500/10 border-red-500/20 text-red-500"
-                : darkMode
-                  ? "bg-slate-800 border-slate-700 text-slate-400"
-                  : "bg-slate-100 border-slate-200 text-slate-600"
-            }`}
-            title="Save to Favorites"
-          >
-            <Heart
-              className={`w-4 h-4 ${isLiked ? "fill-red-500 text-red-500" : ""}`}
-            />
-          </button>
-
-          {activeNumbers.length > 0 && (
-            <a
-              href={`tel:${cleanNumber(activeNumbers[0])}`}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition shadow-md shadow-blue-600/20 active:scale-95 cursor-pointer"
-            >
-              <Phone className="w-3.5 h-3.5" />
-              <span>Call Now</span>
-            </a>
-          )}
-        </div>
-      </div>
+        <Phone className="w-3.5 h-3.5" />
+        <span>Call Now</span>
+      </a>
+    )}
+  </div>
+</div>
 
       {/* AUTH MODAL */}
       {showAuthModal && (
@@ -511,7 +558,7 @@ export default function PortfolioPageClient({
             className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm cursor-pointer"
           />
           <div
-            className={`relative w-full max-w-sm border rounded-3xl p-6 shadow-2xl z-10 flex flex-col gap-4 text-center ${
+            className={`relative max-w border rounded-3xl p-6 shadow-2xl z-10 flex flex-col gap-4 text-center ${
               darkMode
                 ? "bg-slate-900 border-slate-800 text-white"
                 : "bg-white border-slate-200 text-slate-900"

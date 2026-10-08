@@ -55,6 +55,20 @@ export interface UserLoginData {
   password: string;
 }
 
+export interface UserSocialLinks {
+  instagram?: string;
+  facebook?: string;
+  linkedin?: string;
+  youtube?: string;
+  discord?: string;
+  telegram?: string;
+  whatsapp?: string;
+  twitter?: string;
+  website?: string;
+  custom_links?: { name: string; url: string }[];
+  intro_video_url?: string;
+}
+
 export interface UserProfile {
   id: string;
   full_name: string;
@@ -65,6 +79,8 @@ export interface UserProfile {
   location: string | null;
   about: string | null;
   is_paid?: boolean;
+  intro_video_url?: string | null;
+  social_links?: UserSocialLinks;
   created_at: string;
 }
 

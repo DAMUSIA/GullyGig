@@ -1,16 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
-import { MapPin, Navigation, Loader2 } from "lucide-react";
+import { MapPin, Navigation, Loader2, AlertCircle } from "lucide-react";
 
 interface LocationSelectorProps {
   city: string;
   area: string;
+  address?: string;
   latitude: number | null;
   longitude: number | null;
   onChange: (fields: {
     city: string;
     area: string;
+    address: string;
     latitude: number | null;
     longitude: number | null;
   }) => void;
@@ -21,6 +23,7 @@ interface LocationSelectorProps {
  *
  * @param city - The selected city
  * @param area - The selected area or locality
+ * @param address - The custom full address or landmark
  * @param latitude - The selected latitude
  * @param longitude - The selected longitude
  * @param onChange - Called when any location field changes
@@ -28,6 +31,7 @@ interface LocationSelectorProps {
 export default function LocationSelector({
   city,
   area,
+  address = "",
   latitude,
   longitude,
   onChange,
@@ -89,6 +93,7 @@ export default function LocationSelector({
           if (data) {
             let cityName = "";
             let areaName = "";
+            let fullAddress = "";
 
             if (isNominatim && data.address) {
               const addr = data.address;
@@ -106,6 +111,7 @@ export default function LocationSelector({
                 addr.state_district ||
                 addr.county ||
                 "";
+              fullAddress = data.display_name || "";
             } else if (data.locality !== undefined) {
               cityName = data.city || data.locality || "";
               const informative = data.localityInfo?.informative || [];
@@ -119,11 +125,13 @@ export default function LocationSelector({
                   ].includes(i.description?.toLowerCase() || ""),
               );
               areaName = areaItem?.name || data.locality || "";
+              fullAddress = `${areaName}, ${cityName}`;
             }
 
             onChange({
               city: cityName || city,
-              area: areaName,
+              area: areaName || area,
+              address: address || fullAddress,
               latitude: lat,
               longitude: lon,
             });
@@ -131,7 +139,8 @@ export default function LocationSelector({
             // Fallback if address object is missing
             onChange({
               city: city || "Unknown City",
-              area: "Detected Location",
+              area: area || "Detected Location",
+              address,
               latitude: lat,
               longitude: lon,
             });
@@ -145,6 +154,7 @@ export default function LocationSelector({
           onChange({
             city,
             area,
+            address,
             latitude: lat,
             longitude: lon,
           });
@@ -174,15 +184,20 @@ export default function LocationSelector({
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <label className="block text-sm font-semibold text-slate-700">
-          Location <span className="text-red-500">*</span>
-        </label>
+        <div>
+          <label className="block text-sm font-bold text-slate-800">
+            Location &amp; Address <span className="text-red-500">*</span>
+          </label>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Enter your city, locality, and custom address or service coverage area freely.
+          </p>
+        </div>
 
         <button
           type="button"
           onClick={handleUseCurrentLocation}
           disabled={isLocating}
-          className="inline-flex items-center justify-center gap-2 px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100/80 active:bg-blue-100 disabled:opacity-50 text-blue-600 text-xs font-bold rounded-xl transition-all border border-blue-150 cursor-pointer active:scale-98 shadow-xs"
+          className="inline-flex items-center justify-center gap-2 px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100/80 active:bg-blue-100 disabled:opacity-50 text-blue-600 text-xs font-bold rounded-xl transition-all border border-blue-150 cursor-pointer active:scale-98 shadow-xs shrink-0"
         >
           {isLocating ? (
             <>
@@ -192,23 +207,24 @@ export default function LocationSelector({
           ) : (
             <>
               <Navigation className="h-3.5 w-3.5 fill-blue-600/10" />
-              <span>Use Current Location</span>
+              <span>Use GPS Location</span>
             </>
           )}
         </button>
       </div>
 
       {locateError && (
-        <p className="text-xs font-medium text-amber-600 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 animate-in fade-in duration-200">
-          ⚠️ {locateError}
+        <p className="text-xs font-medium text-amber-600 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 animate-in fade-in duration-200 flex items-center gap-1.5">
+          <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+          <span>{locateError}</span>
         </p>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* City Input */}
         <div className="space-y-1">
-          <label className="block text-xs font-semibold text-slate-500">
-            City <span className="text-red-500">*</span>
+          <label className="block text-xs font-semibold text-slate-600">
+            City / Town <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <input
@@ -216,10 +232,10 @@ export default function LocationSelector({
               required
               value={city}
               onChange={(e) =>
-                onChange({ city: e.target.value, area, latitude, longitude })
+                onChange({ city: e.target.value, area, address, latitude, longitude })
               }
-              placeholder="e.g. Navi Mumbai"
-              className="w-full pl-9 pr-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800"
+              placeholder="e.g. Navi Mumbai, Delhi, Bengaluru..."
+              className="w-full pl-9 pr-4 py-3 bg-white border border-slate-200 rounded-xl shadow-xs text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800"
             />
             <MapPin className="absolute left-3 top-3.5 h-4 w-4 text-slate-400" />
           </div>
@@ -227,8 +243,8 @@ export default function LocationSelector({
 
         {/* Area Input */}
         <div className="space-y-1">
-          <label className="block text-xs font-semibold text-slate-500">
-            Area / Locality{" "}
+          <label className="block text-xs font-semibold text-slate-600">
+            Area / Locality / Sector{" "}
             <span className="text-slate-400 font-normal">(Optional)</span>
           </label>
           <div className="relative">
@@ -236,14 +252,31 @@ export default function LocationSelector({
               type="text"
               value={area}
               onChange={(e) =>
-                onChange({ city, area: e.target.value, latitude, longitude })
+                onChange({ city, area: e.target.value, address, latitude, longitude })
               }
-              placeholder="e.g. Nerul"
-              className="w-full pl-9 pr-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800"
+              placeholder="e.g. Nerul, Koramangala, Sector 15..."
+              className="w-full pl-9 pr-4 py-3 bg-white border border-slate-200 rounded-xl shadow-xs text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800"
             />
             <MapPin className="absolute left-3 top-3.5 h-4 w-4 text-slate-400" />
           </div>
         </div>
+      </div>
+
+      {/* Custom Full Address / Street / Landmark */}
+      <div className="space-y-1">
+        <label className="block text-xs font-semibold text-slate-600">
+          Full Address / Landmark / Office / Coaching Center{" "}
+          <span className="text-slate-400 font-normal">(Optional - Manual custom address)</span>
+        </label>
+        <textarea
+          value={address}
+          onChange={(e) =>
+            onChange({ city, area, address: e.target.value, latitude, longitude })
+          }
+          rows={2}
+          placeholder="e.g. Flat 302, Sunshine Arcade, Opposite City Mall, Near Metro Station, or Online / Pan-India"
+          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-xs text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 resize-none"
+        />
       </div>
 
       {latitude && longitude && (

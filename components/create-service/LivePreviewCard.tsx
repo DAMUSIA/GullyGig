@@ -7,8 +7,6 @@ import {
   Calendar,
   Globe,
   IndianRupee,
-  BookOpen,
-  Play,
   Share2,
 } from "lucide-react";
 import {
@@ -64,32 +62,47 @@ export default function LivePreviewCard({ data }: LivePreviewCardProps) {
 
   // Compute price & tiers
   const validTierPrices = (data.pricing_tiers || [])
-    .map((t) => (t.price !== "" && t.price !== null && t.price !== undefined ? Number(t.price) : null))
+    .map((t) =>
+      t.price !== "" && t.price !== null && t.price !== undefined
+        ? Number(t.price)
+        : null,
+    )
     .filter((p): p is number => p !== null && !isNaN(p) && p >= 0);
 
-  const lowestTierPrice = validTierPrices.length > 0 ? Math.min(...validTierPrices) : null;
-  const displayPrice = lowestTierPrice !== null ? lowestTierPrice : data.starting_price;
+  const lowestTierPrice =
+    validTierPrices.length > 0 ? Math.min(...validTierPrices) : null;
+  const displayPrice =
+    lowestTierPrice !== null ? lowestTierPrice : data.starting_price;
   const showPrice = displayPrice !== null && displayPrice !== undefined;
 
   const firstTierUnit = data.pricing_tiers?.find((t) => t.unit)?.unit;
   const priceUnitLabel = firstTierUnit
     ? firstTierUnit.replace(/^per\s+/i, "")
     : data.price_unit
-    ? data.price_unit.replace(/^per\s+/i, "")
-    : "month";
+      ? data.price_unit.replace(/^per\s+/i, "")
+      : "month";
 
   const videoId = getYouTubeVideoId(data.intro_video_url);
 
   const socials = data.social_links || {};
-  const customLinks = (socials.custom_links || []).filter((l) => l.name?.trim() && l.url?.trim());
+  const customLinks = (socials.custom_links || []).filter(
+    (l) => l.name?.trim() && l.url?.trim(),
+  );
 
   const hasAnySocial =
-    Boolean(socials.whatsapp || socials.instagram || socials.facebook || socials.linkedin || socials.discord || socials.telegram || socials.youtube || socials.website) ||
-    customLinks.length > 0;
+    Boolean(
+      socials.whatsapp ||
+      socials.instagram ||
+      socials.facebook ||
+      socials.linkedin ||
+      socials.discord ||
+      socials.telegram ||
+      socials.youtube ||
+      socials.website,
+    ) || customLinks.length > 0;
 
   return (
     <div className="bg-white border border-slate-200/80 rounded-3xl p-5 shadow-xl transition-all duration-300 hover:shadow-2xl hover:border-blue-100 flex flex-col gap-5 w-full">
-
       {/* Main Details */}
       <div className="space-y-4">
         <div>
@@ -200,7 +213,10 @@ export default function LivePreviewCard({ data }: LivePreviewCardProps) {
                 </span>
               )}
               {customLinks.map((link, i) => (
-                <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-100 text-slate-800 text-[10px] font-bold border border-slate-200">
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-100 text-slate-800 text-[10px] font-bold border border-slate-200"
+                >
                   <Share2 className="w-2.5 h-2.5 text-blue-600" /> {link.name}
                 </span>
               ))}
@@ -236,33 +252,34 @@ export default function LivePreviewCard({ data }: LivePreviewCardProps) {
           </div>
 
           {/* Pricing Tiers breakdown */}
-          {data.pricing_tiers && data.pricing_tiers.filter((t) => t.label || t.price).length > 0 && (
-            <div className="space-y-1 bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                Fee Plans / Tiers:
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {data.pricing_tiers
-                  .filter((t) => t.label || t.price)
-                  .map((tier, idx) => (
-                    <span
-                      key={idx}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-[11px] font-bold text-slate-700 shadow-xs"
-                    >
-                      <span>{tier.label || "Plan"}:</span>
-                      <span className="text-blue-600 font-mono">
-                        {tier.price ? `₹${tier.price}` : "Flexible"}
-                      </span>
-                      {tier.unit && (
-                        <span className="text-[10px] text-slate-400 font-normal">
-                          /{tier.unit.replace(/^per\s+/i, "")}
+          {data.pricing_tiers &&
+            data.pricing_tiers.filter((t) => t.label || t.price).length > 0 && (
+              <div className="space-y-1 bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  Fee Plans / Tiers:
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {data.pricing_tiers
+                    .filter((t) => t.label || t.price)
+                    .map((tier, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-[11px] font-bold text-slate-700 shadow-xs"
+                      >
+                        <span>{tier.label || "Plan"}:</span>
+                        <span className="text-blue-600 font-mono">
+                          {tier.price ? `₹${tier.price}` : "Flexible"}
                         </span>
-                      )}
-                    </span>
-                  ))}
+                        {tier.unit && (
+                          <span className="text-[10px] text-slate-400 font-normal">
+                            /{tier.unit.replace(/^per\s+/i, "")}
+                          </span>
+                        )}
+                      </span>
+                    ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {data.pricing_note && (
             <p className="text-[11px] text-slate-500 bg-blue-50/40 p-2 rounded-xl border border-blue-100/50">

@@ -9,11 +9,9 @@ import {
   Layers,
   MapPin,
   Globe,
-  Calendar,
   Phone,
   DollarSign,
   Plus,
-  Sparkles,
 } from "lucide-react";
 
 export interface ServiceItem {
@@ -78,11 +76,7 @@ const COMMON_CATEGORIES = [
   "Other",
 ];
 
-const AVAILABLE_MODES = [
-  "At My Place",
-  "At Customer's Place",
-  "Online",
-];
+const AVAILABLE_MODES = ["At My Place", "At Customer's Place", "Online"];
 
 const POPULAR_LANGUAGES = [
   "English",
@@ -114,7 +108,9 @@ export function EditServiceModal({
   isSaving,
 }: EditServiceModalProps) {
   const [title, setTitle] = useState(service.title || "");
-  const [category, setCategory] = useState(service.category || "Academic Tuition");
+  const [category, setCategory] = useState(
+    service.category || "Academic Tuition",
+  );
   const [description, setDescription] = useState(service.description || "");
   const [price, setPrice] = useState<number | null>(service.starting_price);
   const [priceUnit, setPriceUnit] = useState(service.price_unit || "Per Hour");
@@ -322,7 +318,8 @@ export function EditServiceModal({
 
               <div>
                 <label className="text-xs font-semibold text-slate-600 block mb-1">
-                  Description & Experience <span className="text-red-500">*</span>
+                  Description & Experience{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   rows={4}
@@ -608,7 +605,9 @@ export function EditServiceModal({
                 Danger Zone
               </span>
               <p className="text-[11px] text-slate-500 mb-3 leading-relaxed font-medium">
-                Deleting this service is permanent and cannot be undone. All reviews, likes, and performance analytics will be permanently removed.
+                Deleting this service is permanent and cannot be undone. All
+                reviews, likes, and performance analytics will be permanently
+                removed.
               </p>
               <button
                 type="button"
@@ -665,7 +664,9 @@ export function EditServiceModal({
                 </h4>
                 <p className="text-xs text-slate-500 leading-relaxed font-medium">
                   Are you sure you want to permanently delete{" "}
-                  <strong>{service.title}</strong>? This will delete all student reviews, user likes, page views, and performance analytics. This action cannot be undone.
+                  <strong>{service.title}</strong>? This will delete all student
+                  reviews, user likes, page views, and performance analytics.
+                  This action cannot be undone.
                 </p>
               </div>
               <div className="flex gap-2.5 pt-2">
@@ -694,4 +695,3 @@ export function EditServiceModal({
     </div>
   );
 }
-

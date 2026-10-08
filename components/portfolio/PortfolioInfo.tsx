@@ -3,13 +3,10 @@ import {
   Clock,
   Globe,
   Laptop,
-  ShieldCheck,
   CheckCircle,
-  Award,
   Zap,
   Tag,
   Check,
-  Play,
 } from "lucide-react";
 import { FaYoutube } from "react-icons/fa6";
 import { getYouTubeEmbedUrl, getYouTubeVideoId } from "@/lib/url";
@@ -49,7 +46,9 @@ export default function PortfolioInfo({
   const embedUrl = getYouTubeEmbedUrl(introVideoUrl);
 
   const validTiers = (pricingTiers || []).filter(
-    (t) => t.label?.trim() || (t.price !== "" && t.price !== null && t.price !== undefined),
+    (t) =>
+      t.label?.trim() ||
+      (t.price !== "" && t.price !== null && t.price !== undefined),
   );
 
   return (
@@ -93,7 +92,8 @@ export default function PortfolioInfo({
               <p
                 className={`text-xs mt-0.5 ${darkMode ? "text-slate-400" : "text-slate-500"}`}
               >
-                Comprehensive details, scope of work &amp; service specifications
+                Comprehensive details, scope of work &amp; service
+                specifications
               </p>
             </div>
           </div>
@@ -133,7 +133,9 @@ export default function PortfolioInfo({
                       : "bg-slate-50 border-slate-200 text-slate-600"
                   }`}
                 >
-                  <span className="text-blue-500 font-semibold mr-1">Fee notes:</span>
+                  <span className="text-blue-500 font-semibold mr-1">
+                    Fee notes:
+                  </span>
                   {pricingNote}
                 </div>
               )}
@@ -166,9 +168,11 @@ export default function PortfolioInfo({
                     <span className="text-[10px] font-bold text-blue-500 uppercase tracking-wider block">
                       Plan #{idx + 1}
                     </span>
-                    <span className={`text-xs font-bold block leading-snug ${
-                      darkMode ? "text-white" : "text-slate-800"
-                    }`}>
+                    <span
+                      className={`text-xs font-bold block leading-snug ${
+                        darkMode ? "text-white" : "text-slate-800"
+                      }`}
+                    >
                       {tier.label || "General Plan"}
                     </span>
                   </div>
@@ -178,7 +182,8 @@ export default function PortfolioInfo({
                     </span>
                     {tier.unit && (
                       <span className="text-[11px] text-slate-400 font-medium">
-                        {" / "}{tier.unit.replace(/^per\s+/i, "")}
+                        {" / "}
+                        {tier.unit.replace(/^per\s+/i, "")}
                       </span>
                     )}
                   </div>
@@ -191,8 +196,8 @@ export default function PortfolioInfo({
         {/* Highlight Feature Badges Bar (Only if any badge exists) */}
         {Boolean(
           (serviceModes && serviceModes.length > 0) ||
-            (languages && languages.length > 0) ||
-            (availability && availability.length > 0),
+          (languages && languages.length > 0) ||
+          (availability && availability.length > 0),
         ) && (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {serviceModes && serviceModes.length > 0 && (
@@ -320,7 +325,7 @@ export default function PortfolioInfo({
         {/* Expanded Specs: Service Modes & Availability Lists (Only if present) */}
         {Boolean(
           (serviceModes && serviceModes.length > 0) ||
-            (languages && languages.length > 0),
+          (languages && languages.length > 0),
         ) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-200/80 dark:border-slate-800">
             {/* Service Modes */}

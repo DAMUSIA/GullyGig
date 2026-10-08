@@ -6,7 +6,6 @@ import {
   Briefcase,
   CalendarDays,
   Check,
-  CircleCheck,
   Eye,
   Heart,
   Languages,
@@ -101,9 +100,7 @@ function AnimatedHeroAction({
   }`;
 
   const hoverTextClass = `absolute flex items-center justify-center gap-2 text-[15px] font-bold tracking-wide w-full ${
-    variant === "primary"
-      ? "text-[#1855c9]"
-      : "text-white"
+    variant === "primary" ? "text-[#1855c9]" : "text-white"
   }`;
 
   const content = (
@@ -204,7 +201,6 @@ export default function PortfolioHero({
   likesCount = 0,
   darkMode = true,
   providerName = "Verified Provider",
-  providerAbout = null,
   providerImage = null,
   isVerified = true,
   topBadgeLabel = null,
@@ -341,7 +337,6 @@ export default function PortfolioHero({
               >
                 {providerName}
               </h1>
-              
             </div>
 
             <p className="text-lg font-bold leading-snug text-blue-500 xl:text-2xl">

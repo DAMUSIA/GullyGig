@@ -112,7 +112,9 @@ export async function GET(request: Request) {
           user.user_metadata?.name ||
           "Service Provider",
         email: email,
-        phone_no: rawPhone ? String(rawPhone).replace(/\D/g, "").slice(-10) : null,
+        phone_no: rawPhone
+          ? String(rawPhone).replace(/\D/g, "").slice(-10)
+          : null,
         is_paid: isPaid,
         created_at: new Date().toISOString(),
       };

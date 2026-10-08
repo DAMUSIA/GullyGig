@@ -71,7 +71,9 @@ export default function InstagramLikeButton({
           >
             <Heart
               className={`${iconSizes[size]} transition-colors duration-200 ${
-                isLiked ? "fill-red-400 text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.6)]" : "text-white/90"
+                isLiked
+                  ? "fill-red-400 text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.6)]"
+                  : "text-white/90"
               }`}
             />
           </motion.div>
@@ -127,8 +129,8 @@ export default function InstagramLikeButton({
           isLiked
             ? "bg-red-500/10 border-red-500/30 text-red-500 shadow-xs shadow-red-500/10"
             : darkMode
-            ? "bg-slate-800/90 border-slate-700/80 text-slate-400 hover:text-slate-200 hover:bg-slate-700"
-            : "bg-white border-slate-200 text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+              ? "bg-slate-800/90 border-slate-700/80 text-slate-400 hover:text-slate-200 hover:bg-slate-700"
+              : "bg-white border-slate-200 text-slate-400 hover:text-slate-600 hover:bg-slate-50"
         } ${className}`}
         title={isLiked ? "Liked" : "Like"}
       >
@@ -143,7 +145,9 @@ export default function InstagramLikeButton({
           >
             <Heart
               className={`${iconSizes[size]} transition-colors duration-200 ${
-                isLiked ? "fill-red-500 text-red-500 drop-shadow-[0_0_6px_rgba(239,68,68,0.5)]" : ""
+                isLiked
+                  ? "fill-red-500 text-red-500 drop-shadow-[0_0_6px_rgba(239,68,68,0.5)]"
+                  : ""
               }`}
             />
           </motion.div>
@@ -189,8 +193,8 @@ export default function InstagramLikeButton({
         isLiked
           ? "text-red-500 border-red-500/30 bg-red-500/10 shadow-red-500/10"
           : darkMode
-          ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
-          : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+            ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
+            : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
       } ${className}`}
       title={isLiked ? "Saved" : "Save"}
     >
@@ -205,7 +209,9 @@ export default function InstagramLikeButton({
         >
           <Heart
             className={`${iconSizes[size]} transition-colors duration-200 ${
-              isLiked ? "fill-red-500 text-red-500 drop-shadow-[0_0_6px_rgba(239,68,68,0.5)]" : ""
+              isLiked
+                ? "fill-red-500 text-red-500 drop-shadow-[0_0_6px_rgba(239,68,68,0.5)]"
+                : ""
             }`}
           />
         </motion.div>
@@ -238,9 +244,7 @@ export default function InstagramLikeButton({
         </AnimatePresence>
       </div>
 
-      <span>
-        {label || (isLiked ? "Saved" : "Save")}
-      </span>
+      <span>{label || (isLiked ? "Saved" : "Save")}</span>
 
       {showCount && typeof likesCount === "number" && (
         <span className="font-mono text-xs font-extrabold opacity-85">

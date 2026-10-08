@@ -159,4 +159,3 @@ export function getYouTubeEmbedUrl(url?: string | null): string | null {
   if (!videoId) return null;
   return `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&playsinline=1`;
 }
-

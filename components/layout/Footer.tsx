@@ -144,7 +144,9 @@ export default function Footer({ onShowToast }: FooterProps) {
                 </a>
               </span>
               <div className="flex flex-col gap-1 pt-0.5">
-                <span className="text-[11px] text-slate-500 uppercase tracking-wider font-bold">Helpline &amp; Support:</span>
+                <span className="text-[11px] text-slate-500 uppercase tracking-wider font-bold">
+                  Helpline &amp; Support:
+                </span>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                   <a
                     href="tel:8879514626"

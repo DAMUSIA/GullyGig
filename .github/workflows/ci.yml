@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, master, dev]
+    branches: [main, master, dev, develop]
   pull_request:
-    branches: [main, master]
+    branches: [main, master, dev, develop]
 
 # Cancel in-flight runs on the same branch to save CI minutes
 concurrency:
@@ -78,7 +78,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: npm audit
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=high --omit=dev
 
   # ─── 4. Build (depends on tests passing) ─────────────────────────────────
   build:

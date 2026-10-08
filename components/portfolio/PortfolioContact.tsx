@@ -52,12 +52,16 @@ function formatUrl(url: string, platform: string): string {
       return `https://t.me/${trimmed.replace(/^@/, "")}`;
     case "whatsapp": {
       const clean = trimmed.replace(/\D/g, "");
-      return clean.length === 10 ? `https://wa.me/91${clean}` : `https://wa.me/${clean}`;
+      return clean.length === 10
+        ? `https://wa.me/91${clean}`
+        : `https://wa.me/${clean}`;
     }
     case "twitter":
       return `https://x.com/${trimmed.replace(/^@/, "")}`;
     case "youtube":
-      return trimmed.startsWith("@") ? `https://youtube.com/${trimmed}` : `https://${trimmed}`;
+      return trimmed.startsWith("@")
+        ? `https://youtube.com/${trimmed}`
+        : `https://${trimmed}`;
     default:
       return `https://${trimmed}`;
   }

@@ -538,7 +538,10 @@ export default function PosterTemplate({
           <div className="mt-2 bg-slate-50/80 border border-slate-200/60 rounded-xl p-2 text-center z-10 shrink-0">
             <p className="text-[8px] font-medium text-slate-600 mb-1 flex items-center justify-center gap-1.5">
               <Sparkles className="h-2.5 w-2.5 text-sage-600 inline" />
-              <span>Start your learning journey today! Build your future with confidence.</span>
+              <span>
+                Start your learning journey today! Build your future with
+                confidence.
+              </span>
               <Sparkles className="h-2.5 w-2.5 text-sage-600 inline" />
             </p>
             <div className="w-full bg-gradient-to-r from-sage-600 to-blue-600 hover:from-sage-700 hover:to-blue-700 text-white text-[10px] font-bold uppercase tracking-widest py-1.5 rounded-lg shadow-md shadow-sage-600/20 flex items-center justify-center gap-2 transition-all duration-200">

@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm ci || npm install
       - run: npm run lint
 
   format:
@@ -34,7 +34,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm ci || npm install
       - run: npm run format:check
 
   typecheck:
@@ -46,7 +46,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm ci || npm install
       - run: npm run typecheck
 
   # ─── 2. Unit Tests (depends on lint + typecheck) ──────────────────────────
@@ -60,7 +60,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm ci || npm install
       - name: Run Unit Tests with Coverage
         run: npx vitest run --coverage
       - name: Upload Coverage Report
@@ -91,7 +91,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm ci || npm install
       - name: Build Next.js Production Bundle
         run: npm run build
         env:
@@ -110,7 +110,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm ci || npm install
       - name: Build Next.js Production Bundle
         run: npm run build
         env:
@@ -137,7 +137,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm ci || npm install
       - name: Build
         run: npm run build
         env:

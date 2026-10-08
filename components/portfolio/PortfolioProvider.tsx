@@ -1,16 +1,14 @@
 "use client";
 
 import React from "react";
+import { User, MapPin, Calendar, ShieldCheck, Briefcase } from "lucide-react";
 import {
-  User,
-  MapPin,
-  Calendar,
-  ShieldCheck,
-  Globe,
-  Clock,
-  Star,
-  Briefcase,
-} from "lucide-react";
+  FaInstagram,
+  FaFacebook,
+  FaLinkedin,
+  FaYoutube,
+  FaGlobe as FaGlobeIcon,
+} from "react-icons/fa6";
 
 interface PortfolioProviderProps {
   fullName: string;
@@ -24,6 +22,13 @@ interface PortfolioProviderProps {
   totalReviews?: number;
   totalServices?: number;
   darkMode?: boolean;
+  socialLinks?: {
+    instagram?: string;
+    facebook?: string;
+    linkedin?: string;
+    youtube?: string;
+    website?: string;
+  };
 }
 
 export default function PortfolioProvider({
@@ -32,120 +37,200 @@ export default function PortfolioProvider({
   about,
   memberSince = "2024",
   isVerified = true,
-  languages = [],
-  availability = [],
-  rating = 4.8,
-  totalReviews = 0,
-  totalServices = 1,
   darkMode = true,
+  socialLinks,
 }: PortfolioProviderProps) {
+  const initial = fullName ? fullName.charAt(0).toUpperCase() : "P";
+  const hasSocials =
+    socialLinks && Object.values(socialLinks).some((val) => Boolean(val));
+
   return (
     <div
-      className={`rounded-[26px] p-8 transition-all duration-300 space-y-6 ${
+      className={`rounded-3xl p-6 sm:p-8 border transition-all duration-300 space-y-6 ${
         darkMode
-          ? "bg-[#0F2344] border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
-          : "bg-white border border-[#E5E7EB] shadow-[0_8px_32px_rgba(0,0,0,0.06)]"
+          ? "bg-slate-900/90 border-slate-800 text-white shadow-xl shadow-slate-950/40"
+          : "bg-white border-slate-200/90 text-slate-900 shadow-md"
       }`}
     >
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-800">
         <div
           className={`p-3 rounded-2xl border ${
             darkMode
-              ? "bg-[#D6B36A]/10 text-[#D6B36A] border-[#D6B36A]/20"
-              : "bg-[#2563EB]/10 text-[#2563EB] border-[#2563EB]/20"
+              ? "bg-blue-500/10 border-blue-500/20 text-blue-400"
+              : "bg-blue-50 border-blue-200 text-blue-600"
           }`}
         >
-          <User className="h-6 w-6" />
+          <User className="w-5 h-5" />
         </div>
         <div>
-          <h3
-            className={`text-xl font-['Poppins'] font-semibold ${
-              darkMode ? "text-white" : "text-[#111827]"
-            }`}
-          >
+          <h3 className="text-xl font-extrabold tracking-tight">
             Service Provider
           </h3>
           <p
-            className={`text-sm font-['Inter'] ${
-              darkMode ? "text-white/50" : "text-[#6B7280]"
-            }`}
+            className={`text-xs ${darkMode ? "text-slate-400" : "text-slate-500"}`}
           >
-            Verified professional on GullyGig
+            Verified professional partner on GullyGig
           </p>
         </div>
       </div>
 
       {/* Main Profile Card */}
       <div
-        className={`relative p-6 rounded-2xl border transition-all duration-300 text-center ${
+        className={`p-6 rounded-2xl border text-center transition-all duration-300 ${
           darkMode
-            ? "bg-white/5 border-white/10"
-            : "bg-[#F8FAFC] border-[#E5E7EB]"
+            ? "bg-slate-950/60 border-slate-800/80"
+            : "bg-slate-50/80 border-slate-200"
         }`}
       >
-        <div className="relative z-10 flex flex-col items-center">
-          {/* Avatar with ring */}
+        <div className="flex flex-col items-center">
+          {/* Avatar */}
           <div className="relative mb-3">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 p-[2px] shadow-lg">
-              <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-3xl font-['Poppins'] font-bold text-white">
-                {fullName.charAt(0).toUpperCase()}
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 p-0.5 shadow-lg shadow-blue-500/10">
+              <div
+                className={`w-full h-full rounded-[14px] flex items-center justify-center text-2xl font-extrabold ${
+                  darkMode
+                    ? "bg-slate-950 text-white"
+                    : "bg-white text-blue-700"
+                }`}
+              >
+                {initial}
               </div>
             </div>
             {isVerified && (
-              <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center border-2 border-white shadow-sm text-white">
-                <ShieldCheck className="h-4 w-4" />
+              <div
+                className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-sm"
+                title="Verified Partner"
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
               </div>
             )}
           </div>
 
-          {/* Name */}
-          <h4
-            className={`text-xl font-['Poppins'] font-bold ${
-              darkMode ? "text-white" : "text-[#111827]"
-            }`}
-          >
-            {fullName}
-          </h4>
+          {/* Full Name */}
+          <h4 className="text-lg font-bold tracking-tight">{fullName}</h4>
 
           {/* Location */}
           {location && (
             <div
-              className={`flex items-center justify-center gap-1.5 text-xs font-['Inter'] mt-1 ${
-                darkMode ? "text-white/60" : "text-[#6B7280]"
+              className={`flex items-center justify-center gap-1.5 text-xs font-medium mt-1 ${
+                darkMode ? "text-slate-400" : "text-slate-600"
               }`}
             >
-              <MapPin className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
+              <MapPin className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
               <span>{location}</span>
             </div>
           )}
 
           {/* Member Since */}
           <div
-            className={`flex items-center gap-1.5 mt-2 text-xs font-['Inter'] ${
-              darkMode ? "text-white/40" : "text-[#6B7280]"
+            className={`flex items-center justify-center gap-1.5 mt-2 text-[11px] font-medium ${
+              darkMode ? "text-slate-400" : "text-slate-500"
             }`}
           >
-            <Calendar className="h-3.5 w-3.5" />
-            <span>Member since {memberSince}</span>
+            <Calendar className="w-3.5 h-3.5 text-blue-500" />
+            <span>GullyGig Partner since {memberSince}</span>
           </div>
+
+          {/* Social Links */}
+          {hasSocials && (
+            <div className="flex items-center justify-center gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-slate-800/80 w-full">
+              {socialLinks.instagram && (
+                <a
+                  href={socialLinks.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-2 rounded-xl border transition-all ${
+                    darkMode
+                      ? "bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700"
+                      : "bg-white hover:bg-slate-100 text-slate-600 border-slate-200"
+                  }`}
+                  title="Instagram Profile"
+                >
+                  <FaInstagram className="w-4 h-4 text-pink-500" />
+                </a>
+              )}
+              {socialLinks.facebook && (
+                <a
+                  href={socialLinks.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-2 rounded-xl border transition-all ${
+                    darkMode
+                      ? "bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700"
+                      : "bg-white hover:bg-slate-100 text-slate-600 border-slate-200"
+                  }`}
+                  title="Facebook Profile"
+                >
+                  <FaFacebook className="w-4 h-4 text-blue-500" />
+                </a>
+              )}
+              {socialLinks.linkedin && (
+                <a
+                  href={socialLinks.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-2 rounded-xl border transition-all ${
+                    darkMode
+                      ? "bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700"
+                      : "bg-white hover:bg-slate-100 text-slate-600 border-slate-200"
+                  }`}
+                  title="LinkedIn Profile"
+                >
+                  <FaLinkedin className="w-4 h-4 text-sky-500" />
+                </a>
+              )}
+              {socialLinks.youtube && (
+                <a
+                  href={socialLinks.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-2 rounded-xl border transition-all ${
+                    darkMode
+                      ? "bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700"
+                      : "bg-white hover:bg-slate-100 text-slate-600 border-slate-200"
+                  }`}
+                  title="YouTube Channel"
+                >
+                  <FaYoutube className="w-4 h-4 text-red-500" />
+                </a>
+              )}
+              {socialLinks.website && (
+                <a
+                  href={socialLinks.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-2 rounded-xl border transition-all ${
+                    darkMode
+                      ? "bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700"
+                      : "bg-white hover:bg-slate-100 text-slate-600 border-slate-200"
+                  }`}
+                  title="Website"
+                >
+                  <FaGlobeIcon className="w-4 h-4 text-emerald-500" />
+                </a>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* About */}
+      {/* Provider Bio */}
       {about && (
         <div className="space-y-2">
           <h4
-            className={`text-[11px] font-['Inter'] font-semibold uppercase tracking-[1.5px] flex items-center gap-2 ${
-              darkMode ? "text-white/60" : "text-[#6B7280]"
+            className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+              darkMode ? "text-slate-400" : "text-slate-500"
             }`}
           >
-            <Briefcase className="h-4 w-4 text-blue-500" />
-            About the Provider
+            <Briefcase className="w-4 h-4 text-blue-500" />
+            About Provider
           </h4>
           <p
-            className={`text-xs sm:text-sm font-['Inter'] leading-relaxed whitespace-pre-wrap ${
-              darkMode ? "text-slate-300" : "text-[#374151]"
+            className={`text-xs sm:text-sm leading-relaxed whitespace-pre-wrap p-4 rounded-2xl border ${
+              darkMode
+                ? "bg-slate-950/40 border-slate-800/60 text-slate-300"
+                : "bg-slate-50/70 border-slate-200 text-slate-700"
             }`}
           >
             {about}

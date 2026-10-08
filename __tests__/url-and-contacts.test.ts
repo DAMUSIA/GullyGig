@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import {
   getBaseUrl,
   getPortfolioUrl,
@@ -111,7 +111,11 @@ describe("lib/stats", () => {
       };
     });
 
-    vi.spyOn(supabase!, "from").mockImplementation(mockFrom as any);
+    if (supabase) {
+      vi.spyOn(supabase, "from").mockImplementation(
+        mockFrom as unknown as typeof supabase.from,
+      );
+    }
 
     const stats = await getPlatformStats();
     expect(stats.users).toBe(42);
@@ -122,13 +126,20 @@ describe("lib/stats", () => {
     const mockFrom = vi.fn().mockImplementation(() => {
       return {
         select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockResolvedValue({ count: null, error: new Error("DB Error") }),
-          then: (resolve: any) => resolve({ count: null, error: new Error("DB Error") }),
+          eq: vi
+            .fn()
+            .mockResolvedValue({ count: null, error: new Error("DB Error") }),
+          then: (resolve: (value: unknown) => void) =>
+            resolve({ count: null, error: new Error("DB Error") }),
         }),
       };
     });
 
-    vi.spyOn(supabase!, "from").mockImplementation(mockFrom as any);
+    if (supabase) {
+      vi.spyOn(supabase, "from").mockImplementation(
+        mockFrom as unknown as typeof supabase.from,
+      );
+    }
 
     const stats = await getPlatformStats();
     expect(stats.users).toBe(0);

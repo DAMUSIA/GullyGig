@@ -94,7 +94,8 @@ export default function ProfilePage() {
               dbProfile.intro_video_url ||
               dbProfile.social_links?.intro_video_url ||
               "",
-            social_links: (dbProfile.social_links as any) || {},
+            social_links:
+              (dbProfile.social_links as Record<string, string>) || {},
           });
         } else {
           // If no database profile exists, auto-initialize a default profile to avoid page crash
@@ -138,7 +139,7 @@ export default function ProfilePage() {
     loadProfile();
   }, [router]);
 
-  const handleInputChange = (name: string, value: string) => {
+  const handleInputChange = (name: string, value: unknown) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -319,7 +320,7 @@ export default function ProfilePage() {
           profile.intro_video_url ||
           profile.social_links?.intro_video_url ||
           "",
-        social_links: (profile.social_links as any) || {},
+        social_links: (profile.social_links as Record<string, string>) || {},
       });
     }
     setIsEditing(false);

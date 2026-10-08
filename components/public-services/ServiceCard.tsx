@@ -126,10 +126,7 @@ export default function ServiceCard({
 
       {/* 2. Middle Content: Title, Collapsible Description & Badges */}
       <div className="flex flex-col gap-2.5 min-w-0 w-full">
-        <Link
-          href={`/p/${service.id}`}
-          className="group/title block"
-        >
+        <Link href={`/p/${service.id}`} className="group/title block">
           <h3
             className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-tight group-hover/title:text-blue-600 dark:group-hover/title:text-blue-400 transition-colors break-words line-clamp-2 w-full overflow-hidden flex items-center gap-1.5"
             title={service.title}

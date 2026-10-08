@@ -50,12 +50,16 @@ function formatUrl(url: string, platform: string): string {
       return `https://t.me/${trimmed.replace(/^@/, "")}`;
     case "whatsapp": {
       const clean = trimmed.replace(/\D/g, "");
-      return clean.length === 10 ? `https://wa.me/91${clean}` : `https://wa.me/${clean}`;
+      return clean.length === 10
+        ? `https://wa.me/91${clean}`
+        : `https://wa.me/${clean}`;
     }
     case "twitter":
       return `https://x.com/${trimmed.replace(/^@/, "")}`;
     case "youtube":
-      return trimmed.startsWith("@") ? `https://youtube.com/${trimmed}` : `https://${trimmed}`;
+      return trimmed.startsWith("@")
+        ? `https://youtube.com/${trimmed}`
+        : `https://${trimmed}`;
     default:
       return `https://${trimmed}`;
   }
@@ -72,7 +76,10 @@ export default function PortfolioProvider({
 }: PortfolioProviderProps) {
   const initial = fullName ? fullName.charAt(0).toUpperCase() : "P";
   const hasSocials =
-    socialLinks && Object.values(socialLinks).some((val) => Boolean(val && typeof val === "string" && val.trim()));
+    socialLinks &&
+    Object.values(socialLinks).some((val) =>
+      Boolean(val && typeof val === "string" && val.trim()),
+    );
 
   // If no provider details are provided, do not render this card section
   if (!fullName && !about && !location && !hasSocials) {

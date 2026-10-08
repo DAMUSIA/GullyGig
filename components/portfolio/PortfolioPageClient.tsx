@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Sun, Moon, Phone, Heart, ShieldCheck, ArrowLeft } from "lucide-react";
+import { Sun, Moon, Phone, ShieldCheck } from "lucide-react";
 
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
@@ -24,6 +24,20 @@ interface ReviewItem {
   users?: {
     full_name: string;
   };
+}
+
+interface SocialLinksData {
+  instagram?: string;
+  facebook?: string;
+  linkedin?: string;
+  youtube?: string;
+  website?: string;
+  discord?: string;
+  telegram?: string;
+  whatsapp?: string;
+  twitter?: string;
+  intro_video_url?: string;
+  custom_links?: { name: string; url: string }[];
 }
 
 interface ServiceData {
@@ -47,26 +61,14 @@ interface ServiceData {
   contact_numbers?: string[];
   created_at: string;
   intro_video_url?: string;
-  social_links?: any;
+  social_links?: SocialLinksData | null;
   users?: {
     full_name: string;
     location: string | null;
     about: string | null;
     phone_no: string | null;
     created_at?: string;
-    social_links?: {
-      instagram?: string;
-      facebook?: string;
-      linkedin?: string;
-      youtube?: string;
-      website?: string;
-      discord?: string;
-      telegram?: string;
-      whatsapp?: string;
-      twitter?: string;
-      intro_video_url?: string;
-      custom_links?: { name: string; url: string }[];
-    };
+    social_links?: SocialLinksData | null;
   };
   service_analytics?: {
     total_views: number;
@@ -282,23 +284,23 @@ export default function PortfolioPageClient({
           k !== "custom_links" &&
           Boolean(v && typeof v === "string" && v.trim()),
       )) ||
-      (initialService.users?.social_links?.custom_links &&
-        initialService.users.social_links.custom_links.some(
-          (l: { name?: string; url?: string }) => l.name?.trim() && l.url?.trim(),
-        )) ||
-      (initialService.social_links &&
-        Object.values(initialService.social_links).some((v: unknown) =>
-          Boolean(v && typeof v === "string" && v.trim()),
-        )),
+    (initialService.users?.social_links?.custom_links &&
+      initialService.users.social_links.custom_links.some(
+        (l: { name?: string; url?: string }) => l.name?.trim() && l.url?.trim(),
+      )) ||
+    (initialService.social_links &&
+      Object.values(initialService.social_links).some((v: unknown) =>
+        Boolean(v && typeof v === "string" && v.trim()),
+      )),
   );
 
   const hasContact = activeNumbers.length > 0 || hasSocials;
   const hasProvider = Boolean(
     initialService.users &&
-      (initialService.users.full_name?.trim() ||
-        initialService.users.location?.trim() ||
-        initialService.users.about?.trim() ||
-        hasSocials),
+    (initialService.users.full_name?.trim() ||
+      initialService.users.location?.trim() ||
+      initialService.users.about?.trim() ||
+      hasSocials),
   );
 
   const hasRightSidebar = hasContact || hasProvider;
@@ -320,7 +322,10 @@ export default function PortfolioPageClient({
         <div className="max-w-[1340px] mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-4">
           {/* Left: GullyGig Logo */}
           <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center group transition-opacity hover:opacity-90">
+            <Link
+              href="/"
+              className="flex items-center group transition-opacity hover:opacity-90"
+            >
               <div className="flex h-22 w-36 sm:h-28 sm:w-28 items-center justify-start overflow-hidden">
                 <Image
                   src={darkMode ? "/logo_light.png" : "/logo_dark.png"}
@@ -396,9 +401,7 @@ export default function PortfolioPageClient({
           {/* Left Column: Showcase & Reviews */}
           <div
             className={`space-y-8 ${
-              hasRightSidebar
-                ? "lg:col-span-7 xl:col-span-8"
-                : "lg:col-span-12"
+              hasRightSidebar ? "lg:col-span-7 xl:col-span-8" : "lg:col-span-12"
             }`}
           >
             <PortfolioInfo
@@ -441,7 +444,8 @@ export default function PortfolioPageClient({
                   darkMode={darkMode}
                   socialLinks={
                     initialService.users?.social_links ||
-                    initialService.social_links
+                    initialService.social_links ||
+                    undefined
                   }
                 />
               )}
@@ -465,7 +469,7 @@ export default function PortfolioPageClient({
                   totalServices={1}
                   isVerified={true}
                   darkMode={darkMode}
-                  socialLinks={initialService.users?.social_links}
+                  socialLinks={initialService.users?.social_links || undefined}
                 />
               )}
             </div>
@@ -477,8 +481,8 @@ export default function PortfolioPageClient({
       <Footer onShowToast={(msg) => alert(msg)} />
 
       {/* STICKY MOBILE ACTION BAR */}
-<div
-  className={`fixed bottom-4 left-1/2 -translate-x-1/2
+      <div
+        className={`fixed bottom-4 left-1/2 -translate-x-1/2
     w-[30vw] max-w
     z-50
     backdrop-blur-xl
@@ -492,63 +496,64 @@ export default function PortfolioPageClient({
         ? "bg-slate-900/95 border-slate-800 text-white"
         : "bg-white/95 border-slate-200 text-slate-900"
     }`}
->
-  {/* RATE */}
-  <div className="flex-1 min-w-0 pl-1">
-    <span
-      className={`block text-[9px] font-extrabold uppercase tracking-wider ${
-        darkMode ? "text-slate-400" : "text-slate-500"
-      }`}
-    >
-      Starting Rate
-    </span>
+      >
+        {/* RATE */}
+        <div className="flex-1 min-w-0 pl-1">
+          <span
+            className={`block text-[9px] font-extrabold uppercase tracking-wider ${
+              darkMode ? "text-slate-400" : "text-slate-500"
+            }`}
+          >
+            Starting Rate
+          </span>
 
-    <div className="flex items-baseline whitespace-nowrap">
-      <span className="text-base font-extrabold text-blue-600 dark:text-blue-400">
-        {initialService.starting_price
-          ? `₹${initialService.starting_price}`
-          : "Enquire"}
-      </span>
+          <div className="flex items-baseline whitespace-nowrap">
+            <span className="text-base font-extrabold text-blue-600 dark:text-blue-400">
+              {initialService.starting_price
+                ? `₹${initialService.starting_price}`
+                : "Enquire"}
+            </span>
 
-      {initialService.starting_price && initialService.price_unit && (
-        <span
-          className={`ml-1 text-[10px] font-normal ${
-            darkMode ? "text-slate-400" : "text-slate-500"
-          }`}
-        >
-          / {initialService.price_unit
-            .replace(/^per\s+/i, "")
-            .toLowerCase()}
-        </span>
-      )}
-    </div>
-  </div>
+            {initialService.starting_price && initialService.price_unit && (
+              <span
+                className={`ml-1 text-[10px] font-normal ${
+                  darkMode ? "text-slate-400" : "text-slate-500"
+                }`}
+              >
+                /{" "}
+                {initialService.price_unit
+                  .replace(/^per\s+/i, "")
+                  .toLowerCase()}
+              </span>
+            )}
+          </div>
+        </div>
 
-  {/* ACTIONS */}
-  <div className="flex items-center gap-2 shrink-0">
-    <div className="shrink-0">
-      <InstagramLikeButton
-        variant="icon-only"
-        isLiked={isLiked}
-        onToggle={handleLikeToggle}
-        darkMode={darkMode}
-      />
-    </div>
+        {/* ACTIONS */}
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="shrink-0">
+            <InstagramLikeButton
+              variant="icon-only"
+              isLiked={isLiked}
+              onToggle={handleLikeToggle}
+              darkMode={darkMode}
+            />
+          </div>
 
-    {activeNumbers.length > 0 && (
-      <a
-        href={`tel:${cleanNumber(activeNumbers[0])}`}
-        className="shrink-0 inline-flex items-center justify-center gap-1.5
+          {activeNumbers.length > 0 && (
+            <a
+              href={`tel:${cleanNumber(activeNumbers[0])}`}
+              className="shrink-0 inline-flex items-center justify-center gap-1.5
           px-4 py-2.5 text-xs font-bold text-white
           bg-blue-600 hover:bg-blue-700 rounded-xl
           transition shadow-md shadow-blue-600/20 active:scale-95"
-      >
-        <Phone className="w-3.5 h-3.5" />
-        <span>Call Now</span>
-      </a>
-    )}
-  </div>
-</div>
+            >
+              <Phone className="w-3.5 h-3.5" />
+              <span>Call Now</span>
+            </a>
+          )}
+        </div>
+      </div>
 
       {/* AUTH MODAL */}
       {showAuthModal && (

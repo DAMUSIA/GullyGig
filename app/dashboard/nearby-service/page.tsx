@@ -205,7 +205,9 @@ export default function NearbyServicePage() {
 
         if (isMounted) {
           setServices((servicesData as ServiceItem[]) || []);
-          console.log(`[Marketplace] Loaded ${servicesData?.length || 0} services`);
+          console.log(
+            `[Marketplace] Loaded ${servicesData?.length || 0} services`,
+          );
         }
 
         // ============================================
@@ -216,7 +218,9 @@ export default function NearbyServicePage() {
           const likedIds = await loadUserLikes(user.id);
           if (isMounted) {
             setLikedServiceIds(likedIds);
-            console.log(`[Marketplace] Restored ${likedIds.size} likes from database`);
+            console.log(
+              `[Marketplace] Restored ${likedIds.size} likes from database`,
+            );
           }
         } else {
           // If no user, ensure likes are empty
@@ -324,10 +328,10 @@ export default function NearbyServicePage() {
   // Toggle Like - Fixed with functional updates
   // ============================================
   const handleToggleLike = async (
-    e: React.MouseEvent,
+    e: React.MouseEvent | undefined,
     service: ServiceItem,
   ) => {
-    e.stopPropagation();
+    if (e) e.stopPropagation();
     if (!supabase) return;
     if (!currentUser) {
       alert("Please log in to like service listings.");
@@ -825,7 +829,6 @@ export default function NearbyServicePage() {
               // ============================================
               const isOwnService = currentUser?.id === service.user_id;
               const isLiked = likedServiceIds.has(service.id);
-              const isLikingThis = likingServiceIds.has(service.id);
               const priceLabel = service.starting_price
                 ? `Starts from ₹${service.starting_price}/${(service.price_unit || "hour").toLowerCase().replace("per ", "")}`
                 : "Price on Enquiry";
@@ -861,7 +864,9 @@ export default function NearbyServicePage() {
                           <InstagramLikeButton
                             variant="icon-only"
                             isLiked={isLiked}
-                            onToggle={() => handleToggleLike(undefined as any, service)}
+                            onToggle={() =>
+                              handleToggleLike(undefined, service)
+                            }
                           />
                         )}
                       </div>

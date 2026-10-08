@@ -10,7 +10,6 @@ import {
   FaDiscord,
   FaTelegram,
   FaWhatsapp,
-  FaXTwitter,
 } from "react-icons/fa6";
 import { UserProfile, UserSocialLinks } from "@/lib/supabase";
 import { getYouTubeEmbedUrl } from "@/lib/url";
@@ -23,7 +22,7 @@ interface ProfileDetailsProps {
     intro_video_url?: string;
     social_links?: UserSocialLinks;
   };
-  onInputChange: (name: string, value: any) => void;
+  onInputChange: (name: string, value: unknown) => void;
 }
 
 export default function ProfileDetails({
@@ -186,7 +185,8 @@ export default function ProfileDetails({
                   />
                 </div>
                 <p className="text-xs text-gray-400 mt-1">
-                  Paste any public or unlisted YouTube video URL. It will be featured directly on your public portfolio.
+                  Paste any public or unlisted YouTube video URL. It will be
+                  featured directly on your public portfolio.
                 </p>
               </div>
 
@@ -214,7 +214,8 @@ export default function ProfileDetails({
             </div>
           ) : (
             <p className="text-xs text-gray-500 italic">
-              No introduction video linked yet. Edit profile to link a YouTube demo video.
+              No introduction video linked yet. Edit profile to link a YouTube
+              demo video.
             </p>
           )}
         </div>
@@ -239,7 +240,10 @@ export default function ProfileDetails({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {socialConfig.map((item) => {
                 const Icon = item.icon;
-                const val = (formData.social_links as any)?.[item.key] || "";
+                const val =
+                  (
+                    formData.social_links as Record<string, string> | undefined
+                  )?.[item.key] || "";
                 return (
                   <div key={item.key} className="space-y-1">
                     <label className="text-xs font-semibold text-gray-700 flex items-center gap-1.5">
@@ -262,10 +266,17 @@ export default function ProfileDetails({
           ) : (
             <div className="flex flex-wrap gap-2.5">
               {socialConfig
-                .filter((item) => !!(profile.social_links as any)?.[item.key])
+                .filter(
+                  (item) =>
+                    !!(
+                      profile.social_links as Record<string, string> | undefined
+                    )?.[item.key],
+                )
                 .map((item) => {
                   const Icon = item.icon;
-                  const val = (profile.social_links as any)?.[item.key];
+                  const val = (
+                    profile.social_links as Record<string, string> | undefined
+                  )?.[item.key];
                   return (
                     <span
                       key={item.key}
@@ -280,7 +291,8 @@ export default function ProfileDetails({
                 Object.values(profile.social_links).filter(Boolean).length ===
                   0) && (
                 <p className="text-xs text-gray-500 italic">
-                  No social profiles added yet. Click &quot;Edit Profile&quot; to link your WhatsApp, Instagram, LinkedIn, etc.
+                  No social profiles added yet. Click &quot;Edit Profile&quot;
+                  to link your WhatsApp, Instagram, LinkedIn, etc.
                 </p>
               )}
             </div>
@@ -290,4 +302,3 @@ export default function ProfileDetails({
     </div>
   );
 }
-

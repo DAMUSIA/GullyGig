@@ -35,4 +35,5 @@ export const SUPPORT_NUMBERS: SupportContact[] = [
 
 export const SUPPORT_EMAIL = "support@gullygig.in";
 
-export const SUPPORT_NUMBERS_STRING = "88795 14626 / 755 930 2315 / 82630 81521";
+export const SUPPORT_NUMBERS_STRING =
+  "88795 14626 / 755 930 2315 / 82630 81521";

@@ -184,7 +184,9 @@ export async function POST(request: NextRequest) {
             user.user_metadata?.name ||
             "Service Provider",
           email: email,
-          phone_no: rawPhone ? String(rawPhone).replace(/\D/g, "").slice(-10) : null,
+          phone_no: rawPhone
+            ? String(rawPhone).replace(/\D/g, "").slice(-10)
+            : null,
           is_paid: isPaid,
           created_at: new Date().toISOString(),
         })
@@ -212,13 +214,17 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Strict Limit Check: Maximum 1 service listing allowed per account
-    const { data: existingUserServices, error: checkServicesError } = await supabaseAdmin
-      .from("services")
-      .select("id, title")
-      .eq("user_id", user.id);
+    const { data: existingUserServices, error: checkServicesError } =
+      await supabaseAdmin
+        .from("services")
+        .select("id, title")
+        .eq("user_id", user.id);
 
     if (checkServicesError) {
-      console.error("[services API] Error checking user services:", checkServicesError);
+      console.error(
+        "[services API] Error checking user services:",
+        checkServicesError,
+      );
     }
 
     if (existingUserServices && existingUserServices.length >= 1) {
@@ -294,7 +300,7 @@ export async function POST(request: NextRequest) {
         : "";
     const social_links =
       typeof body.social_links === "object" && body.social_links !== null
-        ? (body.social_links as Record<string, any>)
+        ? (body.social_links as Record<string, unknown>)
         : {};
     const latitude = typeof body.latitude === "number" ? body.latitude : null;
     const longitude =
@@ -323,15 +329,24 @@ export async function POST(request: NextRequest) {
 
     // Merge custom availability into availability list if provided
     const finalAvailability = [...availability];
-    if (custom_availability && !finalAvailability.includes(custom_availability)) {
+    if (
+      custom_availability &&
+      !finalAvailability.includes(custom_availability)
+    ) {
       finalAvailability.push(custom_availability);
     }
 
     // Append pricing plans & tiers to description if present
     if (pricing_tiers.length > 0) {
       const tiersFormatted = pricing_tiers
-        .filter((t: { label?: string; price?: string | number; unit?: string }) => t.label || t.price)
-        .map((t: { label?: string; price?: string | number; unit?: string }) => `• ${t.label || "Plan"}: ₹${t.price || 0} / ${t.unit || "month"}`)
+        .filter(
+          (t: { label?: string; price?: string | number; unit?: string }) =>
+            t.label || t.price,
+        )
+        .map(
+          (t: { label?: string; price?: string | number; unit?: string }) =>
+            `• ${t.label || "Plan"}: ₹${t.price || 0} / ${t.unit || "month"}`,
+        )
         .join("\n");
 
       if (tiersFormatted && !description.includes(tiersFormatted)) {

@@ -189,7 +189,8 @@ export default function LocationSelector({
             Location &amp; Address <span className="text-red-500">*</span>
           </label>
           <p className="text-xs text-slate-500 mt-0.5">
-            Enter your city, locality, and custom address or service coverage area freely.
+            Enter your city, locality, and custom address or service coverage
+            area freely.
           </p>
         </div>
 
@@ -232,7 +233,13 @@ export default function LocationSelector({
               required
               value={city}
               onChange={(e) =>
-                onChange({ city: e.target.value, area, address, latitude, longitude })
+                onChange({
+                  city: e.target.value,
+                  area,
+                  address,
+                  latitude,
+                  longitude,
+                })
               }
               placeholder="e.g. Navi Mumbai, Delhi, Bengaluru..."
               className="w-full pl-9 pr-4 py-3 bg-white border border-slate-200 rounded-xl shadow-xs text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800"
@@ -252,7 +259,13 @@ export default function LocationSelector({
               type="text"
               value={area}
               onChange={(e) =>
-                onChange({ city, area: e.target.value, address, latitude, longitude })
+                onChange({
+                  city,
+                  area: e.target.value,
+                  address,
+                  latitude,
+                  longitude,
+                })
               }
               placeholder="e.g. Nerul, Koramangala, Sector 15..."
               className="w-full pl-9 pr-4 py-3 bg-white border border-slate-200 rounded-xl shadow-xs text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800"
@@ -266,12 +279,20 @@ export default function LocationSelector({
       <div className="space-y-1">
         <label className="block text-xs font-semibold text-slate-600">
           Full Address / Landmark / Office / Coaching Center{" "}
-          <span className="text-slate-400 font-normal">(Optional - Manual custom address)</span>
+          <span className="text-slate-400 font-normal">
+            (Optional - Manual custom address)
+          </span>
         </label>
         <textarea
           value={address}
           onChange={(e) =>
-            onChange({ city, area, address: e.target.value, latitude, longitude })
+            onChange({
+              city,
+              area,
+              address: e.target.value,
+              latitude,
+              longitude,
+            })
           }
           rows={2}
           placeholder="e.g. Flat 302, Sunshine Arcade, Opposite City Mall, Near Metro Station, or Online / Pan-India"

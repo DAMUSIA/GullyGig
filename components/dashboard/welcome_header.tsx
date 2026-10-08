@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Plus, CheckCircle2, Lock, ShieldCheck } from "lucide-react";
+import { Plus, CheckCircle2, Lock } from "lucide-react";
 
 interface WelcomeHeaderProps {
   userName: string;
@@ -56,7 +56,9 @@ export function WelcomeHeader({
           </h1>
           <p className="text-blue-100/80 mt-1 text-xs sm:text-sm">
             {isPaid
-              ? "Your provider account is active. Manage your listings or create a new service below."
+              ? hasService
+                ? "Your service listing is active. Manage your listing or review performance below."
+                : "Your provider account is active. Create your service listing below."
               : "Complete your activation to unlock listing creation on GullyGig."}
           </p>
         </div>

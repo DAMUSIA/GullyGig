@@ -13,13 +13,8 @@ import {
   Mail,
   ShieldCheck,
   X,
-  Play,
-  Share2,
   ExternalLink,
   Plus,
-  ArrowRight,
-  HelpCircle,
-  Video,
   Trash2,
   Tag,
   Link as LinkIcon,
@@ -35,7 +30,7 @@ import {
   FaGlobe,
 } from "react-icons/fa6";
 import { getCurrentUser, supabase } from "@/lib/supabase";
-import { TutorServiceFormData, PricingTier, CustomSocialLink } from "@/lib/service.types";
+import { TutorServiceFormData } from "@/lib/service.types";
 import { getYouTubeVideoId, getYouTubeEmbedUrl } from "@/lib/url";
 import { SUPPORT_NUMBERS, SUPPORT_NUMBERS_STRING } from "@/lib/contacts";
 
@@ -79,17 +74,6 @@ const AVAILABILITY_OPTIONS = [
   "On-Demand",
 ];
 
-const SUGGESTED_PRICE_UNITS = [
-  "Per Service",
-  "Per Session",
-  "Per Student",
-  "Custom / Flexible",
-  "Negotiable",
-  "Per Month",
-  "Per Hour",
-  "One-time",
-];
-
 const CATEGORY_TITLE_MAPPING: Record<string, string> = {
   "Academic Tutor": "Academic Tutor",
   "Mathematics Tutor": "Mathematics Tutor",
@@ -107,7 +91,7 @@ const CATEGORY_TITLE_MAPPING: Record<string, string> = {
   "Personal Trainer": "Personal Trainer",
   "Art Teacher": "Art Teacher",
   "Drawing Teacher": "Drawing Teacher",
-  "Tailor": "Professional Tailoring & Fitting",
+  Tailor: "Professional Tailoring & Fitting",
   "Exam Preparation Coach": "Exam Prep Coach",
 };
 
@@ -136,8 +120,6 @@ export default function CreateServicePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [createdServiceId, setCreatedServiceId] = useState<string | null>(null);
-  const [showContactModal, setShowContactModal] = useState(false);
-  const [contactRequested, setContactRequested] = useState(false);
   const [dbError, setDbError] = useState<string | null>(null);
 
   // Security & Permission States
@@ -165,9 +147,7 @@ export default function CreateServicePage() {
     starting_price: null,
     price_unit: "Per Month",
     pricing_note: "",
-    pricing_tiers: [
-      { label: "General Plan", price: "", unit: "per month" },
-    ],
+    pricing_tiers: [{ label: "General Plan", price: "", unit: "per month" }],
     contact_numbers: [],
     intro_video_url: "",
     social_links: {
@@ -183,8 +163,8 @@ export default function CreateServicePage() {
     },
   };
 
-  const [formData, setFormData] = useState<TutorServiceFormData>(initialFormState);
-  const [customUnit, setCustomUnit] = useState("");
+  const [formData, setFormData] =
+    useState<TutorServiceFormData>(initialFormState);
   const [customAvailTag, setCustomAvailTag] = useState("");
   const [isTitleManuallyEdited, setIsTitleManuallyEdited] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -206,7 +186,9 @@ export default function CreateServicePage() {
         if (userPhone) {
           setFormData((prev) => ({
             ...prev,
-            contact_numbers: prev.contact_numbers?.length ? prev.contact_numbers : [userPhone],
+            contact_numbers: prev.contact_numbers?.length
+              ? prev.contact_numbers
+              : [userPhone],
             social_links: {
               ...prev.social_links,
               whatsapp: prev.social_links?.whatsapp || userPhone,
@@ -235,7 +217,7 @@ export default function CreateServicePage() {
           }
 
           let verifiedPaid = false;
-          let userSocials: Record<string, any> = {};
+          let userSocials: Record<string, unknown> = {};
           let userIntroVideo = "";
 
           // 1. Try secure status check API first (handles phone, email, and ID matching with service role)
@@ -269,11 +251,17 @@ export default function CreateServicePage() {
               .eq("id", currentUser.id)
               .maybeSingle();
 
-            if (profile?.is_paid === true || String(profile?.is_paid) === "true") {
+            if (
+              profile?.is_paid === true ||
+              String(profile?.is_paid) === "true"
+            ) {
               verifiedPaid = true;
             }
             if (profile?.social_links) {
-              userSocials = { ...userSocials, ...(profile.social_links as Record<string, any>) };
+              userSocials = {
+                ...userSocials,
+                ...(profile.social_links as Record<string, unknown>),
+              };
             }
             if (profile?.intro_video_url) {
               userIntroVideo = userIntroVideo || profile.intro_video_url;
@@ -281,29 +269,48 @@ export default function CreateServicePage() {
           }
 
           // 3. User metadata fallback
-          if (!verifiedPaid && (currentUser.user_metadata as any)?.is_paid) {
+          if (
+            !verifiedPaid &&
+            (currentUser.user_metadata as Record<string, unknown> | undefined)
+              ?.is_paid
+          ) {
             verifiedPaid = true;
           }
 
           setIsPaid(verifiedPaid);
 
-          setFormData((prev) => ({
-            ...prev,
-            intro_video_url: prev.intro_video_url || userIntroVideo || userSocials.intro_video_url || "",
-            social_links: {
-              whatsapp: userSocials.whatsapp || prev.social_links?.whatsapp || userPhone || "",
-              instagram: userSocials.instagram || prev.social_links?.instagram || "",
-              facebook: userSocials.facebook || prev.social_links?.facebook || "",
-              linkedin: userSocials.linkedin || prev.social_links?.linkedin || "",
-              discord: userSocials.discord || prev.social_links?.discord || "",
-              telegram: userSocials.telegram || prev.social_links?.telegram || "",
-              youtube: userSocials.youtube || prev.social_links?.youtube || "",
-              website: userSocials.website || prev.social_links?.website || "",
-              custom_links: Array.isArray(userSocials.custom_links)
-                ? userSocials.custom_links
-                : prev.social_links?.custom_links || [],
-            },
-          }));
+          const socials = userSocials as Record<string, string | undefined>;
+
+          setFormData((prev) => {
+            const customLinks = Array.isArray(userSocials.custom_links)
+              ? (userSocials.custom_links as { name: string; url: string }[])
+              : prev.social_links?.custom_links || [];
+
+            return {
+              ...prev,
+              intro_video_url:
+                prev.intro_video_url ||
+                userIntroVideo ||
+                socials.intro_video_url ||
+                "",
+              social_links: {
+                whatsapp:
+                  socials.whatsapp ||
+                  prev.social_links?.whatsapp ||
+                  userPhone ||
+                  "",
+                instagram:
+                  socials.instagram || prev.social_links?.instagram || "",
+                facebook: socials.facebook || prev.social_links?.facebook || "",
+                linkedin: socials.linkedin || prev.social_links?.linkedin || "",
+                discord: socials.discord || prev.social_links?.discord || "",
+                telegram: socials.telegram || prev.social_links?.telegram || "",
+                youtube: socials.youtube || prev.social_links?.youtube || "",
+                website: socials.website || prev.social_links?.website || "",
+                custom_links: customLinks,
+              },
+            };
+          });
         }
       } catch (err) {
         console.error("Auth / Permission check error:", err);
@@ -359,7 +366,9 @@ export default function CreateServicePage() {
 
   const handleRemoveTier = (index: number) => {
     setFormData((prev) => {
-      const tiers = [...(prev.pricing_tiers || [])].filter((_, i) => i !== index);
+      const tiers = [...(prev.pricing_tiers || [])].filter(
+        (_, i) => i !== index,
+      );
       return { ...prev, pricing_tiers: tiers };
     });
   };
@@ -536,31 +545,43 @@ export default function CreateServicePage() {
 
     // Determine lowest price and cleaned tiers
     const validTierPrices = (formData.pricing_tiers || [])
-      .map((t) => (t.price !== "" && t.price !== null && t.price !== undefined ? Number(t.price) : null))
+      .map((t) =>
+        t.price !== "" && t.price !== null && t.price !== undefined
+          ? Number(t.price)
+          : null,
+      )
       .filter((p): p is number => p !== null && !isNaN(p) && p >= 0);
 
-    const lowestTierPrice = validTierPrices.length > 0 ? Math.min(...validTierPrices) : null;
+    const lowestTierPrice =
+      validTierPrices.length > 0 ? Math.min(...validTierPrices) : null;
 
     const finalPrice =
       lowestTierPrice !== null
         ? lowestTierPrice
-        : formData.starting_price !== null && formData.starting_price !== undefined
-        ? parseInt(formData.starting_price.toString(), 10)
-        : null;
+        : formData.starting_price !== null &&
+            formData.starting_price !== undefined
+          ? parseInt(formData.starting_price.toString(), 10)
+          : null;
 
     const cleanedTiers = (formData.pricing_tiers || [])
-      .filter((t) => t.label?.trim() || (t.price !== "" && t.price !== null && t.price !== undefined))
+      .filter(
+        (t) =>
+          t.label?.trim() ||
+          (t.price !== "" && t.price !== null && t.price !== undefined),
+      )
       .map((t) => ({
         label: t.label?.trim() || "General Plan",
-        price: t.price !== "" && t.price !== null && t.price !== undefined ? Number(t.price) : 0,
+        price:
+          t.price !== "" && t.price !== null && t.price !== undefined
+            ? Number(t.price)
+            : 0,
         unit: t.unit?.trim() || "per month",
       }));
 
-    const finalUnit = cleanedTiers.length > 0
-      ? cleanedTiers[0].unit
-      : formData.price_unit === "Custom"
-      ? customUnit.trim() || "Custom / Flexible"
-      : formData.price_unit || "Per Month";
+    const finalUnit =
+      cleanedTiers.length > 0
+        ? cleanedTiers[0].unit
+        : formData.price_unit || "Per Month";
 
     const cleanedCustomLinks = (formData.social_links?.custom_links || [])
       .filter((l) => l.name?.trim() && l.url?.trim())
@@ -608,7 +629,8 @@ export default function CreateServicePage() {
 
       if (!res.ok) {
         throw new Error(
-          data.error || `Failed to publish service. Please try again or call ${SUPPORT_NUMBERS_STRING}.`,
+          data.error ||
+            `Failed to publish service. Please try again or call ${SUPPORT_NUMBERS_STRING}.`,
         );
       }
 
@@ -631,26 +653,6 @@ export default function CreateServicePage() {
   const handleModalClose = () => {
     setShowSuccessModal(false);
     router.push("/dashboard");
-  };
-
-  const handleCreateAnother = () => {
-    setShowSuccessModal(false);
-    setCreatedServiceId(null);
-    setCurrentStep(1);
-    setIsTitleManuallyEdited(false);
-    setDbError(null);
-    setFormData({
-      ...initialFormState,
-      city: formData.city,
-      area: formData.area,
-      latitude: formData.latitude,
-      longitude: formData.longitude,
-      contact_numbers: user?.user_metadata?.phone_no
-        ? [user.user_metadata.phone_no]
-        : formData.contact_numbers,
-      social_links: formData.social_links,
-      intro_video_url: formData.intro_video_url,
-    });
   };
 
   if (authLoading) {
@@ -697,7 +699,8 @@ export default function CreateServicePage() {
             </h1>
             <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
               Service listings on GullyGig are exclusively available for
-              verified service partners. Contact our team at any of our official numbers below to activate your provider listing immediately.
+              verified service partners. Contact our team at any of our official
+              numbers below to activate your provider listing immediately.
             </p>
           </div>
 
@@ -763,7 +766,9 @@ export default function CreateServicePage() {
             </div>
 
             <p className="text-xs text-slate-500 italic pt-1">
-              * Call or WhatsApp <strong>88795 14626</strong>, <strong>755 930 2315</strong>, or <strong>82630 81521</strong> to activate your provider account.
+              * Call or WhatsApp <strong>88795 14626</strong>,{" "}
+              <strong>755 930 2315</strong>, or <strong>82630 81521</strong> to
+              activate your provider account.
             </p>
           </div>
 
@@ -840,10 +845,14 @@ export default function CreateServicePage() {
               Service Limit Reached
             </h1>
             <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-              Each provider account on GullyGig is permitted to create exactly <strong>1 service listing</strong>. You already have an active service published:
+              Each provider account on GullyGig is permitted to create exactly{" "}
+              <strong>1 service listing</strong>. You already have an active
+              service published:
             </p>
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 max-w text-center space-y-1">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Your Active Service Listing</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                Your Active Service Listing
+              </span>
               <span className="text-base font-extrabold text-slate-900 block">
                 {existingService.title}
               </span>
@@ -877,7 +886,9 @@ export default function CreateServicePage() {
             </div>
 
             <p className="text-xs text-slate-600 leading-relaxed">
-              If you want to edit your fee structure, update timings, or change your category, you can modify it directly from your dashboard or call our support team for instant assistance:
+              If you want to edit your fee structure, update timings, or change
+              your category, you can modify it directly from your dashboard or
+              call our support team for instant assistance:
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -1069,7 +1080,8 @@ export default function CreateServicePage() {
                 Availability Days &amp; Times
               </label>
               <p className="text-xs text-slate-500 mt-0.5">
-                Select quick slots, add your own custom tags, or type your weekly schedule.
+                Select quick slots, add your own custom tags, or type your
+                weekly schedule.
               </p>
             </div>
 
@@ -1095,7 +1107,9 @@ export default function CreateServicePage() {
             </div>
 
             {/* Active custom tags display */}
-            {formData.availability.filter((a) => !AVAILABILITY_OPTIONS.includes(a)).length > 0 && (
+            {formData.availability.filter(
+              (a) => !AVAILABILITY_OPTIONS.includes(a),
+            ).length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-1">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block w-full">
                   Custom Timing Tags:
@@ -1169,7 +1183,8 @@ export default function CreateServicePage() {
             {/* Custom Detailed Schedule Textarea */}
             <div className="space-y-1.5 pt-1">
               <label className="block text-xs font-semibold text-slate-600">
-                Detailed Custom Schedule / Timings Notes <span className="text-slate-400 font-normal">(Optional)</span>
+                Detailed Custom Schedule / Timings Notes{" "}
+                <span className="text-slate-400 font-normal">(Optional)</span>
               </label>
               <textarea
                 value={formData.custom_availability || ""}
@@ -1197,9 +1212,14 @@ export default function CreateServicePage() {
         );
       case 7: {
         const validPrices = (formData.pricing_tiers || [])
-          .map((t) => (t.price !== "" && t.price !== null && t.price !== undefined ? Number(t.price) : null))
+          .map((t) =>
+            t.price !== "" && t.price !== null && t.price !== undefined
+              ? Number(t.price)
+              : null,
+          )
           .filter((p): p is number => p !== null && !isNaN(p) && p >= 0);
-        const minPrice = validPrices.length > 0 ? Math.min(...validPrices) : null;
+        const minPrice =
+          validPrices.length > 0 ? Math.min(...validPrices) : null;
 
         return (
           <div className="space-y-6">
@@ -1212,14 +1232,22 @@ export default function CreateServicePage() {
                     Customizable Pricing Plans &amp; Tiers
                   </span>
                   <p className="text-blue-800/90 leading-relaxed text-[11px]">
-                    Create flexible pricing plans for different age groups, course levels, or batches (e.g. <em>10-15 year old: ₹500/month</em>, <em>15+ year old: ₹1000/month</em>). We automatically highlight your lowest starting rate!
+                    Create flexible pricing plans for different age groups,
+                    course levels, or batches (e.g.{" "}
+                    <em>10-15 year old: ₹500/month</em>,{" "}
+                    <em>15+ year old: ₹1000/month</em>). We automatically
+                    highlight your lowest starting rate!
                   </p>
                 </div>
               </div>
               {minPrice !== null && (
                 <div className="hidden sm:flex flex-col items-end shrink-0 bg-white/90 border border-blue-200/80 px-3 py-1.5 rounded-xl shadow-xs">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Starts From</span>
-                  <span className="text-sm font-extrabold text-blue-600 font-mono">₹{minPrice}</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Starts From
+                  </span>
+                  <span className="text-sm font-extrabold text-blue-600 font-mono">
+                    ₹{minPrice}
+                  </span>
                 </div>
               )}
             </div>
@@ -1229,7 +1257,8 @@ export default function CreateServicePage() {
               <div className="flex items-center justify-between">
                 <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
                   <Tag className="w-3.5 h-3.5 text-blue-600" />
-                  Fee Structure / Tier Plans ({formData.pricing_tiers?.length || 0})
+                  Fee Structure / Tier Plans (
+                  {formData.pricing_tiers?.length || 0})
                 </label>
                 <button
                   type="button"
@@ -1241,10 +1270,12 @@ export default function CreateServicePage() {
                 </button>
               </div>
 
-              {(!formData.pricing_tiers || formData.pricing_tiers.length === 0) ? (
+              {!formData.pricing_tiers ||
+              formData.pricing_tiers.length === 0 ? (
                 <div className="p-6 border-2 border-dashed border-slate-200 rounded-2xl text-center space-y-3 bg-slate-50/50">
                   <p className="text-xs text-slate-500 font-medium">
-                    No pricing tiers added yet. You can add specific rates for age groups, classes, or sessions.
+                    No pricing tiers added yet. You can add specific rates for
+                    age groups, classes, or sessions.
                   </p>
                   <button
                     type="button"
@@ -1268,28 +1299,32 @@ export default function CreateServicePage() {
                           </span>
                           <span>Tier / Plan Details</span>
                         </span>
-                        {formData.pricing_tiers && formData.pricing_tiers.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveTier(idx)}
-                            className="text-slate-400 hover:text-red-500 transition p-1 rounded-lg hover:bg-red-50 cursor-pointer"
-                            title="Delete tier"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
+                        {formData.pricing_tiers &&
+                          formData.pricing_tiers.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveTier(idx)}
+                              className="text-slate-400 hover:text-red-500 transition p-1 rounded-lg hover:bg-red-50 cursor-pointer"
+                              title="Delete tier"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
                         {/* Plan / Audience Name */}
                         <div className="sm:col-span-6 space-y-1">
                           <label className="block text-[11px] font-bold text-slate-600">
-                            Audience / Plan Name <span className="text-red-500">*</span>
+                            Audience / Plan Name{" "}
+                            <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
                             value={tier.label}
-                            onChange={(e) => handleUpdateTier(idx, "label", e.target.value)}
+                            onChange={(e) =>
+                              handleUpdateTier(idx, "label", e.target.value)
+                            }
                             placeholder="e.g. 10-15 year old, College Students, Beginner Batch"
                             className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                           />
@@ -1298,13 +1333,16 @@ export default function CreateServicePage() {
                         {/* Price (₹) */}
                         <div className="sm:col-span-3 space-y-1">
                           <label className="block text-[11px] font-bold text-slate-600">
-                            Fee / Price (₹) <span className="text-red-500">*</span>
+                            Fee / Price (₹){" "}
+                            <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="number"
                             min="0"
                             value={tier.price ?? ""}
-                            onChange={(e) => handleUpdateTier(idx, "price", e.target.value)}
+                            onChange={(e) =>
+                              handleUpdateTier(idx, "price", e.target.value)
+                            }
                             placeholder="e.g. 500"
                             className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                           />
@@ -1318,7 +1356,9 @@ export default function CreateServicePage() {
                           <input
                             type="text"
                             value={tier.unit}
-                            onChange={(e) => handleUpdateTier(idx, "unit", e.target.value)}
+                            onChange={(e) =>
+                              handleUpdateTier(idx, "unit", e.target.value)
+                            }
                             placeholder="e.g. per month, per hour, per session"
                             className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                           />
@@ -1337,7 +1377,10 @@ export default function CreateServicePage() {
                   className="w-full py-2.5 border-2 border-dashed border-blue-200 hover:border-blue-400 bg-blue-50/40 hover:bg-blue-50 text-blue-700 text-xs font-bold rounded-2xl transition flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Add Another Pricing Tier (e.g. 15+ year old -&gt; 1000 per month)</span>
+                  <span>
+                    Add Another Pricing Tier (e.g. 15+ year old -&gt; 1000 per
+                    month)
+                  </span>
                 </button>
               )}
             </div>
@@ -1345,7 +1388,8 @@ export default function CreateServicePage() {
             {/* Additional Custom Fee Notes */}
             <div className="space-y-1.5 pt-1">
               <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700">
-                Additional Fee Details / Notes <span className="text-slate-400 font-normal">(Optional)</span>
+                Additional Fee Details / Notes{" "}
+                <span className="text-slate-400 font-normal">(Optional)</span>
               </label>
               <textarea
                 rows={2}
@@ -1403,10 +1447,13 @@ export default function CreateServicePage() {
             <div className="space-y-3 bg-slate-50/80 border border-slate-200/80 rounded-2xl p-4">
               <div className="flex items-center gap-2 text-xs font-extrabold text-slate-800 uppercase tracking-wider">
                 <FaYoutube className="w-4 h-4 text-red-600" />
-                <span>Introduction / Demo YouTube Video (Plays on Portfolio)</span>
+                <span>
+                  Introduction / Demo YouTube Video (Plays on Portfolio)
+                </span>
               </div>
               <p className="text-[11px] text-slate-500">
-                Paste any YouTube video link (watch URL, shorts, or youtu.be). It will be embedded cleanly on your public portfolio page.
+                Paste any YouTube video link (watch URL, shorts, or youtu.be).
+                It will be embedded cleanly on your public portfolio page.
               </p>
               <input
                 type="url"
@@ -1424,7 +1471,8 @@ export default function CreateServicePage() {
               {videoId && (
                 <div className="mt-2 pt-2 border-t border-slate-200">
                   <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1 mb-2">
-                    <CheckCircle2 className="w-3 h-3" /> Valid YouTube Video Linked
+                    <CheckCircle2 className="w-3 h-3" /> Valid YouTube Video
+                    Linked
                   </span>
                   <div className="aspect-video w-full max-w-sm mx-auto rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-black">
                     <iframe
@@ -1446,7 +1494,8 @@ export default function CreateServicePage() {
                   Social Profiles &amp; Chat Channels (Optional)
                 </label>
                 <p className="text-[11px] text-slate-500 mt-0.5">
-                  Connect your social media and instant chat channels for direct client inquiries.
+                  Connect your social media and instant chat channels for direct
+                  client inquiries.
                 </p>
               </div>
 
@@ -1460,7 +1509,9 @@ export default function CreateServicePage() {
                   <input
                     type="text"
                     value={formData.social_links?.whatsapp || ""}
-                    onChange={(e) => handleSocialChange("whatsapp", e.target.value)}
+                    onChange={(e) =>
+                      handleSocialChange("whatsapp", e.target.value)
+                    }
                     placeholder="9876543210 or wa.me/..."
                     className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-800"
                   />
@@ -1475,7 +1526,9 @@ export default function CreateServicePage() {
                   <input
                     type="text"
                     value={formData.social_links?.instagram || ""}
-                    onChange={(e) => handleSocialChange("instagram", e.target.value)}
+                    onChange={(e) =>
+                      handleSocialChange("instagram", e.target.value)
+                    }
                     placeholder="https://instagram.com/yourhandle or @handle"
                     className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-pink-500/20 text-slate-800"
                   />
@@ -1490,7 +1543,9 @@ export default function CreateServicePage() {
                   <input
                     type="text"
                     value={formData.social_links?.facebook || ""}
-                    onChange={(e) => handleSocialChange("facebook", e.target.value)}
+                    onChange={(e) =>
+                      handleSocialChange("facebook", e.target.value)
+                    }
                     placeholder="https://facebook.com/yourpage"
                     className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-800"
                   />
@@ -1505,7 +1560,9 @@ export default function CreateServicePage() {
                   <input
                     type="text"
                     value={formData.social_links?.linkedin || ""}
-                    onChange={(e) => handleSocialChange("linkedin", e.target.value)}
+                    onChange={(e) =>
+                      handleSocialChange("linkedin", e.target.value)
+                    }
                     placeholder="https://linkedin.com/in/username"
                     className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-sky-500/20 text-slate-800"
                   />
@@ -1520,7 +1577,9 @@ export default function CreateServicePage() {
                   <input
                     type="text"
                     value={formData.social_links?.discord || ""}
-                    onChange={(e) => handleSocialChange("discord", e.target.value)}
+                    onChange={(e) =>
+                      handleSocialChange("discord", e.target.value)
+                    }
                     placeholder="https://discord.gg/... or username"
                     className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-slate-800"
                   />
@@ -1535,7 +1594,9 @@ export default function CreateServicePage() {
                   <input
                     type="text"
                     value={formData.social_links?.telegram || ""}
-                    onChange={(e) => handleSocialChange("telegram", e.target.value)}
+                    onChange={(e) =>
+                      handleSocialChange("telegram", e.target.value)
+                    }
                     placeholder="https://t.me/username or @username"
                     className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-sky-500/20 text-slate-800"
                   />
@@ -1550,7 +1611,9 @@ export default function CreateServicePage() {
                   <input
                     type="text"
                     value={formData.social_links?.youtube || ""}
-                    onChange={(e) => handleSocialChange("youtube", e.target.value)}
+                    onChange={(e) =>
+                      handleSocialChange("youtube", e.target.value)
+                    }
                     placeholder="https://youtube.com/@yourchannel"
                     className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-red-500/20 text-slate-800"
                   />
@@ -1565,7 +1628,9 @@ export default function CreateServicePage() {
                   <input
                     type="text"
                     value={formData.social_links?.website || ""}
-                    onChange={(e) => handleSocialChange("website", e.target.value)}
+                    onChange={(e) =>
+                      handleSocialChange("website", e.target.value)
+                    }
                     placeholder="https://yourportfolio.com"
                     className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-800"
                   />
@@ -1588,36 +1653,52 @@ export default function CreateServicePage() {
                   </button>
                 </div>
 
-                {formData.social_links?.custom_links && formData.social_links.custom_links.length > 0 && (
-                  <div className="space-y-2">
-                    {formData.social_links.custom_links.map((link, idx) => (
-                      <div key={idx} className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-                        <input
-                          type="text"
-                          value={link.name}
-                          onChange={(e) => handleUpdateCustomSocial(idx, "name", e.target.value)}
-                          placeholder="Platform (e.g. Threads, Medium)"
-                          className="w-1/3 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                        />
-                        <input
-                          type="text"
-                          value={link.url}
-                          onChange={(e) => handleUpdateCustomSocial(idx, "url", e.target.value)}
-                          placeholder="URL or handle (https://...)"
-                          className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveCustomSocial(idx)}
-                          className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition cursor-pointer"
-                          title="Remove custom link"
+                {formData.social_links?.custom_links &&
+                  formData.social_links.custom_links.length > 0 && (
+                    <div className="space-y-2">
+                      {formData.social_links.custom_links.map((link, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                          <input
+                            type="text"
+                            value={link.name}
+                            onChange={(e) =>
+                              handleUpdateCustomSocial(
+                                idx,
+                                "name",
+                                e.target.value,
+                              )
+                            }
+                            placeholder="Platform (e.g. Threads, Medium)"
+                            className="w-1/3 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                          />
+                          <input
+                            type="text"
+                            value={link.url}
+                            onChange={(e) =>
+                              handleUpdateCustomSocial(
+                                idx,
+                                "url",
+                                e.target.value,
+                              )
+                            }
+                            placeholder="URL or handle (https://...)"
+                            className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveCustomSocial(idx)}
+                            className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition cursor-pointer"
+                            title="Remove custom link"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
               </div>
             </div>
           </div>
@@ -1659,7 +1740,8 @@ export default function CreateServicePage() {
             </h1>
           </div>
           <p className="text-xs text-slate-500 font-medium">
-            Publish your verified tutoring profile to GullyGig marketplace &amp; public portfolio
+            Publish your verified tutoring profile to GullyGig marketplace &amp;
+            public portfolio
           </p>
         </div>
 
@@ -1667,11 +1749,17 @@ export default function CreateServicePage() {
           <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full">
             <Phone className="w-3.5 h-3.5 text-blue-600" />
             <span className="text-slate-500">Support:</span>
-            <a href="tel:8879514626" className="hover:text-blue-600 font-mono">88795 14626</a>
+            <a href="tel:8879514626" className="hover:text-blue-600 font-mono">
+              88795 14626
+            </a>
             <span className="text-slate-300">•</span>
-            <a href="tel:7559302315" className="hover:text-blue-600 font-mono">755 930 2315</a>
+            <a href="tel:7559302315" className="hover:text-blue-600 font-mono">
+              755 930 2315
+            </a>
             <span className="text-slate-300">•</span>
-            <a href="tel:8263081521" className="hover:text-blue-600 font-mono">82630 81521</a>
+            <a href="tel:8263081521" className="hover:text-blue-600 font-mono">
+              82630 81521
+            </a>
           </div>
         </div>
       </div>
@@ -1685,11 +1773,26 @@ export default function CreateServicePage() {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-red-600 text-[11px]">Call support:</span>
-            <a href="tel:8879514626" className="font-extrabold underline hover:text-red-900">88795 14626</a>
+            <a
+              href="tel:8879514626"
+              className="font-extrabold underline hover:text-red-900"
+            >
+              88795 14626
+            </a>
             <span>/</span>
-            <a href="tel:7559302315" className="font-extrabold underline hover:text-red-900">755 930 2315</a>
+            <a
+              href="tel:7559302315"
+              className="font-extrabold underline hover:text-red-900"
+            >
+              755 930 2315
+            </a>
             <span>/</span>
-            <a href="tel:8263081521" className="font-extrabold underline hover:text-red-900">82630 81521</a>
+            <a
+              href="tel:8263081521"
+              className="font-extrabold underline hover:text-red-900"
+            >
+              82630 81521
+            </a>
           </div>
         </div>
       )}
@@ -1716,7 +1819,8 @@ export default function CreateServicePage() {
                     Ready to launch your service?
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-medium">
-                    Follow the guided 10-step setup to customize your listing, schedule, pricing, YouTube video, and social profiles.
+                    Follow the guided 10-step setup to customize your listing,
+                    schedule, pricing, YouTube video, and social profiles.
                   </p>
                 </div>
                 <button
@@ -1822,14 +1926,18 @@ export default function CreateServicePage() {
                   Service Listing Published!
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w mx-auto">
-                  Congratulations! Your service listing is now active. Local clients can discover your profile, watch your demo video, and contact you directly.
+                  Congratulations! Your service listing is now active. Local
+                  clients can discover your profile, watch your demo video, and
+                  contact you directly.
                 </p>
               </div>
 
               <div className="bg-slate-50 rounded-2xl p-4 text-left border border-slate-100 text-xs text-slate-700 space-y-2">
                 <div className="flex justify-between">
                   <span className="text-slate-400">Title:</span>
-                  <span className="font-bold text-slate-800">{formData.title}</span>
+                  <span className="font-bold text-slate-800">
+                    {formData.title}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Category:</span>
@@ -1850,7 +1958,9 @@ export default function CreateServicePage() {
                 {formData.city && (
                   <div className="flex justify-between">
                     <span className="text-slate-400">Location:</span>
-                    <span className="font-bold text-slate-800">{formData.city}</span>
+                    <span className="font-bold text-slate-800">
+                      {formData.city}
+                    </span>
                   </div>
                 )}
               </div>
@@ -1863,7 +1973,8 @@ export default function CreateServicePage() {
                     Your 1 Allowed Service Listing is Live!
                   </span>
                   <span className="text-[11px] text-blue-600 block mt-0.5">
-                    Each account has a limit of 1 active service. You can update or edit your listing anytime from your dashboard.
+                    Each account has a limit of 1 active service. You can update
+                    or edit your listing anytime from your dashboard.
                   </span>
                 </div>
 

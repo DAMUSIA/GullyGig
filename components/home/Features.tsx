@@ -20,7 +20,8 @@ const FEATURES_DATA = [
     title: "Hyperlocal Search & Map",
     desc: "Pinpoint verified tutors, coaches, and local experts right in your area with fast distance and city filters.",
     gradient: "from-blue-500 to-indigo-600",
-    bgGradient: "from-blue-50 to-indigo-50/50 dark:from-blue-950/30 dark:to-indigo-950/20",
+    bgGradient:
+      "from-blue-50 to-indigo-50/50 dark:from-blue-950/30 dark:to-indigo-950/20",
     iconColor: "text-blue-600 dark:text-blue-400",
     badge: "Nearby Search",
   },
@@ -29,7 +30,8 @@ const FEATURES_DATA = [
     title: "Direct One-Tap Contact",
     desc: "Reach out instantly via direct phone call or WhatsApp message with 0% platform cuts and zero middleman delays.",
     gradient: "from-emerald-500 to-teal-600",
-    bgGradient: "from-emerald-50 to-teal-50/50 dark:from-emerald-950/30 dark:to-teal-950/20",
+    bgGradient:
+      "from-emerald-50 to-teal-50/50 dark:from-emerald-950/30 dark:to-teal-950/20",
     iconColor: "text-emerald-600 dark:text-emerald-400",
     badge: "Direct Chat",
   },
@@ -38,7 +40,8 @@ const FEATURES_DATA = [
     title: "Live Public Portfolios",
     desc: "Share your dedicated service link on WhatsApp, Instagram, or social media to showcase ratings, rates, and video bios.",
     gradient: "from-violet-500 to-purple-600",
-    bgGradient: "from-violet-50 to-purple-50/50 dark:from-violet-950/30 dark:to-purple-950/20",
+    bgGradient:
+      "from-violet-50 to-purple-50/50 dark:from-violet-950/30 dark:to-purple-950/20",
     iconColor: "text-violet-600 dark:text-violet-400",
     badge: "Instant Link",
   },
@@ -47,7 +50,8 @@ const FEATURES_DATA = [
     title: "Ad Poster Generator",
     desc: "Generate high-resolution marketing flyers and posters with customized QR codes and rates ready to print or download.",
     gradient: "from-amber-500 to-orange-600",
-    bgGradient: "from-amber-50 to-orange-50/50 dark:from-amber-950/30 dark:to-orange-950/20",
+    bgGradient:
+      "from-amber-50 to-orange-50/50 dark:from-amber-950/30 dark:to-orange-950/20",
     iconColor: "text-amber-600 dark:text-amber-400",
     badge: "Print & Share",
   },
@@ -56,7 +60,8 @@ const FEATURES_DATA = [
     title: "Verified Community Ratings",
     desc: "Build credibility with genuine student and neighbor reviews, verifiable feedback, and transparent 5-star ratings.",
     gradient: "from-yellow-500 to-amber-600",
-    bgGradient: "from-yellow-50 to-amber-50/50 dark:from-yellow-950/30 dark:to-amber-950/20",
+    bgGradient:
+      "from-yellow-50 to-amber-50/50 dark:from-yellow-950/30 dark:to-amber-950/20",
     iconColor: "text-amber-500 dark:text-amber-400",
     badge: "Trust & Safety",
   },
@@ -65,7 +70,8 @@ const FEATURES_DATA = [
     title: "Custom Service Filters",
     desc: "Filter seamlessly by delivery mode (Online / Offline), spoken languages, flexible availability, and budget range.",
     gradient: "from-sky-500 to-blue-600",
-    bgGradient: "from-sky-50 to-blue-50/50 dark:from-sky-950/30 dark:to-blue-950/20",
+    bgGradient:
+      "from-sky-50 to-blue-50/50 dark:from-sky-950/30 dark:to-blue-950/20",
     iconColor: "text-sky-600 dark:text-sky-400",
     badge: "Precise Match",
   },
@@ -74,7 +80,8 @@ const FEATURES_DATA = [
     title: "Real-Time Analytics",
     desc: "Track total portfolio views, user likes, inquiry volume, and engagement metrics with real-time visual charts.",
     gradient: "from-indigo-500 to-cyan-600",
-    bgGradient: "from-indigo-50 to-cyan-50/50 dark:from-indigo-950/30 dark:to-cyan-950/20",
+    bgGradient:
+      "from-indigo-50 to-cyan-50/50 dark:from-indigo-950/30 dark:to-cyan-950/20",
     iconColor: "text-indigo-600 dark:text-indigo-400",
     badge: "Growth Stats",
   },
@@ -83,7 +90,8 @@ const FEATURES_DATA = [
     title: "Favorites & Quick Access",
     desc: "Bookmark your favorite providers with a single tap so you can easily re-contact and book services whenever needed.",
     gradient: "from-rose-500 to-pink-600",
-    bgGradient: "from-rose-50 to-pink-50/50 dark:from-rose-950/30 dark:to-pink-950/20",
+    bgGradient:
+      "from-rose-50 to-pink-50/50 dark:from-rose-950/30 dark:to-pink-950/20",
     iconColor: "text-rose-600 dark:text-rose-400",
     badge: "1-Tap Save",
   },
@@ -132,7 +140,8 @@ export default function Features() {
               All-In-One Local Service Network
             </h2>
             <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 leading-relaxed">
-              Powerful tools built for independent service providers, tutors, and local neighbors to connect directly without intermediary fees.
+              Powerful tools built for independent service providers, tutors,
+              and local neighbors to connect directly without intermediary fees.
             </p>
           </motion.div>
         </div>
@@ -196,4 +205,3 @@ export default function Features() {
     </section>
   );
 }
-

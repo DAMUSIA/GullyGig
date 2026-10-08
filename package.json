@@ -62,5 +62,9 @@
     "micromatch": "^4.0.8",
     "braces": "^3.0.3",
     "fast-glob": "^3.3.3"
+  },
+  "optionalDependencies": {
+    "@rolldown/binding-linux-x64-gnu": "1.0.3",
+    "@rolldown/binding-win32-x64-msvc": "1.0.3"
   }
 }

@@ -1,20 +1,21 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { QrCode, Copy, Check, Download, Share2 } from "lucide-react";
+import { QrCode, Copy, Check, Download } from "lucide-react";
 
 interface PortfolioQRProps {
   portfolioUrl: string;
   serviceTitle?: string;
+  darkMode?: boolean;
 }
 
 export default function PortfolioQR({
   portfolioUrl,
   serviceTitle = "Portfolio",
+  darkMode = true,
 }: PortfolioQRProps) {
   const [copied, setCopied] = useState(false);
 
-  // Use useMemo instead of useState + useEffect
   const qrCodeUrl = useMemo(() => {
     return `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
       portfolioUrl,
@@ -45,30 +46,35 @@ export default function PortfolioQR({
       canvas.height = 400;
       if (!ctx) return;
 
-      // Premium dark gradient background
       const gradient = ctx.createLinearGradient(0, 0, 340, 400);
-      gradient.addColorStop(0, "#0A1F3D");
-      gradient.addColorStop(0.5, "#102B54");
-      gradient.addColorStop(1, "#061528");
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, 340, 400);
+      if (darkMode) {
+        gradient.addColorStop(0, "#0f172a");
+        gradient.addColorStop(1, "#1e293b");
+        ctx.fillStyle = gradient;
+        ctx.strokeStyle = "rgba(59, 130, 246, 0.4)";
+      } else {
+        gradient.addColorStop(0, "#ffffff");
+        gradient.addColorStop(1, "#f8fafc");
+        ctx.fillStyle = gradient;
+        ctx.strokeStyle = "rgba(203, 213, 225, 0.8)";
+      }
 
-      // Gold border
-      ctx.strokeStyle = "rgba(214,179,106,0.35)";
+      ctx.fillRect(0, 0, 340, 400);
       ctx.lineWidth = 2;
       ctx.strokeRect(15, 15, 310, 370);
 
-      // QR Code
       ctx.drawImage(img, 20, 30, 300, 300);
 
-      // Text
-      ctx.fillStyle = "#FFFFFF";
-      ctx.font = "bold 16px Inter, system-ui, sans-serif";
+      ctx.fillStyle = darkMode ? "#FFFFFF" : "#0f172a";
+      ctx.font = "bold 16px Manrope, sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText("Scan to View Portfolio", 170, 370);
-      ctx.fillStyle = "rgba(255,255,255,0.4)";
-      ctx.font = "12px Inter, system-ui, sans-serif";
-      ctx.fillText("GullyGig Premium Service", 170, 392);
+      ctx.fillText("Scan to View Portfolio", 170, 365);
+
+      ctx.fillStyle = darkMode
+        ? "rgba(255,255,255,0.5)"
+        : "rgba(100,116,139,0.8)";
+      ctx.font = "12px Manrope, sans-serif";
+      ctx.fillText("GullyGig Service Hub", 170, 388);
 
       const link = document.createElement("a");
       link.download = `${serviceTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-qr.png`;
@@ -78,101 +84,80 @@ export default function PortfolioQR({
   };
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-[#0A1F3D] via-[#102B54] to-[#061528] rounded-[26px] p-8 shadow-[0_8px_32px_rgba(0,0,0,0.25)] border border-[#D6B36A]/20 hover:border-[#D6B36A]/40 transition-all duration-250 group">
-      {/* Background decorative elements */}
-      <div className="absolute -top-20 -right-20 w-48 h-48 bg-[#5BE7FF]/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-[#D6B36A]/5 rounded-full blur-3xl pointer-events-none" />
+    <div
+      className={`rounded-3xl p-6 sm:p-8 border transition-all duration-300 space-y-5 ${
+        darkMode
+          ? "bg-slate-900/90 border-slate-800 text-white shadow-xl"
+          : "bg-white border-slate-200/90 text-slate-900 shadow-md"
+      }`}
+    >
+      {/* Header */}
+      <div className="flex items-center gap-2.5">
+        <QrCode className="w-5 h-5 text-blue-500" />
+        <h4 className="text-base font-bold tracking-tight">
+          Portfolio QR & Share
+        </h4>
+      </div>
 
-      {/* Thin glowing lines */}
-      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#D6B36A]/20 to-transparent" />
-      <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#5BE7FF]/10 to-transparent" />
-
-      <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-        {/* Left Content */}
-        <div className="space-y-4 text-center md:text-left flex-1">
-          <div className="flex items-center justify-center md:justify-start gap-2 text-[#D6B36A]">
-            <QrCode className="h-5 w-5" />
-            <span className="text-xs font-['Inter'] font-semibold uppercase tracking-[1.5px]">
-              Premium Digital Presence
-            </span>
-          </div>
-
-          <h4 className="text-2xl font-['Poppins'] font-semibold text-white">
-            Share Your Portfolio
-          </h4>
-
-          <p className="text-sm font-['Inter'] text-white/60 leading-relaxed max-w-md">
-            Scan the QR code to instantly view this professional portfolio on
-            any device. Perfect for sharing with clients and colleagues.
-          </p>
-
-          {/* Clickable URL */}
-          <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 max-w-full hover:border-[#D6B36A]/30 transition-all duration-200">
-            <span className="text-xs font-['Inter'] font-medium text-white/70 truncate max-w-[200px]">
-              {portfolioUrl}
-            </span>
-            <button
-              onClick={handleCopy}
-              className="p-1.5 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-all duration-200 active:scale-90 flex-shrink-0"
-              title="Copy Portfolio URL"
-            >
-              {copied ? (
-                <Check className="h-4 w-4 text-[#27C7C5]" />
-              ) : (
-                <Copy className="h-4 w-4" />
-              )}
-            </button>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-wrap gap-3 pt-2">
-            <button
-              onClick={downloadQrCode}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white text-sm font-['Inter'] font-medium rounded-2xl border border-white/10 transition-all duration-200 hover:shadow-[0_0_20px_rgba(214,179,106,0.15)]"
-            >
-              <Download className="h-4 w-4" />
-              Download QR
-            </button>
-            <button
-              onClick={() => {
-                if (navigator.share) {
-                  navigator.share({
-                    title: serviceTitle,
-                    url: portfolioUrl,
-                  });
-                }
-              }}
-              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#D6B36A]/20 to-[#C89A3D]/20 hover:from-[#D6B36A]/30 hover:to-[#C89A3D]/30 text-[#D6B36A] text-sm font-['Inter'] font-medium rounded-2xl border border-[#D6B36A]/20 transition-all duration-200"
-            >
-              <Share2 className="h-4 w-4" />
-              Share
-            </button>
-          </div>
+      {/* Center QR Code Container */}
+      <div className="flex flex-col items-center text-center space-y-4">
+        <div
+          className={`p-3 rounded-2xl border shadow-md relative ${
+            darkMode ? "bg-white border-slate-800" : "bg-white border-slate-200"
+          }`}
+        >
+          {qrCodeUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={qrCodeUrl}
+              alt="GullyGig Service Portfolio QR Code"
+              width={150}
+              height={150}
+              className="rounded-lg"
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-[150px] h-[150px] bg-slate-200 rounded-lg animate-pulse" />
+          )}
         </div>
 
-        {/* QR Code Container */}
-        <div className="flex-shrink-0 relative">
-          <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#D6B36A]/20 via-[#5BE7FF]/10 to-[#D6B36A]/20 blur-sm" />
-          <div className="relative bg-white p-3 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] border border-[#D6B36A]/10">
-            {qrCodeUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={qrCodeUrl}
-                alt="GullyGig Service Portfolio QR Code"
-                width={150}
-                height={150}
-                className="rounded-xl"
-                loading="lazy"
-              />
+        <p
+          className={`text-xs max-w-xs ${darkMode ? "text-slate-400" : "text-slate-500"}`}
+        >
+          Scan QR code with any mobile camera to view this live profile
+          instantly.
+        </p>
+
+        {/* Buttons */}
+        <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full pt-1">
+          <button
+            onClick={downloadQrCode}
+            className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
+              darkMode
+                ? "bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700"
+                : "bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200"
+            }`}
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Download QR</span>
+          </button>
+
+          <button
+            onClick={handleCopy}
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
+          >
+            {copied ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-300" />
+                <span>Copied!</span>
+              </>
             ) : (
-              <div className="w-[150px] h-[150px] bg-gray-200 rounded-xl animate-pulse" />
+              <>
+                <Copy className="w-3.5 h-3.5" />
+                <span>Copy Link</span>
+              </>
             )}
-          </div>
-          {/* Gold corner accents */}
-          <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-[#D6B36A]/30 rounded-tl-lg" />
-          <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-[#D6B36A]/30 rounded-tr-lg" />
-          <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-[#D6B36A]/30 rounded-bl-lg" />
-          <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-[#D6B36A]/30 rounded-br-lg" />
+          </button>
         </div>
       </div>
     </div>

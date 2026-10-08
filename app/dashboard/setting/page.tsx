@@ -313,20 +313,34 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-4 rounded-xl bg-gray-50/50 border border-gray-100">
-                <div className="p-2 bg-white rounded-lg shadow-xs border border-gray-100">
+              <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-50/50 border border-gray-100">
+                <div className="p-2 bg-white rounded-lg shadow-xs border border-gray-100 mt-0.5">
                   <Phone className="w-4 h-4 text-slate-650" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-550 uppercase tracking-wider">
+                  <p className="text-xs font-semibold text-gray-550 uppercase tracking-wider mb-1">
                     Phone Support
                   </p>
-                  <a
-                    href="tel:7559302315"
-                    className="text-gray-900 text-sm font-semibold hover:text-blue-600"
-                  >
-                    7559302315
-                  </a>
+                  <div className="flex flex-col gap-1">
+                    <a
+                      href="tel:8879514626"
+                      className="text-gray-900 text-sm font-semibold hover:text-blue-600 transition-colors"
+                    >
+                      +91 88795 14626
+                    </a>
+                    <a
+                      href="tel:7559302315"
+                      className="text-gray-900 text-sm font-semibold hover:text-blue-600 transition-colors"
+                    >
+                      +91 755 930 2315
+                    </a>
+                    <a
+                      href="tel:8263081521"
+                      className="text-gray-900 text-sm font-semibold hover:text-blue-600 transition-colors"
+                    >
+                      +91 82630 81521
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>

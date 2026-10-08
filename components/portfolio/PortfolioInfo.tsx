@@ -1,13 +1,35 @@
-"use client";
+import {
+  Sparkles,
+  Clock,
+  Globe,
+  Laptop,
+  ShieldCheck,
+  CheckCircle,
+  Award,
+  Zap,
+  Tag,
+  Check,
+  Play,
+} from "lucide-react";
+import { FaYoutube } from "react-icons/fa6";
+import { getYouTubeEmbedUrl, getYouTubeVideoId } from "@/lib/url";
 
-import React from "react";
-import { Info, Clock, Globe, Laptop } from "lucide-react";
+interface PricingTier {
+  label: string;
+  price: number | string;
+  unit: string;
+}
 
 interface PortfolioInfoProps {
   description: string;
   serviceModes: string[];
   languages: string[];
   availability: string[];
+  startingPrice?: number | null;
+  priceUnit?: string | null;
+  pricingNote?: string | null;
+  pricingTiers?: PricingTier[] | null;
+  introVideoUrl?: string | null;
   darkMode?: boolean;
 }
 
@@ -16,248 +38,350 @@ export default function PortfolioInfo({
   serviceModes,
   languages,
   availability,
+  startingPrice,
+  priceUnit,
+  pricingNote,
+  pricingTiers,
+  introVideoUrl,
   darkMode = true,
 }: PortfolioInfoProps) {
+  const videoId = getYouTubeVideoId(introVideoUrl);
+  const embedUrl = getYouTubeEmbedUrl(introVideoUrl);
+
+  const validTiers = (pricingTiers || []).filter(
+    (t) => t.label?.trim() || (t.price !== "" && t.price !== null && t.price !== undefined),
+  );
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Left 2 columns - About Service */}
+    <div className="space-y-6">
+      {/* Main Service Card */}
       <div
-        className={`lg:col-span-2 rounded-[26px] p-8 transition-all duration-300 relative overflow-hidden ${
+        className={`rounded-3xl p-6 sm:p-8 border transition-all duration-300 relative overflow-hidden space-y-6 ${
           darkMode
-            ? "bg-[#0F2344] border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:border-[#D6B36A]/30"
-            : "bg-white border border-[#E5E7EB] shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:border-[#2563EB]/20"
+            ? "bg-slate-900/90 border-slate-800 text-white shadow-xl shadow-slate-950/40"
+            : "bg-white border-slate-200/90 text-slate-900 shadow-md"
         }`}
       >
-        {/* Background decoration */}
+        {/* Subtle decorative background gradient pill */}
         <div
-          className={`absolute -top-20 -right-20 w-60 h-60 opacity-[0.05] pointer-events-none ${
-            darkMode ? "text-[#5BE7FF]" : "text-[#2563EB]"
+          className={`absolute -top-24 -right-24 w-60 h-60 rounded-full blur-3xl pointer-events-none ${
+            darkMode ? "bg-blue-600/10" : "bg-blue-500/10"
           }`}
-        >
-          <svg
-            viewBox="0 0 200 200"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <circle
-              cx="100"
-              cy="100"
-              r="40"
-              stroke="currentColor"
-              strokeWidth="2"
-            />
-            <ellipse
-              cx="100"
-              cy="100"
-              rx="80"
-              ry="30"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              transform="rotate(45 100 100)"
-            />
-            <ellipse
-              cx="100"
-              cy="100"
-              rx="80"
-              ry="30"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              transform="rotate(-45 100 100)"
-            />
-          </svg>
-        </div>
+        />
 
-        <div className="relative z-10 space-y-5">
-          {/* About Header */}
-          <div className="flex items-center gap-3">
+        {/* Section Header */}
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-slate-200/80 dark:border-slate-800">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
             <div
-              className={`p-3 rounded-2xl border ${
+              className={`p-3 rounded-2xl border shrink-0 ${
                 darkMode
-                  ? "bg-[#5BE7FF]/10 border-[#5BE7FF]/20 text-[#5BE7FF]"
-                  : "bg-[#2563EB]/10 border-[#2563EB]/20 text-[#2563EB]"
+                  ? "bg-blue-500/10 border-blue-500/20 text-blue-400"
+                  : "bg-blue-50 border-blue-200 text-blue-600"
               }`}
             >
-              <Info className="h-6 w-6" />
+              <Sparkles className="w-5 h-5" />
             </div>
-            <div>
-              <h3
-                className={`text-xl font-['Poppins'] font-semibold ${
-                  darkMode ? "text-white" : "text-[#111827]"
-                }`}
-              >
-                About Service
-              </h3>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight">
+                  About This Service
+                </h2>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                  Ad Showcase
+                </span>
+              </div>
               <p
-                className={`text-sm font-['Inter'] ${
-                  darkMode ? "text-white/50" : "text-[#6B7280]"
-                }`}
+                className={`text-xs mt-0.5 ${darkMode ? "text-slate-400" : "text-slate-500"}`}
               >
-                Service description and details
+                Comprehensive details, scope of work &amp; service specifications
               </p>
             </div>
           </div>
 
-          {/* Description */}
-          <p
-            className={`text-[15px] sm:text-[16px] font-['Inter'] font-normal leading-relaxed whitespace-pre-wrap ${
-              darkMode ? "text-slate-200" : "text-[#374151]"
-            }`}
-          >
-            {description}
-          </p>
-
-          {/* Languages */}
-          {languages && languages.length > 0 && (
-            <div className="space-y-2 pt-2">
-              <h4
-                className={`text-[11px] font-['Inter'] font-semibold uppercase tracking-[1.5px] flex items-center gap-2 ${
-                  darkMode ? "text-white/60" : "text-[#6B7280]"
-                }`}
-              >
-                <Globe
-                  className={`h-4 w-4 ${darkMode ? "text-[#27C7C5]" : "text-[#14B8A6]"}`}
-                />
-                Languages
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {languages.map((lang) => (
-                  <span
-                    key={lang}
-                    className={`px-4 py-1.5 text-[13px] font-['Inter'] font-medium rounded-2xl border transition-all duration-200 ${
-                      darkMode
-                        ? "bg-white/5 text-white/90 border-white/10 hover:border-[#27C7C5]/30"
-                        : "bg-[#14B8A6]/5 text-[#374151] border-[#14B8A6]/15 hover:border-[#14B8A6]/30"
-                    }`}
-                  >
-                    {lang}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Availability */}
-          {availability && availability.length > 0 && (
-            <div className="space-y-2">
-              <h4
-                className={`text-[11px] font-['Inter'] font-semibold uppercase tracking-[1.5px] flex items-center gap-2 ${
-                  darkMode ? "text-white/60" : "text-[#6B7280]"
-                }`}
-              >
-                <Clock
-                  className={`h-4 w-4 ${darkMode ? "text-[#D6B36A]" : "text-[#D4AF37]"}`}
-                />
-                Availability
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {availability.map((opt) => (
-                  <span
-                    key={opt}
-                    className={`px-4 py-1.5 text-[13px] font-['Inter'] font-medium rounded-2xl border transition-all duration-200 ${
-                      darkMode
-                        ? "bg-[#D6B36A]/10 text-[#D6B36A] border-[#D6B36A]/20 hover:border-[#D6B36A]/40"
-                        : "bg-[#D4AF37]/10 text-[#85660D] border-[#D4AF37]/20 hover:border-[#D4AF37]/40"
-                    }`}
-                  >
-                    {opt}
-                  </span>
-                ))}
-              </div>
+          {(startingPrice || pricingNote || validTiers.length > 0) && (
+            <div className="flex flex-col sm:items-end gap-1.5 shrink-0 w-full sm:w-auto">
+              {startingPrice && (
+                <div
+                  className={`flex items-center justify-between sm:justify-end gap-3 px-4 py-2.5 rounded-2xl border w-full sm:w-auto ${
+                    darkMode
+                      ? "bg-slate-950/60 border-slate-800 text-emerald-400"
+                      : "bg-slate-50 border-slate-200 text-emerald-700"
+                  }`}
+                >
+                  <Tag className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <div className="text-right">
+                    <span className="text-[10px] uppercase font-bold block text-slate-400">
+                      Starts From
+                    </span>
+                    <span className="text-base font-extrabold font-mono">
+                      ₹{startingPrice}
+                      {priceUnit && (
+                        <span className="text-xs font-normal text-slate-400">
+                          {" "}
+                          / {priceUnit.replace(/^per\s+/i, "").toLowerCase()}
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {pricingNote && (
+                <div
+                  className={`text-[11px] font-medium px-3 py-1.5 rounded-xl border w-full sm:w-auto sm:text-right ${
+                    darkMode
+                      ? "bg-slate-950/40 border-slate-800/80 text-slate-300"
+                      : "bg-slate-50 border-slate-200 text-slate-600"
+                  }`}
+                >
+                  <span className="text-blue-500 font-semibold mr-1">Fee notes:</span>
+                  {pricingNote}
+                </div>
+              )}
             </div>
           )}
         </div>
-      </div>
 
-      {/* Right column - Service Modes */}
-      <div
-        className={`rounded-[26px] p-8 transition-all duration-300 space-y-6 ${
-          darkMode
-            ? "bg-[#0F2344] border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
-            : "bg-white border border-[#E5E7EB] shadow-[0_8px_32px_rgba(0,0,0,0.06)]"
-        }`}
-      >
-        {serviceModes && serviceModes.length > 0 && (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div
-                className={`p-2 rounded-xl border ${
-                  darkMode
-                    ? "bg-[#5BE7FF]/10 text-[#5BE7FF] border-[#5BE7FF]/20"
-                    : "bg-[#2563EB]/10 text-[#2563EB] border-[#2563EB]/20"
-                }`}
-              >
-                <Laptop className="h-5 w-5" />
-              </div>
-              <h4
-                className={`text-[11px] font-['Inter'] font-semibold uppercase tracking-[1.5px] ${
-                  darkMode ? "text-white/60" : "text-[#6B7280]"
-                }`}
-              >
-                Service Modes
-              </h4>
-            </div>
-            <div className="flex flex-col gap-2">
-              {serviceModes.map((mode) => (
-                <span
-                  key={mode}
-                  className={`px-4 py-3 text-[13px] font-['Inter'] font-semibold rounded-2xl border transition-all duration-200 w-full text-center ${
+        {/* Pricing Plans Breakdown Grid (if tiers present) */}
+        {validTiers.length > 0 && (
+          <div className="space-y-2.5">
+            <h3
+              className={`text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 ${
+                darkMode ? "text-slate-400" : "text-slate-500"
+              }`}
+            >
+              <Tag className="w-3.5 h-3.5 text-blue-500" />
+              Custom Fee Plans &amp; Tiers
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {validTiers.map((tier, idx) => (
+                <div
+                  key={idx}
+                  className={`p-3.5 rounded-2xl border flex flex-col justify-between transition-all ${
                     darkMode
-                      ? "bg-white/5 text-white border-white/10 hover:border-white/20"
-                      : "bg-[#F8FAFC] text-[#374151] border-[#E5E7EB] hover:border-[#2563EB]/20"
+                      ? "bg-slate-950/60 border-slate-800/90 hover:border-slate-700"
+                      : "bg-slate-50/80 border-slate-200 hover:border-slate-300 shadow-xs"
                   }`}
                 >
-                  {mode}
-                </span>
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold text-blue-500 uppercase tracking-wider block">
+                      Plan #{idx + 1}
+                    </span>
+                    <span className={`text-xs font-bold block leading-snug ${
+                      darkMode ? "text-white" : "text-slate-800"
+                    }`}>
+                      {tier.label || "General Plan"}
+                    </span>
+                  </div>
+                  <div className="pt-2 mt-2 border-t border-slate-200/50 dark:border-slate-800/80 flex items-baseline justify-between">
+                    <span className="text-sm font-extrabold font-mono text-emerald-500">
+                      {tier.price ? `₹${tier.price}` : "Flexible"}
+                    </span>
+                    {tier.unit && (
+                      <span className="text-[11px] text-slate-400 font-medium">
+                        {" / "}{tier.unit.replace(/^per\s+/i, "")}
+                      </span>
+                    )}
+                  </div>
+                </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Premium trust indicators */}
-        <div
-          className={`pt-4 border-t space-y-2.5 ${
-            darkMode
-              ? "border-white/10 text-white/60"
-              : "border-[#E5E7EB] text-[#6B7280]"
-          }`}
-        >
-          <div className="flex items-center justify-between text-xs font-semibold p-2 rounded-xl">
-            <span>Verified Status</span>
-            <span
-              className={
-                darkMode
-                  ? "text-[#D6B36A] font-bold"
-                  : "text-[#2563EB] font-bold"
-              }
-            >
-              ✓ Verified Listing
-            </span>
+        {/* Highlight Feature Badges Bar (Only if any badge exists) */}
+        {Boolean(
+          (serviceModes && serviceModes.length > 0) ||
+            (languages && languages.length > 0) ||
+            (availability && availability.length > 0),
+        ) && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {serviceModes && serviceModes.length > 0 && (
+              <div
+                className={`p-3 rounded-2xl border flex items-center gap-2.5 ${
+                  darkMode
+                    ? "bg-slate-950/50 border-slate-800/80"
+                    : "bg-slate-50 border-slate-200/80"
+                }`}
+              >
+                <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500">
+                  <Laptop className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider block text-slate-400">
+                    Mode
+                  </span>
+                  <span className="text-xs font-bold truncate block">
+                    {serviceModes[0]}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {languages && languages.length > 0 && (
+              <div
+                className={`p-3 rounded-2xl border flex items-center gap-2.5 ${
+                  darkMode
+                    ? "bg-slate-950/50 border-slate-800/80"
+                    : "bg-slate-50 border-slate-200/80"
+                }`}
+              >
+                <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
+                  <Globe className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider block text-slate-400">
+                    Languages
+                  </span>
+                  <span className="text-xs font-bold truncate block">
+                    {languages.slice(0, 2).join(", ")}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {availability && availability.length > 0 && (
+              <div
+                className={`p-3 rounded-2xl border flex items-center gap-2.5 col-span-2 sm:col-span-1 ${
+                  darkMode
+                    ? "bg-slate-950/50 border-slate-800/80"
+                    : "bg-slate-50 border-slate-200/80"
+                }`}
+              >
+                <div className="p-2 rounded-xl bg-amber-500/10 text-amber-500">
+                  <Clock className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider block text-slate-400">
+                    Availability
+                  </span>
+                  <span className="text-xs font-bold truncate block">
+                    {availability.slice(0, 2).join(", ")}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
-          <div className="flex items-center justify-between text-xs font-semibold p-2 rounded-xl">
-            <span>Customer Protection</span>
-            <span
-              className={
-                darkMode
-                  ? "text-emerald-400 font-bold"
-                  : "text-emerald-600 font-bold"
-              }
+        )}
+
+        {/* YouTube Video Demo Player (if available) */}
+        {videoId && embedUrl && (
+          <div className="space-y-3">
+            <h3
+              className={`text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 ${
+                darkMode ? "text-slate-400" : "text-slate-500"
+              }`}
             >
-              100% Direct Connect
-            </span>
-          </div>
-          <div className="flex items-center justify-between text-xs font-semibold p-2 rounded-xl">
-            <span>Support Desk</span>
-            <span
-              className={
+              <FaYoutube className="w-4 h-4 text-red-600" />
+              <span>Introduction &amp; Video Demonstration</span>
+            </h3>
+            <div
+              className={`rounded-2xl overflow-hidden border shadow-lg ${
                 darkMode
-                  ? "text-[#5BE7FF] font-bold"
-                  : "text-blue-600 font-bold"
-              }
+                  ? "bg-black border-slate-800"
+                  : "bg-black border-slate-200"
+              }`}
             >
-              GullyGig Connect
-            </span>
+              <div className="relative w-full aspect-video">
+                <iframe
+                  src={embedUrl}
+                  title="Service Introduction Video"
+                  className="absolute inset-0 w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Description Body (Only if description is present) */}
+        {description && description.trim().length > 0 && (
+          <div className="space-y-3">
+            <h3
+              className={`text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 ${
+                darkMode ? "text-slate-400" : "text-slate-500"
+              }`}
+            >
+              <Zap className="w-3.5 h-3.5 text-blue-500" />
+              Service Overview
+            </h3>
+            <div
+              className={`p-5 rounded-2xl border text-sm sm:text-base leading-relaxed whitespace-pre-wrap ${
+                darkMode
+                  ? "bg-slate-950/40 border-slate-800/60 text-slate-300"
+                  : "bg-slate-50/70 border-slate-200/70 text-slate-800"
+              }`}
+            >
+              {description}
+            </div>
+          </div>
+        )}
+
+        {/* Expanded Specs: Service Modes & Availability Lists (Only if present) */}
+        {Boolean(
+          (serviceModes && serviceModes.length > 0) ||
+            (languages && languages.length > 0),
+        ) && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-200/80 dark:border-slate-800">
+            {/* Service Modes */}
+            {serviceModes && serviceModes.length > 0 && (
+              <div className="space-y-3">
+                <h4
+                  className={`text-xs font-bold uppercase tracking-wider flex items-center gap-2 ${
+                    darkMode ? "text-slate-400" : "text-slate-500"
+                  }`}
+                >
+                  <Laptop className="w-4 h-4 text-blue-500" />
+                  Service Fulfillment Modes
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {serviceModes.map((mode) => (
+                    <span
+                      key={mode}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border ${
+                        darkMode
+                          ? "bg-blue-500/10 text-blue-300 border-blue-500/20"
+                          : "bg-blue-50 text-blue-800 border-blue-200"
+                      }`}
+                    >
+                      <CheckCircle className="w-3.5 h-3.5 text-blue-500" />
+                      {mode}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Languages Spoken */}
+            {languages && languages.length > 0 && (
+              <div className="space-y-3">
+                <h4
+                  className={`text-xs font-bold uppercase tracking-wider flex items-center gap-2 ${
+                    darkMode ? "text-slate-400" : "text-slate-500"
+                  }`}
+                >
+                  <Globe className="w-4 h-4 text-emerald-500" />
+                  Languages Supported
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {languages.map((lang) => (
+                    <span
+                      key={lang}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border ${
+                        darkMode
+                          ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/20"
+                          : "bg-emerald-50 text-emerald-800 border-emerald-200"
+                      }`}
+                    >
+                      <Check className="w-3.5 h-3.5 text-emerald-500" />
+                      {lang}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

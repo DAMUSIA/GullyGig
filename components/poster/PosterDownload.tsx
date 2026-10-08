@@ -181,7 +181,7 @@ export default function PosterDownload({
       ctx.fillStyle = "#ef4444"; // red-500
       ctx.font = "bold 20px system-ui, sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText("📍 " + location, 400, descEndY + 20);
+      ctx.fillText(location, 400, descEndY + 20);
 
       // 5. Draw Bottom Divider
       ctx.strokeStyle = "rgba(255, 255, 255, 0.06)";
@@ -232,7 +232,7 @@ export default function PosterDownload({
       ctx.textAlign = "left";
       ctx.fillStyle = "#60a5fa"; // blue-400
       ctx.font = "bold 15px system-ui, sans-serif";
-      ctx.fillText("📞 CONTACT PROVIDER", 60, 895);
+      ctx.fillText("CONTACT PROVIDER", 60, 895);
 
       ctx.fillStyle = "#ffffff";
       ctx.font = "900 28px system-ui, sans-serif";

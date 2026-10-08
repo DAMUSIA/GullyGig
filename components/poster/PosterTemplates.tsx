@@ -1,7 +1,17 @@
 "use client";
 
 import React from "react";
-import { MapPin, Phone } from "lucide-react";
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Globe,
+  Star,
+  Sparkles,
+  GraduationCap,
+  MessageSquare,
+  Tag,
+} from "lucide-react";
 import Image from "next/image";
 
 interface PosterTemplateProps {
@@ -76,20 +86,8 @@ export default function PosterTemplate({
         <div
           className={`w-full h-full bg-gradient-to-br from-blue-50 via-white to-blue-100/50 p-6 flex flex-col relative overflow-hidden ${getFontClass()}`}
         >
-          {/* Decorative background icons - floating profession icons */}
-          <div className="absolute inset-0 pointer-events-none opacity-[0.05] select-none">
-            <span className="absolute top-12 left-8 text-6xl">🎓</span>
-            <span className="absolute top-32 right-12 text-5xl">🎵</span>
-            <span className="absolute bottom-40 left-6 text-7xl">💻</span>
-            <span className="absolute bottom-24 right-8 text-6xl">🎸</span>
-            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-8xl">
-              📚
-            </span>
-            <span className="absolute top-56 left-1/4 text-5xl">🎨</span>
-            <span className="absolute bottom-56 right-1/4 text-5xl">🏋️</span>
-            <span className="absolute top-48 right-1/3 text-4xl">🎤</span>
-            <span className="absolute bottom-32 left-1/3 text-4xl">📷</span>
-          </div>
+          {/* Decorative background pattern */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.03] select-none bg-[radial-gradient(#2563eb_1px,transparent_1px)] [background-size:20px_20px]" />
 
           {/* Subtle glow effects */}
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-400/15 rounded-full blur-3xl" />
@@ -418,26 +416,8 @@ export default function PosterTemplate({
             `,
           }}
         >
-          {/* Educational Background Doodles */}
-          <div className="absolute inset-0 pointer-events-none opacity-[0.06] select-none">
-            <span className="absolute top-12 left-8 text-6xl">📚</span>
-            <span className="absolute top-32 right-12 text-5xl">🎓</span>
-            <span className="absolute bottom-40 left-6 text-7xl">✏️</span>
-            <span className="absolute bottom-24 right-8 text-6xl">📖</span>
-            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-8xl">
-              💡
-            </span>
-            <span className="absolute top-56 left-1/4 text-5xl">🌍</span>
-            <span className="absolute bottom-56 right-1/4 text-5xl">⚛️</span>
-            <span className="absolute top-48 right-1/3 text-4xl">🎵</span>
-            <span className="absolute bottom-32 left-1/3 text-4xl">🎨</span>
-            <span className="absolute top-20 right-1/4 text-5xl">💻</span>
-            <span className="absolute bottom-20 left-1/4 text-5xl">📐</span>
-            <span className="absolute top-40 left-1/3 text-4xl">⭐</span>
-            <span className="absolute bottom-40 right-1/3 text-4xl">🌱</span>
-            <span className="absolute top-1/3 left-10 text-5xl">📝</span>
-            <span className="absolute bottom-1/3 right-10 text-5xl">🔬</span>
-          </div>
+          {/* Educational Background Pattern */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.03] select-none bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:20px_20px]" />
 
           {/* Subtle glow effects */}
           <div className="absolute -top-24 -right-24 w-72 h-72 bg-sage-400/10 rounded-full blur-3xl" />
@@ -556,9 +536,10 @@ export default function PosterTemplate({
 
           {/* Bottom CTA */}
           <div className="mt-2 bg-slate-50/80 border border-slate-200/60 rounded-xl p-2 text-center z-10 shrink-0">
-            <p className="text-[8px] font-medium text-slate-600 mb-1">
-              ✨ Start your learning journey today! Build your future with
-              confidence. ✨
+            <p className="text-[8px] font-medium text-slate-600 mb-1 flex items-center justify-center gap-1.5">
+              <Sparkles className="h-2.5 w-2.5 text-sage-600 inline" />
+              <span>Start your learning journey today! Build your future with confidence.</span>
+              <Sparkles className="h-2.5 w-2.5 text-sage-600 inline" />
             </p>
             <div className="w-full bg-gradient-to-r from-sage-600 to-blue-600 hover:from-sage-700 hover:to-blue-700 text-white text-[10px] font-bold uppercase tracking-widest py-1.5 rounded-lg shadow-md shadow-sage-600/20 flex items-center justify-center gap-2 transition-all duration-200">
               <Phone className="h-3 w-3" />
@@ -716,14 +697,19 @@ export default function PosterTemplate({
                   {mainContact}
                 </p>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[7px] text-slate-400">
-                  <span className="font-light">
-                    ✉️ {cleanProviderName.toLowerCase()}@gmail.com
+                  <span className="font-light flex items-center gap-1">
+                    <Mail className="h-2.5 w-2.5 text-slate-400" />
+                    <span>{cleanProviderName.toLowerCase()}@gmail.com</span>
                   </span>
                   <span className="w-px h-3 bg-slate-700" />
-                  <span className="font-light">🌐 gullygig.in</span>
+                  <span className="font-light flex items-center gap-1">
+                    <Globe className="h-2.5 w-2.5 text-slate-400" />
+                    <span>gullygig.in</span>
+                  </span>
                   <span className="w-px h-3 bg-slate-700" />
-                  <span className="text-slate-500 font-light">
-                    📍 {location}
+                  <span className="text-slate-500 font-light flex items-center gap-1">
+                    <MapPin className="h-2.5 w-2.5 text-slate-500" />
+                    <span>{location}</span>
                   </span>
                 </div>
               </div>
@@ -893,14 +879,19 @@ export default function PosterTemplate({
                   {mainContact}
                 </p>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[8px] text-[#D4AF37]/35">
-                  <span className="font-light">
-                    ✉️ {cleanProviderName.toLowerCase()}@gmail.com
+                  <span className="font-light flex items-center gap-1">
+                    <Mail className="h-2.5 w-2.5 text-[#D4AF37]/40" />
+                    <span>{cleanProviderName.toLowerCase()}@gmail.com</span>
                   </span>
                   <span className="w-px h-3 bg-[#D4AF37]/8" />
-                  <span className="font-light">🌐 gullygig.in</span>
+                  <span className="font-light flex items-center gap-1">
+                    <Globe className="h-2.5 w-2.5 text-[#D4AF37]/40" />
+                    <span>gullygig.in</span>
+                  </span>
                   <span className="w-px h-3 bg-[#D4AF37]/8" />
-                  <span className="text-[#2563EB]/40 font-light">
-                    📍 {location}
+                  <span className="text-[#2563EB]/40 font-light flex items-center gap-1">
+                    <MapPin className="h-2.5 w-2.5 text-[#2563EB]/40" />
+                    <span>{location}</span>
                   </span>
                 </div>
               </div>
@@ -1259,7 +1250,7 @@ export default function PosterTemplate({
             <div className="relative mb-3">
               <div className="absolute -inset-2 rounded-full bg-gradient-to-r from-[#7C3AED]/20 via-[#A855F7]/20 to-[#7C3AED]/20 blur-xl" />
               <div className="relative w-16 h-16 rounded-full bg-white/30 backdrop-blur-xl border border-white/40 shadow-xl shadow-[#7C3AED]/10 flex items-center justify-center">
-                <span className="text-2xl">🎓</span>
+                <GraduationCap className="h-7 w-7 text-[#7C3AED]" />
               </div>
             </div>
 
@@ -1327,7 +1318,7 @@ export default function PosterTemplate({
           {/* Bottom CTA - Gradient Button */}
           <div className="mt-1.5 w-full bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#A855F7] rounded-xl p-2.5 text-center z-10 shrink-0 shadow-lg shadow-[#7C3AED]/30 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-white text-sm">💬</span>
+              <MessageSquare className="h-3.5 w-3.5 text-white" />
               <span className="text-[8px] font-bold text-white uppercase tracking-wider">
                 Book a Session Now
               </span>
@@ -1475,7 +1466,7 @@ export default function PosterTemplate({
               </p>
             </div>
             <span className="text-[5px] font-medium uppercase tracking-[0.2em] bg-white/70 backdrop-blur-xl border-2 border-[#FCB5AC]/40 text-[#E8684A] px-2.5 py-1 rounded-full shadow-lg shadow-[#FCB5AC]/20 whitespace-nowrap ml-2 flex items-center gap-1">
-              <span className="text-[8px]">👑</span>
+              <Sparkles className="h-2 w-2 text-[#E8684A]" />
               Premium Service
             </span>
           </div>
@@ -1502,8 +1493,9 @@ export default function PosterTemplate({
                 Available on Demand
               </span>
               <span className="w-px h-2.5 bg-[#E8684A]/15" />
-              <span className="text-[5px] font-light text-[#E8684A]/50">
-                📍 Online &amp; Offline
+              <span className="text-[5px] font-light text-[#E8684A]/50 flex items-center gap-0.5">
+                <MapPin className="h-2 w-2" />
+                Online &amp; Offline
               </span>
             </div>
           </div>
@@ -1556,7 +1548,7 @@ export default function PosterTemplate({
           <div className="mt-1.5 w-full bg-gradient-to-r from-[#E8684A] via-[#F98F84] to-[#FCB5AC] rounded-full p-2.5 text-center z-10 shrink-0 shadow-lg shadow-[#E8684A]/30 flex items-center justify-between group hover:shadow-xl hover:shadow-[#E8684A]/40 transition-all duration-300">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <span className="text-white text-xs">💬</span>
+                <MessageSquare className="h-3 w-3 text-white" />
               </div>
               <span className="text-[8px] font-bold text-white uppercase tracking-wider">
                 Book a Session Now
@@ -1747,24 +1739,24 @@ export default function PosterTemplate({
           <div className="bg-white/85 backdrop-blur-xl border-2 border-[#1A4A47]/15 rounded-2xl p-3 shadow-xl shadow-[#1A4A47]/5 z-10 shrink-0">
             <div className="grid grid-cols-3 gap-2">
               <div className="text-center space-y-0.5 border-r-2 border-[#1A4A47]/10 pr-2">
-                <span className="text-[7px] font-bold text-[#1A4A47]/70 uppercase tracking-wider">
-                  📍 Location
+                <span className="text-[7px] font-bold text-[#1A4A47]/70 uppercase tracking-wider flex items-center justify-center gap-1">
+                  <MapPin className="h-2.5 w-2.5" /> Location
                 </span>
                 <p className="text-[9px] font-bold text-[#1A4A47] truncate">
                   {location || "Your City"}
                 </p>
               </div>
               <div className="text-center space-y-0.5 border-r-2 border-[#1A4A47]/10 pr-2">
-                <span className="text-[7px] font-bold text-[#1A4A47]/70 uppercase tracking-wider">
-                  ⭐ Rating
+                <span className="text-[7px] font-bold text-[#1A4A47]/70 uppercase tracking-wider flex items-center justify-center gap-1">
+                  <Star className="h-2.5 w-2.5 text-[#C8A55A]" /> Rating
                 </span>
                 <p className="text-[9px] font-bold text-[#C8A55A]">
                   {ratingAverage?.toFixed(1) || "4.8"} / 5.0
                 </p>
               </div>
               <div className="text-center space-y-0.5">
-                <span className="text-[7px] font-bold text-[#1A4A47]/70 uppercase tracking-wider">
-                  💰 Pricing
+                <span className="text-[7px] font-bold text-[#1A4A47]/70 uppercase tracking-wider flex items-center justify-center gap-1">
+                  <Tag className="h-2.5 w-2.5" /> Pricing
                 </span>
                 <p className="text-[9px] font-bold text-[#1A4A47]">
                   {startingPrice
@@ -1986,24 +1978,24 @@ export default function PosterTemplate({
               <div className="mt-2 bg-white/70 backdrop-blur-sm border border-[#E7DED4] rounded-2xl p-2.5">
                 <div className="grid grid-cols-3 gap-1.5">
                   <div className="text-center space-y-0.5 border-r border-[#E7DED4] pr-1.5">
-                    <span className="text-[5px] font-medium text-[#6D625A] uppercase tracking-wider">
-                      📍 Location
+                    <span className="text-[5px] font-medium text-[#6D625A] uppercase tracking-wider flex items-center justify-center gap-0.5">
+                      <MapPin className="h-2 w-2" /> Location
                     </span>
                     <p className="text-[7px] font-semibold text-[#4B362A]">
                       {location || "Your City"}
                     </p>
                   </div>
                   <div className="text-center space-y-0.5 border-r border-[#E7DED4] pr-1.5">
-                    <span className="text-[5px] font-medium text-[#6D625A] uppercase tracking-wider">
-                      ⭐ Rating
+                    <span className="text-[5px] font-medium text-[#6D625A] uppercase tracking-wider flex items-center justify-center gap-0.5">
+                      <Star className="h-2 w-2 text-[#B08D57]" /> Rating
                     </span>
                     <p className="text-[7px] font-semibold text-[#B08D57]">
                       {ratingAverage?.toFixed(1) || "4.8"} / 5.0
                     </p>
                   </div>
                   <div className="text-center space-y-0.5">
-                    <span className="text-[5px] font-medium text-[#6D625A] uppercase tracking-wider">
-                      💰 Pricing
+                    <span className="text-[5px] font-medium text-[#6D625A] uppercase tracking-wider flex items-center justify-center gap-0.5">
+                      <Tag className="h-2 w-2" /> Pricing
                     </span>
                     <p className="text-[7px] font-semibold text-[#4B362A]">
                       {startingPrice

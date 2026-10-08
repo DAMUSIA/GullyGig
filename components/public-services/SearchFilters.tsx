@@ -104,7 +104,7 @@ export default function SearchFilters({
             className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer"
           >
             <option value="Newest">Newest Listed</option>
-            <option value="Highest Rated">Highest Rated ⭐</option>
+            <option value="Highest Rated">Highest Rated</option>
             <option value="Lowest Price">Price: Low to High</option>
             <option value="Highest Price">Price: High to Low</option>
           </select>

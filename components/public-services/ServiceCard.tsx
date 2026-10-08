@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { MapPin, Share2, Heart, Star } from "lucide-react";
+import Link from "next/link";
+import { MapPin, Share2, Heart, Star, ExternalLink } from "lucide-react";
 import Icon from "@/components/Icon";
 import { ServiceItem } from "./types";
 
@@ -31,10 +32,10 @@ export default function ServiceCard({
   // Handle Share Button click (Copy URL to Clipboard)
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const websiteLink =
+    const portfolioLink =
       typeof window !== "undefined"
-        ? `${window.location.origin}/services`
-        : "https://gullygig.in/services";
+        ? `${window.location.origin}/p/${service.id}`
+        : `https://gullygig.in/p/${service.id}`;
 
     const contactNumbers =
       contacts.length > 0 ? contacts.join(", ") : phoneFallback;
@@ -51,7 +52,7 @@ export default function ServiceCard({
       hasContacts && contactNumbers ? `Contact: ${contactNumbers}` : null,
       `Price: ${priceText}`,
       locationText ? `Location: ${locationText}` : null,
-      `Link: ${websiteLink}`,
+      `Portfolio Link: ${portfolioLink}`,
     ]
       .filter(Boolean)
       .join("\n");
@@ -61,7 +62,7 @@ export default function ServiceCard({
         await navigator.share({
           title: `GullyGig Service - ${service.title}`,
           text: shareDetails,
-          url: websiteLink,
+          url: portfolioLink,
         });
       } catch {
         // Ignored or cancelled
@@ -69,7 +70,7 @@ export default function ServiceCard({
     } else {
       try {
         await navigator.clipboard.writeText(shareDetails);
-        onShowToast("Service details copied to clipboard!");
+        onShowToast("Portfolio link copied to clipboard!");
       } catch {
         onShowToast("Failed to copy details. Please manually copy URL.");
       }
@@ -80,13 +81,16 @@ export default function ServiceCard({
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 hover:shadow-xl dark:hover:shadow-blue-900/10 transition-all duration-300 flex flex-col gap-4 group relative min-w-0 w-full overflow-hidden">
       {/* 1. Top Header: Provider Info & Ratings */}
       <div className="flex flex-wrap sm:flex-nowrap items-start justify-between gap-3 min-w-0">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+        <Link
+          href={`/p/${service.id}`}
+          className="flex items-center gap-3 min-w-0 flex-1 group/provider hover:opacity-90 transition-opacity"
+        >
           <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
             {getInitials(service.users?.full_name)}
           </div>
           <div className="flex flex-col min-w-0 flex-1">
             <h4
-              className="text-sm font-semibold text-slate-900 dark:text-white truncate w-full"
+              className="text-sm font-semibold text-slate-900 dark:text-white truncate w-full group-hover/provider:text-blue-600 dark:group-hover/provider:text-blue-400 transition-colors"
               title={service.users?.full_name}
             >
               {service.users?.full_name || "Verified Provider"}
@@ -95,7 +99,7 @@ export default function ServiceCard({
               {service.category}
             </span>
           </div>
-        </div>
+        </Link>
 
         {/* Minimal Stats */}
         <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800 shrink-0">
@@ -122,13 +126,18 @@ export default function ServiceCard({
 
       {/* 2. Middle Content: Title, Collapsible Description & Badges */}
       <div className="flex flex-col gap-2.5 min-w-0 w-full">
-        {/* Title updated with break-words and line-clamp to prevent horizontal overflow */}
-        <h3
-          className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors break-words line-clamp-2 w-full overflow-hidden"
-          title={service.title}
+        <Link
+          href={`/p/${service.id}`}
+          className="group/title block"
         >
-          {service.title}
-        </h3>
+          <h3
+            className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-tight group-hover/title:text-blue-600 dark:group-hover/title:text-blue-400 transition-colors break-words line-clamp-2 w-full overflow-hidden flex items-center gap-1.5"
+            title={service.title}
+          >
+            <span>{service.title}</span>
+            <ExternalLink className="h-4 w-4 opacity-0 group-hover/title:opacity-100 text-blue-600 transition-opacity shrink-0 hidden sm:inline-block" />
+          </h3>
+        </Link>
 
         {/* Read More / Show Less Description */}
         {(() => {
@@ -246,12 +255,21 @@ export default function ServiceCard({
           )}
         </div>
 
-        {/* Right side: Share & Call Buttons */}
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-start sm:justify-end shrink-0">
+        {/* Right side: Portfolio, Share & Call Buttons */}
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-start sm:justify-end shrink-0 flex-wrap">
+          <Link
+            href={`/p/${service.id}`}
+            title="View Full Service Portfolio"
+            className="h-10 inline-flex items-center justify-center gap-1.5 px-3.5 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 font-bold text-xs sm:text-sm rounded-xl transition-all border border-blue-200/80 dark:border-blue-800 active:scale-95 whitespace-nowrap shadow-xs"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            <span>Portfolio</span>
+          </Link>
+
           <button
             onClick={handleShare}
             title="Share Service Link"
-            className="h-10 w-10 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center focus:ring-2 focus:ring-blue-500 focus:outline-none active:scale-95 shrink-0"
+            className="h-10 w-10 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center focus:ring-2 focus:ring-blue-500 focus:outline-none active:scale-95 shrink-0 cursor-pointer"
           >
             <Share2 className="h-4 w-4" />
           </button>
@@ -259,7 +277,7 @@ export default function ServiceCard({
           {hasContacts && directPhone && (
             <a
               href={`tel:${directPhone}`}
-              className="h-10 inline-flex items-center justify-center gap-2 px-5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm rounded-xl shadow-sm hover:shadow-md transition-all active:scale-95 focus:ring-2 focus:ring-emerald-500 focus:outline-none flex-1 sm:flex-none whitespace-nowrap"
+              className="h-10 inline-flex items-center justify-center gap-2 px-4.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs hover:shadow-md transition-all active:scale-95 focus:ring-2 focus:ring-emerald-500 focus:outline-none whitespace-nowrap"
             >
               <Icon name="call" className="text-sm text-white shrink-0" fill />
               <span>Call Now</span>

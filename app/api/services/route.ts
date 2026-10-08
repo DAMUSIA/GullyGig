@@ -125,54 +125,111 @@ export async function POST(request: NextRequest) {
     }
 
     // 1. Verify User Payment Status
-    const { data: userProfile, error: profileError } = await supabaseAdmin
+    let { data: userProfile } = await supabaseAdmin
       .from("users")
-      .select("id, is_paid")
+      .select("id, is_paid, phone_no, email")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
-    if (profileError || !userProfile) {
-      return NextResponse.json(
-        {
-          error:
-            "User profile not found. Please ensure your profile is set up or contact support.",
-        },
-        { status: 404 },
-      );
+    let isPaid =
+      userProfile?.is_paid === true ||
+      String(userProfile?.is_paid) === "true" ||
+      user.user_metadata?.is_paid === true;
+
+    const rawPhone =
+      user.user_metadata?.phone_no ||
+      (user.phone ? user.phone.replace(/\D/g, "").slice(-10) : null);
+    const email =
+      user.email && !user.email.startsWith("phone_") ? user.email : null;
+
+    if (!isPaid && rawPhone) {
+      const cleanPhone = String(rawPhone).replace(/\D/g, "").slice(-10);
+      const { data: profileByPhone } = await supabaseAdmin
+        .from("users")
+        .select("id, is_paid")
+        .eq("phone_no", cleanPhone)
+        .maybeSingle();
+
+      if (
+        profileByPhone?.is_paid === true ||
+        String(profileByPhone?.is_paid) === "true"
+      ) {
+        isPaid = true;
+      }
     }
 
-    if (!userProfile.is_paid) {
+    if (!isPaid && email) {
+      const { data: profileByEmail } = await supabaseAdmin
+        .from("users")
+        .select("id, is_paid")
+        .eq("email", email)
+        .maybeSingle();
+
+      if (
+        profileByEmail?.is_paid === true ||
+        String(profileByEmail?.is_paid) === "true"
+      ) {
+        isPaid = true;
+      }
+    }
+
+    // Ensure user row exists in public.users
+    if (!userProfile) {
+      const { data: createdProfile } = await supabaseAdmin
+        .from("users")
+        .upsert({
+          id: user.id,
+          full_name:
+            user.user_metadata?.full_name ||
+            user.user_metadata?.name ||
+            "Service Provider",
+          email: email,
+          phone_no: rawPhone ? String(rawPhone).replace(/\D/g, "").slice(-10) : null,
+          is_paid: isPaid,
+          created_at: new Date().toISOString(),
+        })
+        .select()
+        .maybeSingle();
+
+      userProfile = createdProfile;
+    } else if (isPaid && !userProfile.is_paid) {
+      await supabaseAdmin
+        .from("users")
+        .update({ is_paid: true })
+        .eq("id", user.id);
+      userProfile.is_paid = true;
+    }
+
+    if (!isPaid) {
       return NextResponse.json(
         {
           error:
-            "Account activation required. Please contact support at support@gullygig.in or call 7559302315 / 8263081521 to activate your provider listing.",
+            "Account activation required. Please contact support at support@gullygig.in or call/WhatsApp 88795 14626 / 755 930 2315 / 82630 81521 to activate your provider listing.",
           code: "PAYMENT_REQUIRED",
         },
         { status: 403 },
       );
     }
 
-    // 2. Verify 1 Service per User Limit
-    const { data: existingServices, error: checkError } = await supabaseAdmin
+    // 2. Strict Limit Check: Maximum 1 service listing allowed per account
+    const { data: existingUserServices, error: checkServicesError } = await supabaseAdmin
       .from("services")
       .select("id, title")
       .eq("user_id", user.id);
 
-    if (checkError) {
-      console.error("[services API] Check existing service error:", checkError);
-      return NextResponse.json(
-        { error: "Could not verify existing services. Please try again." },
-        { status: 500 },
-      );
+    if (checkServicesError) {
+      console.error("[services API] Error checking user services:", checkServicesError);
     }
 
-    if (existingServices && existingServices.length > 0) {
+    if (existingUserServices && existingUserServices.length >= 1) {
       return NextResponse.json(
         {
           error:
-            "You already have an active service listing. Each account is strictly limited to 1 service.",
+            "Maximum 1 service allowed: Each account is permitted to create only 1 service listing. You already have an active service ('" +
+            (existingUserServices[0].title || "My Service") +
+            "'). Please edit your existing service from your dashboard or call support at 88795 14626 / 755 930 2315 / 82630 81521.",
           code: "SERVICE_LIMIT_REACHED",
-          existingServiceId: existingServices[0].id,
+          existingServiceId: existingUserServices[0].id,
         },
         { status: 400 },
       );
@@ -192,7 +249,7 @@ export async function POST(request: NextRequest) {
     const title = typeof body.title === "string" ? body.title.trim() : "";
     const category =
       typeof body.category === "string" ? body.category.trim() : "";
-    const description =
+    let description =
       typeof body.description === "string" ? body.description.trim() : "";
     const city = typeof body.city === "string" ? body.city.trim() : "";
     const area = typeof body.area === "string" ? body.area.trim() : null;
@@ -218,9 +275,27 @@ export async function POST(request: NextRequest) {
         ? parseInt(String(body.starting_price), 10)
         : null;
     const price_unit =
-      starting_price && typeof body.price_unit === "string"
-        ? body.price_unit
+      typeof body.price_unit === "string" && body.price_unit.trim()
+        ? body.price_unit.trim()
         : null;
+    const pricing_note =
+      typeof body.pricing_note === "string" ? body.pricing_note.trim() : "";
+    const pricing_tiers = Array.isArray(body.pricing_tiers)
+      ? body.pricing_tiers
+      : [];
+    const address = typeof body.address === "string" ? body.address.trim() : "";
+    const custom_availability =
+      typeof body.custom_availability === "string"
+        ? body.custom_availability.trim()
+        : "";
+    const intro_video_url =
+      typeof body.intro_video_url === "string"
+        ? body.intro_video_url.trim()
+        : "";
+    const social_links =
+      typeof body.social_links === "object" && body.social_links !== null
+        ? (body.social_links as Record<string, any>)
+        : {};
     const latitude = typeof body.latitude === "number" ? body.latitude : null;
     const longitude =
       typeof body.longitude === "number" ? body.longitude : null;
@@ -246,6 +321,74 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Merge custom availability into availability list if provided
+    const finalAvailability = [...availability];
+    if (custom_availability && !finalAvailability.includes(custom_availability)) {
+      finalAvailability.push(custom_availability);
+    }
+
+    // Append pricing plans & tiers to description if present
+    if (pricing_tiers.length > 0) {
+      const tiersFormatted = pricing_tiers
+        .filter((t: { label?: string; price?: string | number; unit?: string }) => t.label || t.price)
+        .map((t: { label?: string; price?: string | number; unit?: string }) => `• ${t.label || "Plan"}: ₹${t.price || 0} / ${t.unit || "month"}`)
+        .join("\n");
+
+      if (tiersFormatted && !description.includes(tiersFormatted)) {
+        description = description
+          ? `${description}\n\nPricing Plans & Fee Tiers:\n${tiersFormatted}`
+          : `Pricing Plans & Fee Tiers:\n${tiersFormatted}`;
+      }
+    }
+
+    // Append pricing note to description if present and not already contained
+    if (pricing_note && !description.includes(pricing_note)) {
+      description = description
+        ? `${description}\n\nFee Details / Pricing Note: ${pricing_note}`
+        : `Fee Details / Pricing Note: ${pricing_note}`;
+    }
+
+    // Append custom address / landmark to description if present
+    if (address && !description.includes(address)) {
+      description = description
+        ? `${description}\n\nAddress & Location: ${address}`
+        : `Address & Location: ${address}`;
+    }
+
+    // Append custom timings to description if present
+    if (custom_availability && !description.includes(custom_availability)) {
+      description = description
+        ? `${description}\n\nSchedule & Availability: ${custom_availability}`
+        : `Schedule & Availability: ${custom_availability}`;
+    }
+
+    // 3. Sync User Profile Social Links & Intro Video if provided
+    try {
+      const { data: userCurrent } = await supabaseAdmin
+        .from("users")
+        .select("social_links")
+        .eq("id", user.id)
+        .single();
+
+      const existingSocials =
+        (userCurrent?.social_links as Record<string, string>) || {};
+      const updatedSocials = {
+        ...existingSocials,
+        ...social_links,
+      };
+
+      if (intro_video_url) {
+        updatedSocials.intro_video_url = intro_video_url;
+      }
+
+      await supabaseAdmin
+        .from("users")
+        .update({ social_links: updatedSocials })
+        .eq("id", user.id);
+    } catch (socialErr) {
+      console.warn("[services API] User social links sync warning:", socialErr);
+    }
+
     // 4. Insert Service into DB
     const insertData = {
       user_id: user.id,
@@ -254,13 +397,13 @@ export async function POST(request: NextRequest) {
       description,
       service_modes,
       city,
-      area,
+      area: address ? (area ? `${area} - ${address}` : address) : area,
       latitude,
       longitude,
-      availability,
+      availability: finalAvailability,
       languages,
       starting_price,
-      price_unit,
+      price_unit: price_unit || "Custom / Flexible",
       is_active: true,
       views_count: 0,
       likes_count: 0,
@@ -284,7 +427,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error:
-              "You already have an active service listing. Each account is limited to 1 service.",
+              "A service listing already exists for this account on the database. Please edit your existing service or contact support at 88795 14626 / 755 930 2315 / 82630 81521.",
             code: "SERVICE_LIMIT_REACHED",
           },
           { status: 400 },
@@ -293,7 +436,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "Failed to publish service. Please check your inputs and try again.",
+            "Failed to publish service. Please check your inputs and try again, or contact support at 88795 14626 / 755 930 2315 / 82630 81521.",
         },
         { status: 500 },
       );
@@ -332,7 +475,10 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     console.error("[services API] POST error:", error);
     return NextResponse.json(
-      { error: "An unexpected error occurred. Please try again." },
+      {
+        error:
+          "An unexpected error occurred. Please try again or call support at 88795 14626 / 755 930 2315 / 82630 81521.",
+      },
       { status: 500 },
     );
   }

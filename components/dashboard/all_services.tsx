@@ -81,14 +81,20 @@ function ServiceCard({
           {service.description}
         </p>
 
-        {service.starting_price && (
+        {service.starting_price ? (
           <div className="flex items-center gap-1 text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg">
             <span>₹{service.starting_price}</span>
-            <span className="text-slate-400 font-normal">
-              / {service.price_unit?.toLowerCase()}
-            </span>
+            {service.price_unit && (
+              <span className="text-slate-400 font-normal">
+                / {service.price_unit.replace(/^per\s+/i, "")}
+              </span>
+            )}
           </div>
-        )}
+        ) : service.price_unit ? (
+          <div className="flex items-center gap-1 text-xs font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg">
+            <span>{service.price_unit}</span>
+          </div>
+        ) : null}
 
         <div className="flex items-center gap-3 text-[10px] font-bold text-slate-400 border-t border-slate-50 pt-3">
           <span className="flex items-center gap-1 text-amber-500">
@@ -177,13 +183,22 @@ export function AllServices({
             {services.length}
           </span>
         </div>
-        <button
-          onClick={() => router.push("/dashboard/analytics")}
-          className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer transition-colors"
-        >
-          <BarChart3 className="h-3.5 w-3.5" />
-          Analytics
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onAddService}
+            className="text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors shadow-sm"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Add Service
+          </button>
+          <button
+            onClick={() => router.push("/dashboard/analytics")}
+            className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer transition-colors"
+          >
+            <BarChart3 className="h-3.5 w-3.5" />
+            Analytics
+          </button>
+        </div>
       </div>
 
       {services.length === 0 ? (

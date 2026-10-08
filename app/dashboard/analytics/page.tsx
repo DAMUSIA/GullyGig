@@ -582,7 +582,7 @@ export default function AnalyticsPage() {
       } else {
         const serviceTitle = review.services?.title || "Service";
         activities.push({
-          text: `New ${review.rating}★ rating for "${serviceTitle}"`,
+          text: `New ${review.rating}/5 rating for "${serviceTitle}"`,
           time: new Date(review.created_at).toLocaleDateString(),
           icon: Star,
           gradient: "from-amber-400 to-amber-500",
@@ -906,7 +906,7 @@ export default function AnalyticsPage() {
 
           <div className="mt-4 sm:mt-6 lg:mt-8 bg-gradient-to-r from-blue-50/80 via-indigo-50/80 to-blue-50/80 border border-blue-200/40 rounded-xl sm:rounded-2xl px-4 sm:px-6 py-3 sm:py-4 text-center">
             <div className="flex items-center justify-center gap-2 flex-wrap">
-              <span className="text-base sm:text-lg">🎉</span>
+              <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
               <span className="text-xs sm:text-sm font-extrabold text-slate-700">
                 Great! Your overall conversion rate is{" "}
                 <span className="text-blue-600">{overallConversionRate}%</span>

@@ -147,9 +147,15 @@ export default function DashboardPage() {
   // Handle edit save
   const handleSaveEdit = async (data: {
     title: string;
+    category: string;
     description: string;
     price: number | null;
     priceUnit: string;
+    city: string;
+    area: string;
+    serviceModes: string[];
+    languages: string[];
+    availability: string[];
     isActive: boolean;
     contactNumbers: string[];
   }) => {
@@ -171,7 +177,13 @@ export default function DashboardPage() {
         .from("services")
         .update({
           title: data.title.trim(),
+          category: data.category.trim(),
           description: data.description.trim(),
+          city: data.city.trim(),
+          area: data.area.trim() || null,
+          service_modes: data.serviceModes,
+          languages: data.languages,
+          availability: data.availability,
           starting_price: data.price,
           price_unit: data.price ? data.priceUnit : null,
           is_active: data.isActive,
@@ -188,7 +200,13 @@ export default function DashboardPage() {
             ? {
                 ...s,
                 title: data.title.trim(),
+                category: data.category.trim(),
                 description: data.description.trim(),
+                city: data.city.trim(),
+                area: data.area.trim() || null,
+                service_modes: data.serviceModes,
+                languages: data.languages,
+                availability: data.availability,
                 starting_price: data.price,
                 price_unit: data.price ? data.priceUnit : null,
                 is_active: data.isActive,

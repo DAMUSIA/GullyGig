@@ -483,12 +483,12 @@ export default function PortfolioPageClient({
       {/* STICKY MOBILE ACTION BAR */}
       <div
         className={`fixed bottom-4 left-1/2 -translate-x-1/2
-    w-[30vw] max-w
+    w-auto max-w-[92vw]
     z-50
     backdrop-blur-xl
-    border p-3
+    border px-4 py-2.5
     rounded-2xl
-    flex items-center gap-3
+    inline-flex items-center gap-4
     shadow-2xl
     transition-all duration-300
     ${
@@ -498,7 +498,7 @@ export default function PortfolioPageClient({
     }`}
       >
         {/* RATE */}
-        <div className="flex-1 min-w-0 pl-1">
+        <div className="min-w-0 pl-1">
           <span
             className={`block text-[9px] font-extrabold uppercase tracking-wider ${
               darkMode ? "text-slate-400" : "text-slate-500"
@@ -546,7 +546,7 @@ export default function PortfolioPageClient({
               className="shrink-0 inline-flex items-center justify-center gap-1.5
           px-4 py-2.5 text-xs font-bold text-white
           bg-blue-600 hover:bg-blue-700 rounded-xl
-          transition shadow-md shadow-blue-600/20 active:scale-95"
+          transition shadow-md shadow-blue-600/20 active:scale-95 whitespace-nowrap"
             >
               <Phone className="w-3.5 h-3.5" />
               <span>Call Now</span>

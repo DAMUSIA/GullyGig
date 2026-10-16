@@ -261,6 +261,18 @@ export default function DashboardPage() {
 
       // Update state locally to immediately reflect the deletion in the UI
       setServices((prev) => prev.filter((s) => s.id !== serviceId));
+      // Re-fetch reviews to get up-to-date list (excluding deleted service's reviews)
+      if (supabase && user) {
+        const { data: freshReviews } = await supabase
+          .from("service_ratings")
+          .select("*, services!inner(title, user_id), users:user_id(full_name)")
+          .eq("services.user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(3);
+        if (freshReviews) {
+          setReviews(freshReviews as ServiceReview[]);
+        }
+      }
       setEditingService(null);
       showToast("Service listing deleted successfully!", "success");
     } catch (err) {
